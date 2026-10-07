@@ -1,0 +1,49 @@
+.banner {
+  background: linear-gradient(160deg, #2563EB 0%, #7C3AED 55%, #1E293B 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.32);
+}
+
+.bannerIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bannerTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.bannerText {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.bannerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: white;
+  color: #2563EB;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+.bannerBtn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }

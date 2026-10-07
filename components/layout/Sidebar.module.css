@@ -1,0 +1,231 @@
+.sidebar {
+  width: var(--sidebar-width, 256px);
+  height: 100vh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  transition: width 0.2s ease;
+  overflow: hidden;
+}
+
+.header {
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.collapsed .header {
+  padding: 20px 0 16px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggleBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.toggleBtn:hover {
+  background: var(--border-light);
+  color: var(--text-primary);
+}
+
+.nav {
+  flex: 1;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.link:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+.collapsed .link {
+  justify-content: center;
+  padding: 10px;
+}
+
+.active {
+  /* Solide, pas de dégradé — c'est un état interactif (nav active), le
+     dégradé reste réservé aux éléments décoratifs (voir .avatar). */
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(55, 48, 163, 0.3);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 10px 4px;
+}
+
+.profileInfo { flex: 1; min-width: 0; text-align: left; }
+.profileName { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profileEmail {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileWrap {
+  position: relative;
+  margin: 10px;
+}
+.collapsed .profileWrap {
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  transition: background var(--transition);
+  color: var(--text-muted);
+}
+.profileCard:hover { background: var(--border-light); }
+.collapsed .profileCard {
+  justify-content: center;
+  padding: 8px;
+}
+
+/* Positionné en fixed (coordonnées calculées en JS depuis le bouton) plutôt
+   qu'en absolute : .sidebar a overflow:hidden, qui coupait le menu dès qu'il
+   dépassait la largeur réduite du mode replié. */
+.profileMenu {
+  position: fixed;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.15));
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 1100;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  width: 100%;
+  transition: background var(--transition);
+}
+.menuItem:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.menuItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.menuItemDanger {
+  color: var(--urgent);
+}
+.menuItemDanger:hover {
+  background: var(--urgent-light);
+  color: var(--urgent);
+}
+.menuItemDanger .menuItemIcon {
+  color: var(--urgent);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 5px 4px;
+}
+
+/* Tiroir mobile — au-dessus de 768px, .sidebar reste le rail fixe habituel
+   (piloté par --sidebar-width) ; en dessous, elle devient un tiroir plein
+   écran-hauteur, hors champ par défaut et glissée à l'écran via .mobileOpen,
+   déclenché par le bouton hamburger du Header (voir lib/mobileSidebar.ts). */
+.backdrop { display: none; }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 256px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+  }
+
+  /* L'état "réduit" du rail desktop n'a pas de sens dans un tiroir qui
+     recouvre l'écran — le composant force showExpanded=true pendant que
+     mobileOpen est vrai, ces règles alignent le CSS sur ce même choix. */
+  .collapsed .header { padding: 22px 20px; flex-direction: row; gap: 8px; }
+  .collapsed .link { justify-content: flex-start; padding: 10px 14px; }
+  .collapsed .profileWrap { margin: 10px; }
+  .collapsed .profileCard { justify-content: flex-start; padding: 12px 16px; }
+  .toggleBtn { display: none; }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+  }
+}

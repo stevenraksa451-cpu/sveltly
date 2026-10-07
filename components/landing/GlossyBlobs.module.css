@@ -1,0 +1,109 @@
+/* components/landing/GlossyBlobs.module.css
+   Formes organiques "verre liquide" pour le fond du hero — indigo/bleu de
+   la marque avec une touche de menthe, jamais de violet/rose ici (contraste
+   volontaire avec les inspirations Stripe/Linear vues ailleurs). Dégradés +
+   flou CSS purs, aucune image, aucune dépendance JS au-delà du fondu au
+   scroll déjà en place sur le hero (--scroll-fade, partagé avec .bgGlow).
+   Remplit exactement .heroSection (inset: 0), dont il est un enfant direct,
+   plutôt qu'une hauteur en vh indépendante du bloc réel. */
+
+.wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  opacity: var(--scroll-fade, 1);
+}
+
+.blob {
+  position: absolute;
+  filter: blur(6px);
+  mix-blend-mode: screen;
+}
+
+/* Reflet façon verre — un point de lumière en haut à gauche de chaque forme */
+.blob::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.55) 0%, transparent 40%);
+  mix-blend-mode: overlay;
+}
+
+.blob1 {
+  width: 44vw;
+  max-width: 600px;
+  min-width: 320px;
+  aspect-ratio: 1;
+  top: -10%;
+  left: 0%;
+  border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
+  background: linear-gradient(135deg, #4F46E5 0%, #3730A3 55%, #22C7B0 100%);
+  opacity: 0.38;
+  animation: float1 26s ease-in-out infinite, morph1 19s ease-in-out infinite;
+}
+
+.blob2 {
+  width: 28vw;
+  max-width: 380px;
+  min-width: 220px;
+  aspect-ratio: 1;
+  top: 20%;
+  right: 2%;
+  border-radius: 58% 42% 38% 62% / 55% 62% 38% 45%;
+  background: linear-gradient(150deg, #22C7B0 0%, #0D9488 50%, #4F46E5 100%);
+  opacity: 0.3;
+  animation: float2 22s ease-in-out infinite, morph2 16s ease-in-out infinite reverse;
+}
+
+.blob3 {
+  width: 20vw;
+  max-width: 260px;
+  min-width: 160px;
+  aspect-ratio: 1;
+  top: 52%;
+  left: 20%;
+  border-radius: 50% 50% 55% 45% / 60% 45% 55% 40%;
+  background: linear-gradient(140deg, #3730A3 0%, #4F46E5 60%, #0D9488 100%);
+  opacity: 0.22;
+  animation: float3 30s ease-in-out infinite, morph1 24s ease-in-out infinite reverse;
+}
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(3vw, -22px) rotate(4deg); }
+  66% { transform: translate(-2vw, 18px) rotate(-3deg); }
+}
+
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  40% { transform: translate(-2.5vw, 24px) rotate(-5deg); }
+  75% { transform: translate(1.5vw, -14px) rotate(3deg); }
+}
+
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(2vw, -16px) rotate(6deg); }
+}
+
+@keyframes morph1 {
+  0%, 100% { border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%; }
+  33% { border-radius: 58% 42% 40% 60% / 55% 65% 35% 45%; }
+  66% { border-radius: 50% 50% 55% 45% / 40% 55% 45% 60%; }
+}
+
+@keyframes morph2 {
+  0%, 100% { border-radius: 58% 42% 38% 62% / 55% 62% 38% 45%; }
+  50% { border-radius: 45% 55% 60% 40% / 42% 50% 50% 58%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .blob2, .blob3 { display: none; }
+  .blob1 { width: 70vw; opacity: 0.28; }
+}

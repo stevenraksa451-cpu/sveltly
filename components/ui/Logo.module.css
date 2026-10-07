@@ -1,0 +1,32 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Nom de la marque en dégradé (indigo -> violet, les couleurs IA de
+   l'identité — mêmes teintes que .heroAccent sur la landing) plutôt qu'en
+   couleur de texte neutre : partout où "Sveltly" est écrit (nav, sidebar,
+   footer, pages d'auth...), l'écriture se distingue immédiatement du reste
+   du texte au lieu de se fondre dans --text-primary. Poids et taille
+   relative légèrement augmentés pour la même raison — plus affirmé, plus
+   visible au premier coup d'œil. */
+.text {
+  font-family: var(--font-brand);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.animated {
+  animation: logoBreath 2.5s ease-in-out infinite;
+}
+
+@keyframes logoBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}

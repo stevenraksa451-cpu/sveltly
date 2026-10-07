@@ -1,0 +1,19 @@
+/* components/landing/SparkleDoodle.module.css */
+.sparkle {
+  overflow: visible;
+  animation: sparkleTwinkle 2.6s ease-in-out infinite;
+}
+
+/* Durée volontairement non ronde et pas de délai partagé entre les
+   instances (chacune reçoit un style inline différent si besoin) — plusieurs
+   étincelles sur une même page ne doivent jamais clignoter en cadence,
+   sinon l'œil les perçoit comme un seul effet mécanique plutôt que des
+   détails indépendants. */
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.55; transform: scale(0.85) rotate(var(--sparkle-rotate, 0deg)); }
+  50% { opacity: 1; transform: scale(1.05) rotate(var(--sparkle-rotate, 0deg)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle { animation: none; opacity: 0.9; }
+}

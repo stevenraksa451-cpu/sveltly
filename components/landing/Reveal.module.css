@@ -1,0 +1,22 @@
+/* components/landing/Reveal.module.css */
+.reveal {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+  height: 100%;
+}
+
+.up { transform: translateY(28px); }
+.scale { transform: scale(0.92); }
+.blur { filter: blur(8px); transform: translateY(12px); }
+.left { transform: translateX(-40px); }
+.right { transform: translateX(40px); }
+
+.visible {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+}

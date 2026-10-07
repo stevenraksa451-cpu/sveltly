@@ -1,0 +1,37 @@
+/* app/settings/personalization/personalization.module.css */
+
+.themeOptions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.themeBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.themeBtn:hover { background: var(--bg-subtle); }
+
+.themeBtnActive {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--accent-light);
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.swatchLight { background: #ffffff; }
+.swatchDark { background: #111827; }

@@ -1,0 +1,228 @@
+.pageGlow {
+  position: fixed;
+  top: 60px;
+  left: var(--sidebar-width);
+  right: 0;
+  height: 420px;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(520px 320px at 15% 0%, rgba(37, 99, 235, 0.14), transparent 65%),
+    radial-gradient(460px 300px at 78% 8%, rgba(124, 58, 237, 0.10), transparent 65%);
+  transition: left 0.2s ease;
+}
+
+/* Conteneur racine du contenu dashboard : occupe exactement l'espace
+   disponible sous le Header (voir .content dans AppLayout.module.css) et
+   ne déborde jamais — le scroll, s'il doit exister, se fait uniquement à
+   l'intérieur des cartes de .cols (voir leurs .list / .timeline). */
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.greetingTitle {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.greetingSub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+/* Bandeau de stats — un seul courant plutôt que trois cartes identiques */
+.statBand {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1fr;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  /* Pas d'overflow: hidden ici — ça coupait la tooltip d'info (voir
+     .tooltip) dès qu'elle dépassait le haut ou le bas de la carte. Les
+     coins de la barre dégradée ci-dessous sont arrondis directement au
+     lieu de compter sur le clipping du parent. */
+}
+
+.statBand::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--purple) 100%);
+}
+
+.statCell {
+  padding: 22px;
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statCell:first-child { border-left: none; }
+
+.statChip {
+  width: 18px;
+  height: 3px;
+  border-radius: 99px;
+  margin-bottom: 6px;
+}
+.chipCoral { background: var(--urgent); }
+.chipGold { background: var(--important); }
+.chipDusk { background: var(--purple); }
+
+.statHeroValue {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.statSub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Case "Temps économisé" — icône + libellé + bouton d'info sur une même
+   ligne, plutôt qu'un simple <p> comme les deux autres cases (celle-ci a
+   une méthode de calcul à expliquer, pas juste un décompte direct). */
+.statLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.statLabelRow .statLabel { margin: 0; }
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.infoBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+.infoBtn:hover,
+.infoBtn:focus-visible { color: var(--text-secondary); }
+
+/* Ouverte vers le BAS (top: 100%), pas vers le haut : .statBand lui-même n'a
+   plus d'overflow: hidden (voir son commentaire plus haut), mais .page
+   (dashboard.module.css), l'ancestor qui contient toute cette page, en a un
+   — et .statBand est collé tout en haut, juste sous .greeting, avec très peu
+   de marge au-dessus. Une tooltip ouverte vers le haut s'y ferait donc quand
+   même couper. */
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -10px;
+  transform: translateY(-4px);
+  width: 220px;
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-size: 0.7rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow, 0 3px 12px rgba(15,23,42,0.10), 0 1px 4px rgba(15,23,42,0.08));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition), transform var(--transition), visibility 0s var(--transition);
+  z-index: 20;
+}
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 12px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--text-primary);
+}
+
+.infoBtn:hover .tooltip,
+.infoBtn:focus-visible .tooltip,
+.tooltip.tooltipOpen {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1200px) {
+  .cols { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .topRow { grid-template-columns: 1fr; }
+  .statBand { grid-template-columns: 1fr; }
+  .statCell {
+    border-left: none;
+    border-top: 1px solid var(--border-light);
+  }
+  .statCell:first-child { border-top: none; }
+}
+
+@media (max-width: 768px) {
+  .cols { grid-template-columns: 1fr; }
+}

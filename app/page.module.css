@@ -1,0 +1,992 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  /* z-index explicite pour établir un contexte d'empilement local — sans ça,
+     .bgGlow (z-index: -1) se dessine derrière le fond de .page lui-même au
+     lieu de simplement derrière .hero, le rendant invisible. */
+  z-index: 0;
+  /* Compense la navbar en position: fixed (voir StickyNav.module.css) — sans
+     ça, .heroSection remonterait sous la nav. Sans risque de bande claire
+     visible : la nav (opaque, même teinte que le haut du hero) recouvre
+     entièrement cette réserve d'espace. */
+  padding-top: 73px;
+}
+
+/* HERO — fond blanc (plus de bandeau sombre) : même base que le reste de la
+   page (--bg), avec juste deux nappes de couleur de marque très douces pour
+   ne pas tomber dans un blanc totalement nu — voir .bgGrid ci-dessous pour
+   la grille technique qui porte le reste du caractère visuel. Rempli
+   exactement le bloc .hero (inset: 0, dont il est un enfant). */
+.bgGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(1100px 700px at 12% 6%, rgba(79, 70, 229, 0.08), transparent 60%),
+    radial-gradient(700px 500px at 100% 100%, rgba(13, 148, 136, 0.05), transparent 65%),
+    var(--bg);
+}
+
+/* Sol en perspective — grille technique qui recule vers l'horizon, comme un
+   plan de conception ou un radar, à la place des formes organiques : évoque
+   le contrôle/l'automatisation plutôt qu'une ambiance seulement décorative.
+   Ancrée en bas du hero (perspective_origin + rotateX), masquée en dégradé
+   vers le haut pour ne jamais entrer en collision avec le texte. Dérive très
+   lentement (40s) pour une sensation de scène vivante sans jamais distraire. */
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  perspective: 480px;
+  perspective-origin: 50% 100%;
+}
+
+.bgGrid::before {
+  content: '';
+  position: absolute;
+  left: -60%;
+  right: -60%;
+  bottom: -10%;
+  height: 160%;
+  background-image:
+    linear-gradient(rgba(22, 24, 29, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 24, 29, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: rotateX(78deg);
+  transform-origin: bottom center;
+  mask-image: linear-gradient(to top, black 0%, transparent 60%);
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 60%);
+  animation: gridDrift 40s linear infinite;
+}
+
+@keyframes gridDrift {
+  from { background-position: 0 0; }
+  to { background-position: 0 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bgGrid::before { animation: none; }
+}
+
+/* HERO — bandeau plein écran ; .hero à l'intérieur reste le conteneur de
+   contenu centré, à largeur limitée. Le fond vient de .bgGlow (voir plus
+   haut), pas d'un `background` direct ici. min-height comble tout l'espace
+   sous la nav fixe (73px, voir .page) dès le chargement. */
+.heroSection {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  min-height: calc(100vh - 73px);
+  display: flex;
+  align-items: center;
+}
+
+/* HERO — texte seul désormais (l'aperçu produit est sorti de ce bloc, voir
+   .heroVisual) : occupe la moitié gauche, avec la même marge que .heroVisual
+   de l'autre côté pour rester équilibré. */
+.hero {
+  position: relative;
+  width: 50%;
+  padding: 120px 40px 80px 64px;
+  z-index: 1;
+}
+
+/* Panneau plein à droite du hero — du bord de l'écran jusqu'en haut et en
+   bas de la section, séparé du côté gauche par une simple ligne penchée.
+   Fond violet de la marque (--purple -> --color-secondary), avec un
+   drop-shadow qui le "surélève" visuellement au-dessus du reste du hero. */
+.heroVisual {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 54%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(155deg, var(--purple) 0%, var(--color-secondary) 100%);
+  clip-path: polygon(9% 0, 100% 0, 100% 100%, 0% 100%);
+  filter: drop-shadow(-18px 0 36px rgba(109, 40, 217, 0.28));
+}
+
+@media (max-width: 900px) {
+  .heroSection { flex-direction: column; align-items: stretch; }
+  .hero { width: 100%; padding: 100px 24px 40px; }
+  .heroVisual {
+    position: relative;
+    width: 100%;
+    inset: auto;
+    clip-path: none;
+    filter: none;
+    padding: 56px 24px 64px;
+  }
+}
+
+.heroContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 24px;
+}
+
+/* Avion en papier qui décolle du badge — touche ludique dans le hero,
+   purement décorative. */
+.heroPlane {
+  position: absolute;
+  top: -28px;
+  left: 180px;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .heroPlane { display: none; }
+}
+
+.badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  background: var(--accent-light);
+  color: var(--color-primary);
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--accent-muted);
+  letter-spacing: 0.01em;
+}
+
+.heroTitle {
+  font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+  font-weight: 550;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+
+.heroAccentWrap {
+  position: relative;
+  display: inline-block;
+}
+
+.heroSparkle {
+  position: absolute;
+  top: -6px;
+  right: -22px;
+}
+
+.heroAccent {
+  /* Indigo -> violet : les deux teintes signature de l'identité, aux repos
+     (plus de besoin de la version hover plus claire — c'était pour rester
+     lisible sur fond sombre, le fond du hero est blanc désormais). */
+  background: linear-gradient(120deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroDesc {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 560px;
+  font-weight: 400;
+}
+
+.heroCtas { display: flex; gap: 10px; align-items: center; justify-content: flex-start; }
+
+.heroCta {
+  padding: 12px 28px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 99px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+  transition: all var(--transition);
+}
+.heroCta:hover {
+  background: var(--color-primary-hover);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+  transform: translateY(-2px);
+}
+
+.heroNote { font-size: 0.75rem; color: var(--text-muted); }
+
+/* PREVIEW */
+
+.previewCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.previewDots { display: flex; gap: 5px; }
+.previewDots span { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+
+.previewTitle { font-size: 0.72rem; color: var(--text-muted); }
+
+.previewBody { padding: 6px; }
+
+.previewEmail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+.previewEmail:hover { background: var(--bg-subtle); }
+
+.previewPriority { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.previewPriority.urgent { background: var(--urgent); }
+.previewPriority.important { background: var(--important); }
+.previewPriority.normal { background: var(--normal); }
+
+.previewInfo { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.previewFrom { font-size: 0.72rem; font-weight: 500; color: var(--text-primary); }
+.previewSubject {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.previewAiBadge {
+  font-size: 0.62rem;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* PHOTO SECTIONS */
+.photoSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+  padding: 100px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+.photoSectionReverse {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+  padding: 100px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.photoContent { display: flex; flex-direction: column; gap: 16px; }
+
+.photoLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.photoTitle {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+}
+
+.photoDesc {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* SECTION HEAD (shared) */
+.sectionHead {
+  text-align: center;
+  margin-bottom: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sectionTitle {
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.035em;
+}
+
+.sectionDesc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* Icons (shared) */
+.stepIconWrap,
+.featureIconWrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* Anneau pointillé qui tourne très lentement derrière chaque icône — même
+   geste répété à plusieurs endroits de la page (étapes + petites tuiles de
+   fonctionnalités) plutôt qu'un seul effet isolé. */
+.stepIconWrap::before,
+.featureIconWrap::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border: 1.5px dashed var(--accent-muted);
+  border-radius: 50%;
+  animation: ringSpin 16s linear infinite;
+}
+
+@keyframes ringSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepIconWrap::before, .featureIconWrap::before { animation: none; }
+}
+
+/* HOW IT WORKS */
+.howSection {
+  padding: 100px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stepCard {
+  height: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  /* Rayon asymétrique — détail signature de l'identité, repris sur les
+     cartes clés de la landing et le dashboard. */
+  border-radius: var(--radius-xl) var(--radius-lg) var(--radius-xl) var(--radius-lg);
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  justify-content: flex-start;
+  transition: all var(--transition);
+}
+.stepCard:hover {
+  background: var(--bg-subtle);
+  border-color: var(--text-muted);
+  transform: translateY(-3px);
+}
+
+.stepNumber { font-size: 0.72rem; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; }
+.stepTitle { font-size: 0.95rem; font-weight: 500; color: var(--text-primary); letter-spacing: -0.01em; }
+.stepDesc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* FEATURES */
+.features {
+  padding: 100px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Bento : tailles de tuiles asymétriques plutôt que des cartes identiques —
+   la hiérarchie visuelle reflète l'importance réelle (le tri IA en tuile
+   principale avec un vrai mini-aperçu, l'upsell Pro en position visible),
+   au lieu de traiter chaque fonctionnalité de façon égale. */
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.bentoTile {
+  position: relative;
+  height: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl) var(--radius-lg) var(--radius-xl) var(--radius-lg);
+  transition: all var(--transition);
+}
+.bentoTile:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-3px);
+}
+
+.bentoBig {
+  grid-column: span 2;
+  display: grid;
+  /* minmax(0, 1fr), pas 1fr seul : sans ça, le texte (qui peut se
+     rétrécir jusqu'à son mot le plus long) cède toute la largeur au
+     mini-aperçu (qui ne peut pas descendre sous son contenu en
+     white-space: nowrap), au lieu d'un vrai 50/50. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  padding: 32px;
+}
+
+.bentoMed {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 28px 24px;
+}
+
+.bentoPremium { border-color: var(--accent-muted); }
+
+.bentoText { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; text-align: left; }
+.bentoTitle { display: inline-flex; align-items: center; gap: 6px; font-size: 1.05rem; font-weight: 500; color: var(--text-primary); letter-spacing: -0.015em; }
+.bentoDesc { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.65; }
+
+/* Petites tuiles — même traitement qu'avant (icône centrée), juste
+   renommées pour s'intégrer à la grille bento. */
+.bentoSmall {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  justify-content: flex-start;
+}
+
+.featureNumber { font-size: 0.72rem; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; }
+.featureTitle { font-size: 0.95rem; font-weight: 500; color: var(--text-primary); letter-spacing: -0.01em; }
+.featureDesc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; }
+
+.featureProBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid var(--accent-muted);
+  border-radius: 99px;
+  padding: 3px 9px;
+}
+
+/* Mini-aperçu — boîte de réception (tuile principale) */
+.mockInbox {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mockInboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+.mockAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 100%);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mockRowBody { flex: 1; min-width: 0; }
+.mockSender {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mockPreview {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+/* Mini-aperçu — réponse IA */
+.mockReply {
+  width: 100%;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-top: 12px;
+}
+.mockQuoted {
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+.mockReplyText {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.mockReadyChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--normal);
+  margin-top: 10px;
+}
+
+/* Mini-aperçu — synchronisation Google Calendar */
+.mockSync {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 16px 10px;
+  margin-top: 12px;
+}
+.mockSyncChip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 11px;
+  white-space: nowrap;
+}
+.mockSyncIcon {
+  color: var(--accent);
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* FAQ */
+.faqSection {
+  padding: 100px 48px;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.faqGrid {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  transition: all var(--transition);
+}
+.faqCard:hover {
+  background: var(--bg-subtle);
+  border-color: var(--text-muted);
+}
+
+.faqQuestion {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.faqAnswer {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* CTA */
+.ctaBanner {
+  position: relative;
+  padding: 100px 48px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Lueur discrète derrière le titre — avant, cette section finale n'avait
+   aucun traitement visuel (juste du texte sur fond blanc), en net contraste
+   avec le reste de la page (hero, calculateur, sécurité...) qui a tous un
+   fond travaillé. ::before (pas de nouvel élément DOM) pour rester purement
+   additif, et surtout sans toucher au système de fondu au scroll du hero
+   (mix-blend-mode), volontairement laissé intact ailleurs. */
+.ctaBanner::before {
+  content: '';
+  position: absolute;
+  inset: -40px 0 0 0;
+  background: radial-gradient(ellipse 55% 65% at 50% 40%, rgba(79, 70, 229, 0.07), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ctaBannerTitle {
+  position: relative;
+  display: inline-block;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.035em;
+}
+
+.ctaSparkleLeft {
+  position: absolute;
+  top: -14px;
+  left: -26px;
+}
+
+.ctaSparkleRight {
+  position: absolute;
+  top: -10px;
+  right: -22px;
+}
+
+@media (max-width: 640px) {
+  .ctaSparkleLeft, .ctaSparkleRight { display: none; }
+}
+
+.ctaBannerDesc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 440px;
+  line-height: 1.7;
+}
+
+.ctaBannerBtn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: var(--color-primary);
+  color: white;
+  /* 99px (pilule), pas --radius-sm : seul bouton principal de toute la page à
+     ne pas suivre la forme en pilule déjà utilisée par .heroCta et .planBtn
+     (pricing) — mêmes couleur/ombre/padding que .heroCta par ailleurs, cette
+     différence de forme ressortait comme une incohérence. */
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  transition: all var(--transition);
+  margin-top: 8px;
+}
+.ctaBannerBtn:hover {
+  background: var(--color-primary-hover);
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.4);
+  transform: translateY(-2px);
+}
+
+/* FOOTER */
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footerText { font-size: 0.78rem; color: var(--text-muted); }
+.footerLinks { display: flex; gap: 24px; }
+.footerLinks a { font-size: 0.78rem; color: var(--text-muted); transition: color var(--transition); }
+.footerLinks a:hover { color: var(--text-primary); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .bentoGrid { grid-template-columns: repeat(2, 1fr); }
+  .bentoBig { grid-column: span 2; }
+  .stepsGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .bentoBig { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .photoSection, .photoSectionReverse {
+    grid-template-columns: 1fr;
+    padding: 60px 20px;
+    gap: 32px;
+  }
+  .photoSectionReverse { display: flex; flex-direction: column-reverse; }
+}
+
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; padding: 60px 20px; gap: 40px; }
+  .howSection { padding: 60px 20px; }
+  .features { padding: 60px 20px; }
+  .faqSection { padding: 60px 20px; }
+  .bentoGrid { grid-template-columns: 1fr; }
+  .bentoBig, .bentoMed { grid-column: span 1; }
+  .ctaBanner { padding: 60px 20px; }
+  .footer { padding: 20px; }
+}
+
+/* --- PRICING (à ajouter à la fin de page.module.css) --- */
+
+.pricing {
+  padding: 100px 48px;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Toggle mensuel/annuel */
+.billingToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.billingToggleLabel {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.billingToggleLabelActive {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.billingToggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 99px;
+  background: var(--border);
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+.billingToggleOn { background: var(--accent); }
+.billingToggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition);
+}
+.billingToggleOn .billingToggleThumb { transform: translateX(20px); }
+.savingsBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--normal);
+  background: var(--normal-light);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+/* Cartes de plans */
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.planCard {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition);
+}
+.planCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.planCardFeatured {
+  border-color: var(--accent);
+  box-shadow: 0 8px 28px rgba(79, 70, 229, 0.18);
+}
+
+.featuredBadge {
+  position: absolute;
+  top: -11px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+.planName {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.planTagline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.planPrice {
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin: 18px 0 22px;
+  line-height: 1.1;
+}
+.planPeriod {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 5px;
+}
+
+.planBtn {
+  display: block;
+  text-align: center;
+  padding: 11px 16px;
+  border-radius: 99px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.25);
+  transition: all var(--transition);
+  margin-bottom: 24px;
+}
+.planBtn:hover {
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+
+.planFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-light);
+}
+.planFeatureItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.planFeatureItem svg { color: var(--accent); flex-shrink: 0; }
+
+.pricingFootnote {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 28px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .pricing { padding: 60px 20px; }
+  .planGrid { grid-template-columns: 1fr; }
+}

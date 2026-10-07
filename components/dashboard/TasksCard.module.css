@@ -1,0 +1,206 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
+     seule .list défile en interne (overflow-y: auto) — header, bandeau de
+     productivité, ajout de tâche et footer (.viewAll) restent fixes. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 4px;
+  flex-shrink: 0;
+}
+
+.headerTitle { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+
+.addBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.addBtn:hover { background: var(--accent); color: white; }
+
+.addRow {
+  display: flex;
+  gap: 8px;
+  padding: 8px 20px 4px;
+  flex-shrink: 0;
+}
+.addInput {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+.addInput:focus { outline: none; border-color: var(--accent); }
+.addConfirm {
+  padding: 7px 14px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* Bandeau "Productivité du jour" — classes référencées par TasksCard.tsx
+   mais absentes d'ici jusqu'ici : le texte s'affichait donc sans aucun style
+   (collé, sans barre, débordant du padding de la carte). Barre de
+   progression alignée sur le même patron que UsageLimitCard.module.css
+   (.track/.fill) pour rester cohérent avec le reste du produit. */
+.productivity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 20px 14px;
+  flex-shrink: 0;
+}
+
+.productivityRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.productivityLabel {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.productivityValue {
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.productivityBar {
+  height: 5px;
+  border-radius: 99px;
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.productivityFill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.productivitySub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.list {
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.item:hover { background: var(--bg-subtle); }
+.itemDone .itemTitle { text-decoration: line-through; color: var(--text-muted); }
+
+.checkbox {
+  width: 19px;
+  height: 19px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.itemDone .checkbox { background: var(--accent); border-color: var(--accent); }
+
+.itemContent { flex: 1; min-width: 0; }
+.itemTitle {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.itemSub { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+
+.emailBadge {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple);
+  background: var(--purple-light);
+}
+
+.itemTag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  padding: 3px 9px;
+  border-radius: 99px;
+  flex-shrink: 0;
+  text-transform: capitalize;
+}
+.tagUrgent { background: var(--urgent-light); color: var(--urgent); }
+
+.empty { padding: 24px 20px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+
+/* Même correctif que TodayEssentials.module.css : classe référencée par
+   TasksCard.tsx mais absente d'ici. Hauteur alignée sur .item réel : case à
+   cocher 19px + padding 9px*2 (plus compact que les deux autres cartes, qui
+   ont une icône/pastille de 34px). */
+.skeletonItem { height: 40px; }
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.viewAll:hover { background: var(--bg-subtle); }

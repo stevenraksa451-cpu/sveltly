@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  // supabase/functions/* tourne sur Deno (imports https://, global `Deno`),
+  // jamais sur Node/navigateur — ce n'est pas du code Next.js et ça n'a
+  // jamais dû être type-checké par ce projet TS. Sans cette exclusion,
+  // `tsc --noEmit` et `next build` échouaient systématiquement sur ce
+  // fichier, indépendamment de tout changement applicatif réel.
+  "exclude": ["node_modules", "supabase/functions"]
+}

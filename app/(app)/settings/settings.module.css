@@ -1,0 +1,458 @@
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Navigation latérale — pattern Linear (bordure gauche active).
+   Pas de position: sticky ici : .content (AppLayout.module.css) est
+   devenu le conteneur de scroll de l'app (plus <body>), et le seuil
+   d'activation du sticky (top de .content + offset) se retrouve alors
+   au-dessus de la position naturelle de ce nav dans la grille .layout —
+   il "s'active" donc immédiatement, avec un décalage qui varie en plus
+   selon la hauteur de l'onglet actif (panel voisin plus ou moins haut).
+   Résultat observé : le nav saute vers le bas en changeant d'onglet
+   (ex: Facturation). En position statique, il reste simplement aligné
+   en haut de la grille (align-items: start), sans ce bug. */
+.settingsNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 2px solid transparent;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  text-align: left;
+}
+.navItem:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+.navItemActive {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+}
+.navItemDanger {
+  color: var(--urgent);
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+.navItemDanger:hover { background: var(--urgent-light); }
+.navItemDanger.navItemActive {
+  background: var(--urgent-light);
+  border-left-color: var(--urgent);
+  color: var(--urgent);
+}
+
+/* Panneau de contenu */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  animation: fadeIn 0.2s ease both;
+}
+
+.section { display: flex; flex-direction: column; gap: 14px; }
+
+.sectionHead { display: flex; flex-direction: column; gap: 3px; }
+
+.sectionTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.dangerTitle { color: var(--urgent); }
+
+.sectionDesc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Zone de danger — pattern Stripe (bordure + fond teintés rouge) */
+.dangerCard {
+  border-color: var(--urgent);
+  background: var(--urgent-light);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 0 20px;
+}
+
+/* Profil */
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+}
+.profileInfo { flex: 1; min-width: 0; }
+.name { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+.email { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+.planBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+
+/* Mailboxes */
+.mailboxRow { display: flex; align-items: center; gap: 12px; padding: 16px 20px; }
+.providerIcon {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  background: var(--accent-light); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+}
+.mailboxName { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+.mailboxEmail { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+.connectedBadge {
+  margin-left: auto;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--normal); background: var(--normal-light);
+  border-radius: 99px; padding: 3px 10px;
+}
+.connectedBadge.disconnected { color: var(--urgent); background: var(--urgent-light); }
+.emptyMailbox { padding: 24px 20px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.addMailboxBtn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 14px; font-size: 0.82rem;
+  color: var(--accent); font-weight: 500; transition: background var(--transition);
+}
+.addMailboxBtn:hover { background: var(--accent-light); }
+.mailboxLimitNote {
+  padding: 14px 20px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.proLockCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 28px 20px;
+}
+.proLockBadge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid var(--accent-muted);
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+.proLockText { font-size: 0.82rem; color: var(--text-secondary); max-width: 380px; line-height: 1.6; }
+.proLockCta {
+  margin-top: 4px;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background var(--transition);
+}
+.proLockCta:hover { background: var(--accent-hover); }
+
+/* Préférences (segmented control, toggles) */
+.prefRow { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 20px; }
+.prefLabel { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+.prefDesc { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; max-width: 340px; }
+
+.segmented {
+  display: flex; background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 2px; gap: 1px; flex-shrink: 0;
+}
+.segBtn {
+  padding: 5px 12px; border-radius: 5px; font-size: 0.75rem;
+  color: var(--text-muted); transition: all var(--transition); white-space: nowrap;
+}
+.segActive {
+  background: var(--bg-card); color: var(--text-primary); font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* Choix du ton — 3 cartes avec exemple, pour comparer avant de choisir */
+.toneOptions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+.toneOption {
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: var(--bg-card);
+  transition: all var(--transition);
+}
+.toneOption:hover { border-color: var(--accent-muted); }
+.toneOptionActive {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.toneOptionName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.toneOptionExample {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 6px;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 700px) {
+  .toneOptions { grid-template-columns: 1fr; }
+}
+
+.toggle {
+  width: 40px; height: 22px; border-radius: 99px;
+  background: var(--border); position: relative; flex-shrink: 0;
+  transition: background var(--transition);
+}
+.toggleOn { background: var(--accent); }
+.toggleThumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%; background: white;
+  box-shadow: var(--shadow-sm); transition: transform var(--transition);
+}
+.toggleOn .toggleThumb { transform: translateX(18px); }
+
+/* Sécurité */
+.securityRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.securityBadge {
+  font-size: 0.7rem; font-weight: 600; color: var(--normal);
+  background: var(--normal-light); border-radius: 99px; padding: 3px 10px; flex-shrink: 0;
+}
+.linkBtn {
+  font-size: 0.8rem; color: var(--accent); font-weight: 500;
+  padding: 6px 12px; border-radius: var(--radius-sm); transition: background var(--transition); flex-shrink: 0;
+}
+.linkBtn:hover { background: var(--accent-light); }
+
+.dangerBtn {
+  font-size: 0.8rem; font-weight: 500; color: white;
+  background: var(--urgent); padding: 8px 16px; border-radius: var(--radius-sm);
+  transition: opacity var(--transition); flex-shrink: 0;
+}
+.dangerBtn:hover { opacity: 0.85; }
+
+/* Sauvegarde */
+.saveRow { display: flex; justify-content: flex-end; padding-top: 4px; }
+.saveBtn {
+  padding: 10px 22px; background: var(--accent); color: white;
+  border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500;
+  transition: all var(--transition);
+}
+.saveBtn:hover { background: var(--accent-hover); }
+.savedBtn { background: var(--normal); }
+
+/* Skeleton */
+.loadingGrid { display: flex; flex-direction: column; gap: 16px; }
+.skeletonBlock { height: 120px; border-radius: var(--radius-lg); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; }
+  .settingsNav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .navItem { border-left: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .navItemActive { border-left: none; border-bottom-color: var(--accent); }
+  .navItemDanger { margin-top: 0; padding-top: 8px; border-top: none; }
+}
+.inlineEdit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nameInput {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  background: var(--bg);
+  width: 140px;
+}
+.nameInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Photo de profil éditable */
+.avatarUploadWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.avatarEditBtn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-card);
+  transition: opacity var(--transition);
+}
+.avatarEditBtn:hover { opacity: 0.85; }
+.avatarEditBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.hiddenInput { display: none; }
+
+.selectInput {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.timeRangeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.timeInput {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+.timeSep { color: var(--text-muted); font-size: 0.8rem; }
+
+/* Facturation */
+.planCurrentRow { display: flex; align-items: center; gap: 14px; padding: 20px; }
+.planCurrentIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.planCurrentIconPro { background: var(--purple-light); color: var(--purple); }
+.planCurrentInfo { flex: 1; min-width: 0; }
+.planCurrentName { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+.planCurrentSub { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+
+.planComparisonWrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  background: var(--bg-subtle);
+}
+
+.paymentRow { display: flex; align-items: center; gap: 14px; padding: 20px; }
+.cardBrandIcon {
+  width: 44px;
+  height: 30px;
+  border-radius: 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.invoiceTableWrap { overflow-x: auto; }
+.invoiceTable { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.invoiceTable th {
+  text-align: left;
+  padding: 10px 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+.invoiceTable td {
+  padding: 12px 20px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+.invoiceTable tr:last-child td { border-bottom: none; }
+
+.invoiceStatus {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--normal);
+  background: var(--normal-light);
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+.invoiceStatusIssue { color: var(--urgent); background: var(--urgent-light); }

@@ -1,0 +1,99 @@
+.card {
+  background: var(--important-light);
+  border: 1px solid var(--important);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--important);
+}
+
+.desc {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.alt {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.planLabel {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.planList {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.planItem {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.planWarning {
+  font-size: 0.72rem;
+  color: var(--urgent);
+  line-height: 1.5;
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.primaryBtn:hover { opacity: 0.9; }
+.primaryBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.keepBtn {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-align: center;
+  padding: 4px;
+}
+.keepBtn:hover { color: var(--text-primary); }
+
+.cancelBtn {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 4px;
+}
+.cancelBtn:hover { color: var(--text-primary); }

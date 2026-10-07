@@ -1,0 +1,25 @@
+/* components/landing/ConfettiDoodle.module.css */
+.wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.piece {
+  position: absolute;
+  opacity: 0.7;
+  animation: confettiFloat 4.5s ease-in-out infinite;
+}
+
+.circle { border-radius: 50%; }
+.square { border-radius: 3px; }
+
+@keyframes confettiFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece { animation: none; }
+}

@@ -1,0 +1,101 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
+     seule .list défile en interne (overflow-y: auto), header et footer
+     (.viewAll) restent toujours visibles. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header { padding: 18px 20px 4px; flex-shrink: 0; }
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+
+.list {
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.item:hover { background: var(--bg-subtle); }
+
+.itemIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.itemIcon.urgent { background: var(--urgent-light); color: var(--urgent); }
+.itemIcon.important { background: var(--important-light); color: var(--important); }
+
+.itemContent { flex: 1; min-width: 0; }
+.itemTitle {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.itemSub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+
+.itemTag {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.itemTag.urgent { background: var(--urgent-light); color: var(--urgent); }
+.itemTag.important { background: var(--important-light); color: var(--important); }
+
+.empty { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+
+/* Référencée par TodayEssentials.tsx (`${styles.skeletonItem} skeleton`) mais
+   jusqu'ici absente de ce module — la classe globale .skeleton (voir
+   styles/globals.css) ne fournit que le dégradé animé, aucune hauteur :
+   sans ce correctif, les 3 placeholders de chargement s'effondraient à une
+   hauteur nulle (divs vides, aucun contenu) et le shimmer attendu ici restait
+   invisible. Hauteur alignée sur .item réel : icône 34px + padding 10px*2. */
+.skeletonItem { height: 54px; }
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.viewAll:hover { background: var(--bg-subtle); }

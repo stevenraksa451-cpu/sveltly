@@ -1,0 +1,202 @@
+.section {
+  padding: 100px 48px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.sectionHead {
+  text-align: center;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+/* Carte unique, premium — un seul résultat qui domine, la personnalisation
+   (temps perdu, tarif) reléguée en contrôles discrets en dessous. */
+.premiumCard {
+  background: linear-gradient(160deg, #4F46E5 0%, #8B5CF6 55%, #16181D 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+.resultLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.resultMain {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.resultValue {
+  font-size: clamp(2.75rem, 7vw, 3.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.resultUnit {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.8);
+}
+
+.resultSecondary {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sliderBlock {
+  width: 100%;
+  max-width: 380px;
+  margin-top: 40px;
+}
+
+.sliderHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 10px;
+}
+
+.sliderValue {
+  font-weight: 600;
+  color: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+
+.tarifBlock {
+  width: 100%;
+  max-width: 220px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarifLabel {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.75);
+}
+
+.tarifInputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.currencySelect {
+  padding: 0 8px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  width: 68px;
+  flex-shrink: 0;
+}
+.currencySelect:focus { outline: none; border-color: white; }
+.currencySelect option { color: #16181D; }
+
+.tarifInput {
+  width: 90px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.tarifInput:focus {
+  outline: none;
+  border-color: white;
+  background: rgba(255,255,255,0.18);
+}
+
+.source {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 20px;
+  line-height: 1.6;
+}

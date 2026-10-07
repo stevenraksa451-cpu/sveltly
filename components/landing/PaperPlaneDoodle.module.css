@@ -1,0 +1,24 @@
+/* components/landing/PaperPlaneDoodle.module.css */
+.wrap {
+  overflow: visible;
+}
+
+.trail {
+  opacity: 0.8;
+}
+
+/* Vol léger en boucle — amplitude faible, pour un mouvement perçu comme
+   "en l'air" sans jamais distraire du texte à côté. */
+.plane {
+  animation: planeBob 3.8s ease-in-out infinite;
+  transform-origin: 98px 18px;
+}
+
+@keyframes planeBob {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-3px, -5px) rotate(-3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plane { animation: none; }
+}

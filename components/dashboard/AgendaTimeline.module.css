@@ -1,0 +1,76 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
+     seule .timeline défile en interne (overflow-y: auto) — header et date
+     restent fixes (voir aussi TodayEssentials/TasksCard, même traitement). */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+
+.headerTitle { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+
+.viewLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+  margin: 4px 0 14px;
+  flex-shrink: 0;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.timelineItem { display: flex; gap: 12px; }
+
+.timeCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 44px;
+  flex-shrink: 0;
+}
+.time { font-size: 0.7rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.dot { width: 8px; height: 8px; border-radius: 50%; margin: 4px 0; }
+.line { flex: 1; width: 1px; background: var(--border); min-height: 20px; }
+.timelineItem:last-child .line { display: none; }
+
+.eventContent {
+  flex: 1;
+  border-left: 2px solid;
+  padding: 2px 0 16px 14px;
+}
+.eventTitleRow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.eventTitle { font-size: 0.84rem; font-weight: 500; color: var(--text-primary); }
+.eventDesc { font-size: 0.74rem; color: var(--text-muted); margin-top: 2px; }
+
+.empty { padding: 24px 0; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+
+/* Même correctif que TodayEssentials.module.css : classe référencée par
+   AgendaTimeline.tsx mais absente d'ici, laissant les placeholders de
+   chargement s'effondrer à hauteur nulle. Même hauteur que .skeletonEvent
+   dans components/calendar/EventList.module.css, pour un rythme visuel
+   cohérent entre les deux listes d'événements du produit. */
+.skeletonItem { height: 56px; }

@@ -1,0 +1,398 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.dateLabel { display: flex; flex-direction: column; gap: 3px; }
+
+.todayChip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: white;
+  border-radius: 4px;
+  padding: 1px 7px;
+  width: fit-content;
+  letter-spacing: 0.02em;
+}
+
+.dateText {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.addTrigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.addTrigger:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Formulaire — carte HUD : coins coupés + liseré lumineux + halo */
+.form {
+  position: relative;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-subtle);
+  animation: hudFadeIn 0.2s ease forwards;
+  clip-path: polygon(
+    14px 0, 100% 0, 100% calc(100% - 14px),
+    calc(100% - 14px) 100%, 0 100%, 0 14px
+  );
+  box-shadow: inset 0 0 0 1px var(--accent), 0 0 24px rgba(37, 99, 235, 0.14);
+}
+
+.form::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent 75%);
+}
+
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.titleInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: border var(--transition), box-shadow var(--transition);
+}
+.titleInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.titleInput::placeholder { color: var(--text-muted); font-weight: 400; }
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeField {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.timeLabel {
+  font-size: 0.63rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.timeInput {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  transition: border var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+.timeInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.timeSep {
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-top: 16px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.descInput {
+  width: 100%;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-family: var(--font-body);
+  transition: border var(--transition), box-shadow var(--transition);
+}
+.descInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.descInput::placeholder { color: var(--text-muted); }
+
+.priorityRow {
+  display: flex;
+  gap: 6px;
+}
+
+.priorityBtn {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  transition: all var(--transition);
+}
+.priorityBtn:hover:not(:disabled) { border-color: var(--accent-muted); }
+.priorityBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.priorityBtnActive {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.colorRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.colorDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  position: relative;
+}
+.colorDot:hover,
+.colorDot:focus-visible { transform: scale(1.2); }
+.colorDotActive {
+  border-color: var(--bg-card);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px currentColor, 0 0 10px currentColor;
+}
+
+.formError {
+  font-size: 0.78rem;
+  color: var(--urgent, #D93025);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.cancelBtn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.cancelBtn:hover { background: var(--bg-card); }
+
+.saveBtn {
+  padding: 6px 16px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+  border: 1px solid transparent;
+}
+.saveBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.35);
+}
+.saveBtn:disabled { opacity: 0.4; cursor: default; }
+
+/* Liste */
+.list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 120px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.skeletonEvent {
+  height: 56px;
+  border-radius: var(--radius-sm);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.emptyDesc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Événement — coin d'angle discret au survol, dans le même esprit que le formulaire */
+.event {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  transition: all var(--transition);
+}
+.event:hover {
+  border-color: var(--accent-muted);
+  background: var(--bg-subtle);
+  box-shadow: 0 0 0 1px var(--accent-muted);
+}
+
+.colorBar {
+  width: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.eventContent {
+  flex: 1;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.eventTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.eventTitle {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deleteBtn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.event:hover .deleteBtn { opacity: 1; }
+.deleteBtn:hover { background: var(--urgent-light); color: var(--urgent); }
+
+.eventTime {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.eventDesc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emailBadge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent-muted);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
