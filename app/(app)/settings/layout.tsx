@@ -5,7 +5,10 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Paramètres — Sveltly',
+  // Titre NU : le suffixe « — Sveltly » vient du gabarit title.template du
+  // layout racine (app/layout.tsx). Le répéter ici donnait « Paramètres — Sveltly —
+  // Sveltly » dans l'onglet.
+  title: 'Paramètres',
 }
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

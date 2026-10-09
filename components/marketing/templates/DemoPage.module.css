@@ -1,0 +1,125 @@
+﻿.page {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter);
+}
+
+/* Titre à gauche, illustration à droite : la ligne du haut traverse toute la
+   largeur plutôt que de laisser la moitié droite vide. */
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 34ch) minmax(0, 1fr);
+  align-items: center;
+  gap: 56px;
+  padding: 54px 0 40px;
+}
+
+.headerText { min-width: 0; }
+
+.headerSpot { display: flex; justify-content: flex-end; color: var(--mk-ink-3); }
+.headerSpot svg { width: clamp(130px, 16vw, 200px); height: auto; }
+
+.title {
+  font-size: clamp(2.1rem, 4.6vw, 3rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.042em;
+  color: var(--mk-ink);
+}
+
+.lede {
+  margin-top: 18px;
+  font-size: clamp(1rem, 1.6vw, 1.1rem);
+  line-height: 1.66;
+  color: var(--mk-ink-2);
+  max-width: 46ch;
+}
+
+/* La maquette déborde légèrement de la colonne de texte : elle est le sujet
+   de la page, elle a droit à plus de largeur. */
+.stage {
+  margin: 0 -24px 48px;
+  padding: 0 24px;
+}
+
+/* --- Annotations ------------------------------------------------------------ */
+
+/* Trois colonnes au maximum, mais chaque annotation est séparée par un filet
+   vertical plutôt qu'enfermée dans une carte. Pas de fond, pas d'ombre, pas
+   de bordure arrondie : ce ne sont pas des cartes. */
+.annotations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--mk-line);
+}
+
+.annotation {
+  padding: 28px 28px 30px;
+  border-left: 1px solid var(--mk-line);
+}
+.annotation:first-child { border-left: none; padding-left: 0; }
+
+.annotationNumber {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mk-tint);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
+}
+
+.annotationTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.018em;
+  color: var(--mk-ink);
+  margin-bottom: 7px;
+}
+
+.annotationBody { font-size: 0.9rem; line-height: 1.68; color: var(--mk-ink-2); }
+
+/* --- Sections ---------------------------------------------------------------- */
+
+/* Largeurs inégales d'une section à l'autre : les paires décalent la colonne
+   vers la droite. Deux sections voisines n'ont donc jamais la même amorce. */
+.sections { padding-top: 32px; }
+
+.section { padding: 44px 0; border-top: 1px solid var(--mk-line); max-width: 64ch; }
+.section:nth-child(even) { margin-left: auto; }
+
+.sectionHeading {
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  margin-bottom: 14px;
+  max-width: 24ch;
+}
+
+.sectionBody { font-size: 1rem; line-height: 1.78; color: var(--mk-ink-2); }
+.sectionBody p + p { margin-top: 1.1em; }
+.sectionBody strong { color: var(--mk-ink); font-weight: 600; }
+
+/* Note en retrait, marquée par un filet à gauche dans la teinte de famille.
+   C'est la seule touche colorée de la section. */
+.sectionNote {
+  margin-top: 20px;
+  padding-left: 16px;
+  border-left: 2px solid var(--mk-tint);
+  font-size: 0.89rem;
+  line-height: 1.7;
+  color: var(--mk-ink-3);
+}
+
+@media (max-width: 860px) {
+  .header { grid-template-columns: 1fr; gap: 26px; padding: 36px 0 28px; }
+  .headerSpot { justify-content: flex-start; }
+  .stage { margin: 0 0 36px; padding: 0; }
+  .annotation { border-left: none; border-top: 1px solid var(--mk-line); padding: 22px 0 24px; }
+  .annotation:first-child { border-top: none; }
+  .section:nth-child(even) { margin-left: 0; }
+}

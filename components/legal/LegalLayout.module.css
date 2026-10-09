@@ -107,7 +107,7 @@
 .essentials {
   background: linear-gradient(160deg, var(--accent-light) 0%, var(--bg-card) 70%);
   border: 1px solid var(--accent-muted);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: 22px 24px;
   margin-bottom: 44px;
 }

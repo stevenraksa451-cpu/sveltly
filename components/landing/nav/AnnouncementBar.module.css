@@ -1,0 +1,73 @@
+/* components/landing/nav/AnnouncementBar.module.css */
+
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 7px 44px;
+  background: var(--mk-ink);
+  color: var(--mk-bg);
+  font-size: 0.8rem;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+  text-align: center;
+}
+.link:hover svg { transform: translateX(3px); }
+.link svg { transition: transform 0.2s ease; opacity: 0.8; }
+.link:focus-visible { outline: 2px solid var(--mk-bg); outline-offset: 3px; border-radius: 4px; }
+
+/* Pastille clignotante très lente — assez pour signaler la nouveauté, assez
+   lente pour ne pas devenir agaçante pendant la lecture. */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mk-accent);
+  flex-shrink: 0;
+  animation: pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+.close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.18s ease, background 0.18s ease;
+}
+.close:hover { opacity: 1; background: rgba(255, 255, 255, 0.14); }
+.close:focus-visible { outline: 2px solid var(--mk-bg); outline-offset: 2px; opacity: 1; }
+
+@media (max-width: 600px) {
+  .bar { font-size: 0.74rem; padding: 7px 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot { animation: none; }
+  .link svg, .close { transition: none; }
+}

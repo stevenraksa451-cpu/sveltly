@@ -233,33 +233,40 @@ function CalendarContent() {
       title="Agenda"
       subtitle={loading && events.length === 0 ? '' : `${totalThisMonth} événement${totalThisMonth !== 1 ? 's' : ''} ce mois`}
     >
-      {calendarConnected && (
-        <div className={styles.syncBar}>
-          <span className={styles.syncMode}>
-            Google Calendar — synchronisation {autoSync ? 'automatique' : 'manuelle'}
-          </span>
-          <div className={styles.syncActions}>
-            {syncMessage && <span className={styles.syncMessage}>{syncMessage}</span>}
-            <button className={styles.syncBtn} onClick={() => syncFromGoogle(true)} disabled={syncing}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={syncing ? styles.syncSpin : ''}>
-                <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
-              </svg>
-              {syncing ? 'Synchronisation...' : 'Synchroniser'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className={styles.syncBar}>
-        <span className={styles.syncMode}>
+      {/* Une seule barre d'outils. Il y en avait deux, empilées et de même
+          dessin : deux bandeaux pleine largeur pour deux boutons, au-dessus
+          d'un agenda à qui il manquait d'autant de hauteur. Le contexte du
+          jour reste à gauche, les deux actions se regroupent à droite. */}
+      <div className={styles.toolbar}>
+        <span className={styles.toolbarContext}>
           {dayEvents.length > 1 ? `${dayEvents.length} événements ce jour-là` : 'Agenda du jour sélectionné'}
         </span>
-        <button className={styles.syncBtn} onClick={handleOpenReorganize} disabled={reorganizing}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-          {reorganizing ? 'Analyse...' : 'Réorganiser ma journée'}
-        </button>
+
+        <div className={styles.toolbarActions}>
+          {calendarConnected && (
+            <>
+              {/* Même emplacement pour l'état de synchro et pour le message
+                  transitoire : la barre ne change pas de hauteur en passant
+                  de l'un à l'autre. */}
+              <span className={styles.syncMode}>
+                {syncMessage || `Google Calendar — synchronisation ${autoSync ? 'automatique' : 'manuelle'}`}
+              </span>
+              <button className={styles.syncBtn} onClick={() => syncFromGoogle(true)} disabled={syncing}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={syncing ? styles.syncSpin : ''}>
+                  <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
+                </svg>
+                {syncing ? 'Synchronisation...' : 'Synchroniser'}
+              </button>
+            </>
+          )}
+
+          <button className={styles.syncBtn} onClick={handleOpenReorganize} disabled={reorganizing}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+            {reorganizing ? 'Analyse...' : 'Réorganiser ma journée'}
+          </button>
+        </div>
       </div>
 
       {reorganizePreview && (

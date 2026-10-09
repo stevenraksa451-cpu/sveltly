@@ -1,0 +1,132 @@
+﻿.inner {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter);
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+
+/* Fond légèrement distinct du reste de la page : le hero est une scène, il
+   se détache du corps de texte qui suit. Une seule teinte, très pâle. */
+.heroOuter {
+  background: var(--mk-surface-2);
+  border-bottom: 1px solid var(--mk-line);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 64px;
+  padding-top: 48px;
+  padding-bottom: 72px;
+}
+
+.heroText { min-width: 0; }
+
+.title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1.07;
+  letter-spacing: -0.042em;
+  color: var(--mk-ink);
+  max-width: 15ch;
+}
+
+.lede {
+  margin-top: 20px;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.68;
+  color: var(--mk-ink-2);
+  max-width: 44ch;
+}
+
+.heroCta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 30px; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: 10px;
+  background: var(--mk-accent);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
+}
+.button:hover { background: var(--mk-accent-hover); transform: translateY(-1px); }
+.button:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 3px; }
+
+.note { font-size: 0.79rem; color: var(--mk-ink-3); }
+
+.heroScene { min-width: 0; }
+
+/* --- Chapitres -------------------------------------------------------------- */
+
+/* Alternance texte/visuel. Les chapitres sans visuel passent en colonne
+   unique étroite et centrée : leur hauteur et leur largeur diffèrent donc
+   des autres, ce qui casse la régularité verticale. */
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 64px;
+  padding: 76px 0;
+  border-bottom: 1px solid var(--mk-line);
+}
+
+.chapterFlip .chapterText { order: 2; }
+.chapterFlip .chapterVisual { order: 1; }
+
+.chapterTextOnly {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 64px 0;
+}
+.chapterTextOnly .chapterText { max-width: 60ch; margin: 0 auto; text-align: center; }
+.chapterTextOnly .chapterHeading { max-width: none; }
+.chapterTextOnly .chapterBody { margin-left: auto; margin-right: auto; }
+
+.chapterText { min-width: 0; }
+
+.marker {
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mk-tint);
+  font-variant-numeric: tabular-nums;
+}
+
+.chapterHeading {
+  font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.034em;
+  color: var(--mk-ink);
+  max-width: 20ch;
+}
+
+.chapterBody {
+  margin-top: 16px;
+  font-size: 1rem;
+  line-height: 1.78;
+  color: var(--mk-ink-2);
+  max-width: 54ch;
+}
+.chapterBody p + p { margin-top: 1.1em; }
+.chapterBody strong { color: var(--mk-ink); font-weight: 600; }
+
+.chapterVisual { min-width: 0; }
+
+@media (max-width: 880px) {
+  .inner { padding: 0 var(--mk-gutter); }
+  .hero { grid-template-columns: 1fr; gap: 36px; padding-bottom: 52px; }
+  .title { max-width: none; }
+  .chapter { grid-template-columns: 1fr; gap: 30px; padding: 48px 0; }
+  /* Sur une colonne, le visuel passe toujours après le texte : on l'explique
+     avant de le montrer. */
+  .chapterFlip .chapterText { order: 1; }
+  .chapterFlip .chapterVisual { order: 2; }
+  .chapterTextOnly .chapterText { text-align: left; }
+}

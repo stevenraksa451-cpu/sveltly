@@ -1,0 +1,25 @@
+/* Le spot hérite de la couleur du texte voisin et s'y fond : il accompagne,
+   il ne réclame pas. L'opacité générale l'empêche de peser autant qu'un
+   titre, même à grande taille. */
+.spot {
+  display: block;
+  color: var(--mk-ink-3);
+  opacity: 0.9;
+}
+
+/* L'unique élément accentué de chaque dessin. Teinte de famille quand la page
+   en a une, accent sinon — jamais les deux en même temps. */
+.accentStroke { stroke: var(--mk-tint); }
+.accentFill { fill: var(--mk-tint); }
+
+/* Léger balancement, très lent, très court : un dessin figé à côté d'un texte
+   qui défile paraît collé. 7 s et 2 px suffisent à le rendre vivant sans
+   qu'on le regarde. Seul transform est animé. */
+@media (prefers-reduced-motion: no-preference) {
+  .spot { animation: breathe 7s var(--mk-ease) infinite; }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(-0.4deg); }
+}

@@ -23,6 +23,11 @@ export interface Email {
   tags: string[]
   hasAIReply?: boolean
   aiDraftReply?: string
+  // 'pending' tant que Groq n'a pas encore produit d'analyse pour cet email
+  // (voir app/api/emails/route.ts) — absent sur les emails jamais passés par
+  // ce pipeline. Utilisé côté client pour accélérer le polling (voir
+  // hooks/useEmails.ts) tant qu'il en reste.
+  analysisStatus?: 'pending' | 'done'
   calendarEventDetected?: boolean
   detectedEvent?: DetectedEvent | null
   autoScheduled?: boolean
@@ -120,7 +125,14 @@ export interface Email {
 
 export interface DetectedAction {
   title?: string
-  priority?: 'high' | 'medium' | 'low'
+  // 'urgent' inclus : la priorité finale de la tâche tient compte de celle de
+  // l'EMAIL, pas seulement du jugement de l'IA sur l'action isolée (voir
+  // resolveTaskPriority dans lib/tasks.ts).
+  priority?: 'urgent' | 'high' | 'medium' | 'low'
+  // Valeur du jeu fermé TASK_CATEGORIES (lib/tasks.ts). Jamais du texte
+  // libre, et jamais le nom de l'expéditeur — celui-ci vit dans la colonne
+  // tasks.source_label.
+  category?: string | null
   dueDate?: string | null
 }
 

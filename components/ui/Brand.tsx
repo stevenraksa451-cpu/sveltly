@@ -12,17 +12,14 @@ export default function Brand({
 }: {
   className?: string
   // Échappatoire pour les contextes à fond déjà coloré dans les teintes de
-  // la marque (ex: bouton indigo plein) — le dégradé par défaut s'y
-  // fondrait au lieu de ressortir. Annule le dégradé proprement (pas juste
-  // `color`, sans effet sur du texte en background-clip: text).
+  // la marque (ex: bouton indigo plein) — le "e" de couleur s'y fondrait
+  // sinon. Dans ce cas, tout le mot (y compris le "e") passe dans la
+  // couleur fournie, uniforme.
   color?: string
 }) {
   return (
-    <span
-      className={`${styles.brand} ${className || ''}`}
-      style={color ? { background: 'none', WebkitTextFillColor: color, color } : undefined}
-    >
-      Sveltly
+    <span className={`${styles.brand} ${className || ''}`} style={color ? { color } : undefined}>
+      Sv<span className={styles.e} style={color ? { color } : undefined}>e</span>ltly
     </span>
   )
 }

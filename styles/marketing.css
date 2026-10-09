@@ -1,0 +1,170 @@
+/* styles/marketing.css
+   Palette et primitives d'animation des pages marketing.
+
+   Portée volontairement limitée à .mk : l'espace connecté (tableau de bord,
+   boîte de réception, réglages) garde ses propres tokens. Une refonte des
+   couleurs côté vitrine ne doit pas repeindre l'application.
+
+   Règle de la palette : un seul accent visible par écran, plus éventuellement
+   une teinte de famille très désaturée. Pas de dégradé, pas d'ombre lourde. */
+
+/* Les tokens sont partagés par deux porteurs :
+   - .mk  : le corps d'une page vitrine (il prend aussi le fond et l'encre) ;
+   - .mkc : le chrome commun — barre de navigation et pied de page — qui vit
+            hors de .mk sur la landing, et doit malgré tout disposer de la
+            même palette et des mêmes largeurs. Sans ce second porteur, le
+            même pied de page s'affichait avec les couleurs du tableau de
+            bord sous les pages peintes en --mk-*.
+   L'espace connecté ne porte ni l'une ni l'autre : il reste intact. */
+.mk,
+.mkc {
+  /* --- Neutres chauds ---------------------------------------------------- */
+  --mk-bg: #FBFAF9;
+  --mk-surface: #FFFFFF;
+  --mk-surface-2: #F4F2EF;
+  --mk-line: #E6E3DE;
+  --mk-line-strong: #D6D2CB;
+
+  /* Encre chaude plutôt qu'un gris ardoise froid.
+     #1A1B1F sur #FBFAF9 = 15,8:1 — très au-delà du minimum AA. */
+  --mk-ink: #1A1B1F;
+  /* #55524D sur #FBFAF9 = 7,4:1 */
+  --mk-ink-2: #55524D;
+  /* #6F6B64 sur #FBFAF9 = 4,9:1 — reste conforme AA pour du texte courant. */
+  --mk-ink-3: #6F6B64;
+
+  /* --- Accent unique ----------------------------------------------------- */
+  /* Indigo désaturé : #3F4A8A au lieu du #3730A3 de l'application, plus
+     franc. Sur fond clair = 8,9:1, et le blanc dessus = 8,5:1. */
+  --mk-accent: #3F4A8A;
+  --mk-accent-hover: #4C5899;
+  --mk-accent-soft: #EEEFF6;
+  --mk-accent-line: #C9CDE4;
+
+  /* --- Teinte de famille ------------------------------------------------- */
+  /* Neutre par défaut : une page sans famille n'affiche aucune seconde
+     couleur. Surchargée par [data-family] ci-dessous. */
+  --mk-tint: var(--mk-ink-2);
+  --mk-tint-soft: var(--mk-surface-2);
+
+  /* --- Élévation --------------------------------------------------------- */
+  /* Deux niveaux seulement, très doux. Une ombre marquée fait daté. */
+  --mk-shadow: 0 1px 2px rgba(26, 27, 31, 0.04), 0 8px 24px -12px rgba(26, 27, 31, 0.10);
+  --mk-shadow-lift: 0 2px 4px rgba(26, 27, 31, 0.05), 0 16px 36px -16px rgba(26, 27, 31, 0.16);
+
+  /* --- Largeurs ----------------------------------------------------------- */
+  /* Deux largeurs distinctes, et c'est le point important : le CONTENEUR est
+     large (il occupe l'écran), la COLONNE DE TEXTE reste étroite. Élargir le
+     texte avec le conteneur donnerait des lignes de 140 caractères, illisibles.
+     L'espace gagné sert aux visuels, aux apartés et aux illustrations.
+
+     Ces deux valeurs sont la SEULE source de largeur du site public : la
+     barre de navigation, le pied de page et les sections de la landing les
+     consomment aussi. Trois cadres distincts cohabitaient avant (1440, 1200,
+     1120, chacun avec sa gouttière), et les bords gauches du logo, du titre
+     et du pied de page tombaient à 104 px et 144 px d'écart. */
+  --mk-max: 1440px;
+  --mk-gutter: clamp(20px, 4.5vw, 64px);
+  --mk-measure: 64ch;
+
+  /* --- Mouvement --------------------------------------------------------- */
+  --mk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --mk-reveal-duration: 560ms;
+  --mk-interaction: 180ms;
+
+  /* Rayon commun aux petits contrôles du chrome (liens de la barre,
+     boutons). Repris du jeu de l'application pour que rien ne bouge. */
+  --mk-radius-sm: 8px;
+}
+
+/* Seul le corps de page prend le fond et l'encre : le chrome porte les
+   tokens sans se repeindre (la barre est translucide, le pied a son fond). */
+.mk {
+  background: var(--mk-bg);
+  color: var(--mk-ink);
+}
+
+/* Teintes de famille — saturation volontairement basse : elles doivent se
+   deviner, pas se remarquer. Chacune reste lisible sur fond clair. */
+.mk[data-family='produit'] {
+  --mk-tint: #44546A;        /* ardoise */
+  --mk-tint-soft: #EEF1F5;
+}
+.mk[data-family='solutions'] {
+  --mk-tint: #7A5C48;        /* argile */
+  --mk-tint-soft: #F5EFEA;
+}
+.mk[data-family='securite'] {
+  --mk-tint: #3E5A50;        /* vert-gris */
+  --mk-tint-soft: #EBF1EE;
+}
+
+/* ==========================================================================
+   Révélation au défilement
+   Une seule classe, pilotée par IntersectionObserver (voir
+   components/marketing/Reveal.tsx). On n'anime que transform et opacity :
+   aucun recalcul de mise en page, donc aucun à-coup.
+   ========================================================================== */
+
+.mkReveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity var(--mk-reveal-duration) var(--mk-ease),
+    transform var(--mk-reveal-duration) var(--mk-ease);
+  /* Décalage en cascade : --mk-i est posé en ligne par le composant. 70 ms
+     entre deux éléments — assez pour qu'on perçoive l'ordre, assez peu pour
+     que le dernier n'attende pas. */
+  transition-delay: calc(var(--mk-i, 0) * 70ms);
+}
+
+.mkReveal[data-shown='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Contenu visible sans défiler (titre et accroche de chaque gabarit) — voir
+   la prop `immediate` dans components/marketing/Reveal.tsx.
+
+   Opaque dans le HTML envoyé par le serveur, donc peint sans attendre le
+   JavaScript. C'est la correction qui compte pour Google : tant que le h1
+   partait à opacity 0, le LCP attendait le téléchargement du JS,
+   l'hydratation et le déclenchement de l'observateur. L'entrée ne joue que
+   sur la translation — animer l'opacité annulerait tout le bénéfice, un
+   élément transparent n'étant pas considéré comme peint. */
+.mkReveal[data-immediate='true'] {
+  opacity: 1;
+  transition: none;
+  animation: mkImmediateIn var(--mk-reveal-duration) var(--mk-ease) both;
+  animation-delay: calc(var(--mk-i, 0) * 70ms);
+}
+
+@keyframes mkImmediateIn {
+  from { transform: translateY(18px); }
+  to { transform: none; }
+}
+
+/* Variantes de direction, pour que toutes les sections n'entrent pas pareil. */
+.mkReveal[data-from='left'] { transform: translateX(-20px); }
+.mkReveal[data-from='right'] { transform: translateX(20px); }
+.mkReveal[data-from='scale'] { transform: scale(0.975); }
+.mkReveal[data-from='none'] { transform: none; }
+
+/* ==========================================================================
+   Mouvement réduit
+   Tout reste lisible et à sa place : on neutralise le déplacement, pas le
+   contenu. Les boucles décoratives s'arrêtent net.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .mk *,
+  .mk *::before,
+  .mk *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mkReveal { opacity: 1; transform: none; }
+}

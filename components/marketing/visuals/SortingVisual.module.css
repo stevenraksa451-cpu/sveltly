@@ -1,0 +1,92 @@
+.wrap {
+  position: relative;
+  padding: 22px;
+  border: 1px solid var(--mk-line);
+  border-radius: 18px;
+  background: var(--mk-surface);
+  box-shadow: var(--mk-shadow);
+  overflow: hidden;
+  /* Posé ici et hérité : useInViewLoop bascule cette valeur à 'running'
+     quand le bloc entre à l'écran. */
+  animation-play-state: paused;
+}
+
+/* --- En-têtes de colonnes ------------------------------------------------ */
+
+.lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+.lane { display: flex; flex-direction: column; gap: 7px; }
+
+.laneLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--mk-ink-3);
+}
+/* Une seule couleur vive sur ce visuel : le rouge d'urgence. Les deux autres
+   niveaux restent en neutre — hiérarchiser, c'est accepter que tout ne soit
+   pas souligné. */
+.urgent { color: #B42318; }
+
+.laneTrack { height: 2px; border-radius: 2px; background: var(--mk-line); }
+.lane:first-child .laneTrack { background: #E7C3BF; }
+
+/* --- Lignes qui se rangent ----------------------------------------------- */
+
+.stack { position: relative; display: flex; flex-direction: column; gap: 8px; }
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid var(--mk-line);
+  border-radius: 10px;
+  background: var(--mk-surface);
+  /* La ligne part du centre, puis file vers sa colonne. translateX en
+     pourcentage de sa propre largeur : indépendant de la taille du bloc. */
+  animation: slot 11s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 260ms);
+  animation-play-state: inherit;
+  will-change: transform;
+}
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mk-line-strong); flex-shrink: 0; }
+.line[data-lane='0'] .dot { background: #B42318; }
+
+.label {
+  font-size: 0.74rem;
+  color: var(--mk-ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trois destinations, une keyframe par colonne. Les lignes partent alignées,
+   marquent un temps, puis se rangent et reviennent. */
+.line[data-lane='0'] { animation-name: toUrgent; }
+.line[data-lane='1'] { animation-name: toImportant; }
+.line[data-lane='2'] { animation-name: toNormal; }
+
+@keyframes toUrgent {
+  0%, 18% { transform: translateX(0) scale(1); opacity: 1; }
+  34%, 76% { transform: translateX(-32%) scale(0.92); opacity: 1; }
+  92%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+@keyframes toImportant {
+  0%, 18% { transform: translateX(0) scale(1); }
+  34%, 76% { transform: translateX(0) scale(0.92); }
+  92%, 100% { transform: translateX(0) scale(1); }
+}
+@keyframes toNormal {
+  0%, 18% { transform: translateX(0) scale(1); opacity: 1; }
+  /* 0.85 et non 0.55 : à 55 %, le libellé tombait à ~2,6:1 de contraste
+     pendant la moitié du cycle — sous le minimum AA de 4,5:1, et Lighthouse
+     le relève. Le retrait est déjà porté par la translation et le scale ;
+     l'opacité n'en était qu'un renfort, au prix de la lisibilité. */
+  34%, 76% { transform: translateX(32%) scale(0.92); opacity: 0.85; }
+  92%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line { animation: none; }
+}

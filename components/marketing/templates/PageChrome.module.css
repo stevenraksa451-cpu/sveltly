@@ -1,0 +1,131 @@
+/* Chrome commun — fil d'Ariane, queue de page, appel final. */
+
+.breadcrumb { padding: 26px 0 0; }
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0; padding: 0;
+  list-style: none;
+  font-size: 0.79rem;
+  color: var(--mk-ink-3);
+}
+.breadcrumb li { display: inline-flex; align-items: center; gap: 7px; }
+.breadcrumb li span { opacity: 0.4; }
+.breadcrumb a { color: inherit; text-decoration: none; }
+.breadcrumb a:hover { color: var(--mk-accent); }
+.breadcrumb li:last-child a { color: var(--mk-ink-2); }
+.breadcrumb a:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 3px; border-radius: 3px; }
+
+/* --- Queue de page -------------------------------------------------------- */
+
+.tailSection { padding: 64px 0; }
+
+.tailTitle {
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  margin-bottom: 26px;
+}
+
+.related { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+
+.relatedLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--mk-line);
+  border-radius: 14px;
+  background: var(--mk-surface);
+  font-size: 0.89rem;
+  font-weight: 500;
+  color: var(--mk-ink);
+  text-decoration: none;
+  transition:
+    border-color var(--mk-interaction) var(--mk-ease),
+    transform var(--mk-interaction) var(--mk-ease),
+    box-shadow var(--mk-interaction) var(--mk-ease);
+}
+.relatedLink:hover {
+  border-color: var(--mk-accent-line);
+  transform: translateY(-2px);
+  box-shadow: var(--mk-shadow);
+}
+.relatedLink:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 2px; }
+.relatedLink svg { color: var(--mk-ink-3); flex-shrink: 0; transition: transform var(--mk-interaction) var(--mk-ease); }
+.relatedLink:hover svg { transform: translateX(3px); color: var(--mk-accent); }
+
+/* --- Appel final ---------------------------------------------------------- */
+
+/* Bandeau horizontal : texte à gauche, bouton à droite, le tout sur la
+   largeur du cadre. En colonne, le titre occupait 390 px et laissait plus de
+   1000 px vides à sa droite sur chaque page. */
+.cta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 48px;
+  margin: 30px 0 96px;
+  padding: 56px 0 0;
+  border-top: 1px solid var(--mk-line);
+}
+
+.ctaTitle {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--mk-ink);
+  max-width: 22ch;
+  grid-column: 1;
+}
+.ctaBody {
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--mk-ink-2);
+  max-width: 52ch;
+  grid-column: 1;
+  margin-top: 12px;
+}
+
+/* Le bloc d'action occupe la colonne de droite, sur les deux rangées de
+   texte — il est donc aligné sur le bas du paragraphe. */
+.cta > :last-child {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: 10px;
+  background: var(--mk-accent);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
+}
+.ctaButton:hover { background: var(--mk-accent-hover); transform: translateY(-1px); }
+.ctaButton:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 3px; }
+
+.ctaNote { font-size: 0.79rem; color: var(--mk-ink-3); }
+
+@media (max-width: 860px) {
+  .cta { grid-template-columns: 1fr; gap: 20px; align-items: start; }
+  .ctaTitle, .ctaBody { grid-column: 1; }
+  .cta > :last-child { grid-column: 1; grid-row: auto; }
+}
+
+@media (max-width: 760px) {
+  .tailSection { padding: 44px 0; }
+  .cta { margin-bottom: 64px; }
+}

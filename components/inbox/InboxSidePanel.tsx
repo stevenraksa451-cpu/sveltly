@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Email } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTaskSafely } from '@/lib/tasks'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './InboxSidePanel.module.css'
@@ -83,6 +84,16 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
             startTime: analysis.eventStartTime,
             endTime: analysis.eventEndTime,
           } : null,
+          // L'action détectée manquait ici alors que /api/emails la reprend
+          // déjà : « Ajouter à mes tâches » retombait donc sur l'objet de
+          // l'email comme titre pour tout email analysé depuis ce panneau.
+          actionItemDetected: analysis.hasActionItem || false,
+          detectedAction: analysis.hasActionItem ? {
+            title: analysis.actionTitle,
+            priority: analysis.actionPriority,
+            category: analysis.actionCategory,
+            dueDate: analysis.actionDueDate,
+          } : null,
         }
         setAnalyzedFields(enriched)
         onAnalyzed?.(email.id, enriched)
@@ -100,15 +111,37 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
   const display: Email = analyzedFields ? { ...email, ...analyzedFields } : email
   const isArchived = email.labelIds?.includes('INBOX') === false
 
+  // Ajout manuel d'une tâche depuis un email. Trois défauts corrigés ici :
+  //  - le titre était l'OBJET de l'email, pas l'action à faire ; on reprend
+  //    d'abord le titre d'action rédigé par l'IA, bien plus exploitable dans
+  //    une liste de tâches qu'un « Re: suite à notre échange » ;
+  //  - `category` recevait le nom de l'expéditeur, qui vit désormais dans sa
+  //    propre colonne `source_label` (voir lib/tasks.ts) ;
+  //  - `from_email_id` n'était pas renseigné, si bien que ce bouton créait un
+  //    DOUBLON de la tâche déjà créée automatiquement pour le même email.
+  //    Avec la clé, la contrainte unique (user_id, from_email_id) rend
+  //    l'opération idempotente ; `ignoreDuplicates` garantit en plus qu'on ne
+  //    réécrit jamais une tâche existante — donc qu'on ne décoche jamais une
+  //    tâche déjà terminée.
   async function handleAddTask() {
     const { data: { session } } = await supabase.auth.getSession()
     const user = session?.user
     if (!user) return
-    await supabase.from('tasks').insert({
+
+    const action = display.detectedAction
+    const todayIso = new Date().toISOString().slice(0, 10)
+
+    await insertTaskSafely(supabase, {
       user_id: user.id,
-      title: email.subject,
-      category: email.sender,
+      title: action?.title || email.subject,
+      priority: resolveTaskPriority(action?.priority, display.priority),
+      category: resolveTaskCategory(action?.category, display.emailType),
+      due_date: resolveTaskDueDate(action?.dueDate, todayIso),
+      completed: false,
+      source_label: email.sender || null,
+      from_email_id: email.id,
     })
+
     setTaskAdded(true)
     setTimeout(() => setTaskAdded(false), 2000)
   }

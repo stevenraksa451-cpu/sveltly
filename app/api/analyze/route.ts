@@ -83,6 +83,9 @@ Classer à tort en "urgent" noie l'utilisateur sous de fausses alertes ; à tort
 - "Newsletter hebdo : nouveautés produit, gérez vos préférences d'abonnement ici." → priority="normal", type="newsletter" (Étape 1 : expéditeur automatisé + gestion de préférences).
 - "Le client a besoin du devis signé avant 17h aujourd'hui pour valider son budget." → priority="urgent", type="client_request" (délai explicite + dépendance bloquante).
 - "Pouvez-vous me faire une proposition de contrat pour le poste de développeur ?" → priority="important", type="job" (action réelle, aucun délai serré).
+- "Suite à notre chantier, voici ma facture de 1 200 € à régler sous 15 jours." envoyée par un client → type="invoice", pas "client_request" (règle 5 avant règle 9), priority="important", actionTitle="Régler la facture de 1 200 € du chantier", actionCategory="Finance".
+- "Je dois décaler notre point de jeudi à vendredi 10h, ça vous va ?" → type="change" (pas "meeting"), hasEvent=true, hasActionItem=false (la réponse suffit, rien à noter en plus).
+- "Je vous envoie le dossier complet demain matin." → type="info", hasActionItem=false (c'est l'expéditeur qui agit, pas l'utilisateur).
 
 ## RIGUEUR
 Relis l'email avant de rédiger (as-tu compris ce qui est vraiment demandé, pas juste le sujet apparent ?). Couvre TOUS les points soulevés, pas seulement le premier. Bannis toute tournure vague ou esquive dans ta propre réponse.
@@ -94,8 +97,30 @@ Tu n'es PAS un assistant qui conseille — tu ES l'utilisateur : tu rédiges la 
 - Prends de vraies décisions (accepter/refuser/proposer une alternative) selon ce que dit l'email, ne reste pas vague pour "laisser le choix"
 - Aucun commentaire ni note entre parenthèses — juste le texte brut, prêt à partir.
 
-## TYPE D'EMAIL — à déterminer en plus de la priorité
-"meeting" (réunion/rdv) · "deadline" (échéance à respecter) · "task" (tâche demandée directement) · "client_request" (demande client) · "confirmation" (déjà en cours) · "change" (modification/annulation d'un événement prévu) · "invoice" (facture/paiement) · "job" (candidature/opportunité pro) · "info" (info importante sans action immédiate) · "newsletter" · "promo" · "notification" (automatique) · "spam"
+## TYPE D'EMAIL — décision par ÉLIMINATION, dans CET ordre exact
+Parcours la liste de haut en bas. Le PREMIER cas qui s'applique gagne, tu t'arrêtes là et tu ne redescends jamais. La priorité et le type se décident séparément : un email peut être "invoice" et "normal".
+
+1. "spam" — phishing, usurpation d'identité, arnaque, extorsion.
+2. "promo" — le contenu principal est une offre commerciale, une réduction, une vente, un lancement produit.
+3. "newsletter" — contenu éditorial périodique, adressé à une liste et non à l'utilisateur en particulier.
+4. "notification" — message automatique émis par un service : code de vérification/2FA, alerte de connexion, reçu automatique, accusé de réception, statut de commande ou de livraison, rapport généré.
+5. "invoice" — facture, devis à régler, relevé, relance de paiement, échéancier, remboursement. Même venant d'un client : l'argent prime sur la relation.
+6. "meeting" — l'email PROPOSE, INVITE ou CONFIRME un rdv/réunion/appel à une date identifiable.
+7. "change" — l'email DÉPLACE, ANNULE ou MODIFIE un rdv déjà prévu.
+8. "deadline" — une échéance datée à respecter sans rdv associé : dépôt d'un document, fin d'un délai légal, expiration, renouvellement.
+9. "client_request" — demande, question ou retour d'un CLIENT ou d'un prospect (quelqu'un qui paie ou pourrait payer).
+10. "job" — candidature, offre de mission ou d'emploi, proposition de partenariat, prospection entrante.
+11. "task" — on demande explicitement à l'utilisateur de faire quelque chose, et l'expéditeur n'est PAS un client (collègue, prestataire, partenaire, administration).
+12. "confirmation" — confirme une chose DÉJÀ ACTÉE, rien à faire côté utilisateur.
+13. "info" — tout le reste : information réelle sans action attendue.
+
+**Départages qui reviennent le plus souvent :**
+- Facture envoyée par un client → "invoice" (5 passe avant 9).
+- Client qui demande un rendez-vous → "meeting" (6 passe avant 9).
+- Réunion annulée ou décalée → "change", jamais "meeting".
+- "Votre commande est expédiée" → "notification" (4 passe avant 12) : automatique avant acté.
+- Même demande, expéditeur différent : d'un collègue → "task" ; d'un client → "client_request".
+- Relance de paiement agressive → "invoice", et la priorité se décide séparément à l'Étape 3.
 
 ## COHÉRENCE TYPE/ÉVÉNEMENT (RÈGLE CRITIQUE)
 Si type = "meeting" ou "change" → "hasEvent" DOIT être true (jamais false, c'est une incohérence interdite). Quand hasEvent est true, tu DOIS remplir eventTitle, eventDate, eventStartTime (et eventEndTime si déductible) — jamais null dans ce cas.
@@ -104,15 +129,25 @@ Si type = "meeting" ou "change" → "hasEvent" DOIT être true (jamais false, c'
 En plus de "hasEvent" (rdv avec date ET heure identifiables), détecte séparément une demande d'ACTION SANS créneau précis — une chose à faire, sans rendez-vous associé (ex: "peux-tu m'envoyer le devis", "il faut valider ce document").
 
 Si présente, mets "hasActionItem" à true et remplis :
-- "actionTitle" : titre court à l'impératif, basé sur un élément réel de l'email (destinataire, objet précis), jamais générique comme "Traiter l'email"
-- "actionPriority" : "high" (ton/contexte pressant ou important), "medium" (demande normale), "low" (accessoire/secondaire)
+- "actionTitle" : VERBE À L'INFINITIF + objet précis + interlocuteur quand il est connu, 3 à 8 mots. Doit rester compréhensible seul, six jours plus tard, sans rouvrir l'email.
+  BON : "Envoyer le devis chantier à Marine Lecomte" · "Relire le contrat de prestation avant signature" · "Régler la facture n°2291 (540 €)"
+  INTERDIT : "Traiter l'email", "Répondre", "Voir le message", "Action requise", "Suivi" — un titre qui n'apprend rien oblige à rouvrir l'email et annule tout le gain.
+- "actionPriority" : "urgent" (à faire le jour même : échéance aujourd'hui/demain, ou quelqu'un est bloqué en attendant) · "high" (cette semaine, enjeu réel : client, argent, engagement pris) · "medium" (demande normale sans date) · "low" (accessoire, peut attendre indéfiniment sans conséquence)
+- "actionCategory" : EXACTEMENT une de ces neuf valeurs, jamais une autre chaîne, jamais null quand hasActionItem est true :
+  "Client" (travail ou réponse pour un client/prospect) · "Finance" (facture, paiement, devis, comptabilité) · "Administratif" (document officiel, déclaration, contrat, assurance, échéance légale) · "Rendez-vous" (préparer, confirmer ou déplacer un rdv) · "Opportunités" (candidature, mission, partenariat) · "Équipe" (collègue, prestataire, sous-traitant) · "Marketing" (la communication de l'utilisateur lui-même) · "Personnel" (hors travail) · "Autre" (rien de ce qui précède)
 - "actionDueDate" : si une échéance est mentionnée même vaguement ("avant vendredi", "cette semaine"), calcule la date calendaire réelle (même méthode que eventDate) au format YYYY-MM-DD. Sinon null — n'invente jamais une date.
 
-**hasEvent et hasActionItem sont INDÉPENDANTS** — un email peut avoir l'un, l'autre, les deux, ou aucun. Jamais hasActionItem=true pour la MÊME demande déjà couverte par hasEvent (ex: "viens à cette réunion" = hasEvent seul). Email purement informatif (promo, notification, newsletter, confirmation déjà actée) → les deux à false. Si hasActionItem est false, laisse actionTitle/actionPriority/actionDueDate à null.
+**hasEvent et hasActionItem sont INDÉPENDANTS** — un email peut avoir l'un, l'autre, les deux, ou aucun. Jamais hasActionItem=true pour la MÊME demande déjà couverte par hasEvent (ex: "viens à cette réunion" = hasEvent seul). Email purement informatif (promo, notification, newsletter, confirmation déjà actée) → les deux à false. Si hasActionItem est false, laisse actionTitle/actionPriority/actionCategory/actionDueDate à null.
+
+**UNE SEULE TÂCHE PAR EMAIL, LA PLUS ENGAGEANTE.** Si l'email demande plusieurs choses, n'en retiens qu'une : celle qui bloque les autres, ou à défaut celle qui porte l'échéance la plus proche. Les autres vont dans keyPoints. Une liste de tâches qui double de volume à chaque email long cesse d'être consultée — c'est l'inverse du service rendu.
 
 **EXCLUSIONS OBLIGATOIRES — jamais hasActionItem=true pour :**
 - Une action de sécurité à usage unique et éphémère : code de vérification/2FA à saisir, lien de réinitialisation de mot de passe, confirmation d'adresse email. Ces actions expirent en quelques minutes — en faire une tâche persistante n'a aucun sens, elle est déjà obsolète quand l'utilisateur la voit. type="notification" dans ce cas, pas "task".
 - Une sollicitation marketing déguisée en demande directe (répondre à un sondage, s'inscrire à une offre, "profitez-en maintenant") : même si l'email est formulé à l'impératif ("Commencez le sondage"), ce n'est pas une tâche pour l'utilisateur — c'est de la promo. type="promo", pas "task".
+- Une action que l'EXPÉDITEUR annonce faire lui-même ("je vous envoie le contrat demain", "je m'occupe de la réservation") : ce n'est pas une tâche de l'utilisateur. Attendre n'est pas une action.
+- Une action déjà accomplie au moment de l'email ("merci pour le devis reçu", "bien noté, c'est validé de notre côté") : la demande est close.
+- Une simple invitation à répondre, sans objet concret ("tenez-moi au courant", "dites-moi ce que vous en pensez", "n'hésitez pas") : le brouillon de réponse couvre déjà ce cas, une tâche en plus ferait doublon avec l'email lui-même.
+- Une action conditionnelle dont la condition n'est pas remplie ("si jamais vous changez d'avis, prévenez-moi").
 
 ## DATES RELATIVES — CALCUL OBLIGATOIRE
 Chaque email a sa propre date de réception ("Reçu le: ...") — c'est CETTE date qui sert de référence pour ses dates relatives, jamais la date du jour où tu traites la requête. "demain"/"lundi prochain"/"vendredi" → calcule la vraie date calendaire depuis la réception de CET email, au format YYYY-MM-DD (jamais de texte comme "demain"). Exemple : reçu lundi 2 mars, "réunion demain à 15h" → eventDate="2026-03-03", même si tu traites l'analyse plus tard dans la semaine. eventStartTime au format HH:MM (24h, zéro devant si besoin : "09:00" pas "9:00"). Si une date de réunion est donnée sans heure → hasEvent=true, eventDate rempli, eventStartTime=null dans ce cas précis uniquement.
@@ -145,7 +180,7 @@ ${toneSection}
 
 ## FORMAT DE RÉPONSE
 Retourne UNIQUEMENT un JSON valide :
-{"results": [{"index": 0, "priority": "urgent", "type": "meeting", "dailySummary": "réponse rédigée ici", "keyPoints": ["Bilan du projet", "Prochaines étapes"], "hasEvent": true, "eventTitle": "Réunion avec M. Lavoisier", "eventDate": "2026-09-06", "eventStartTime": "15:00", "eventEndTime": null, "hasActionItem": false, "actionTitle": null, "actionPriority": null, "actionDueDate": null, "aiReply": "réponse rédigée ici"}]}`
+{"results": [{"index": 0, "priority": "urgent", "type": "meeting", "dailySummary": "phrase de résumé ici", "keyPoints": ["Bilan du projet", "Prochaines étapes"], "hasEvent": true, "eventTitle": "Réunion avec M. Lavoisier", "eventDate": "2026-09-06", "eventStartTime": "15:00", "eventEndTime": null, "hasActionItem": true, "actionTitle": "Préparer le bilan trimestriel pour M. Lavoisier", "actionPriority": "high", "actionCategory": "Client", "actionDueDate": "2026-09-05", "aiReply": "réponse rédigée ici"}]}`
 }
 
 // Emails générés par Sveltly lui-même (digest quotidien, notifications système) —
@@ -178,38 +213,116 @@ function classifyGroqRateLimit(message: string): 'tokens_per_day' | 'rate_limit_
   return /per day/i.test(message) ? 'tokens_per_day' : 'rate_limit_per_minute'
 }
 
-function classifyByKeywords(subject: string, body: string): 'urgent' | 'important' | 'normal' {
-  const text = (subject + ' ' + body).toLowerCase()
-  const urgentWords = ['urgent', 'immédiat', 'aujourd\'hui', 'retard', 'impayé', 'relance', 'deadline', 'asap', 'critique', 'avant', 'rapidement', 'dès que possible']
-  const importantWords = ['devis', 'facture', 'réunion', 'rendez-vous', 'demande', 'client', 'contrat', 'proposition', 'projet', 'dossier', 'préparer']
-  if (urgentWords.some(w => text.includes(w))) return 'urgent'
-  if (importantWords.some(w => text.includes(w))) return 'important'
+// --- Repli sans IA (Groq indisponible) ---------------------------------------
+// Ce repli CONTREDISAIT le prompt qu'il remplace. L'ancienne version montait
+// en "urgent" dès qu'un mot de la liste apparaissait — dont « avant », un des
+// mots les plus courants du français, et « urgent », que le prompt dit
+// explicitement d'ignorer quand rien de concret ne le soutient. Une pub
+// « URGENT : offre valable avant ce soir » ressortait donc en urgence
+// absolue, exactement le cas que l'Étape 1 du prompt existe pour écarter.
+// Cette version applique le même ordre de décision que le prompt : filtre
+// automatisé d'abord, puis signal CONCRET exigé, jamais un mot seul.
+
+// Signaux d'email automatisé/commercial — Étape 1 du prompt système.
+const AUTOMATED_PATTERNS = [
+  /se\s+d[ée]sabonner|unsubscribe|g[ée]rer\s+(mes|vos)\s+pr[ée]f[ée]rences/i,
+  /ne\s+pas\s+r[ée]pondre\s+[àa]\s+cet\s+email|g[ée]n[ée]r[ée]\s+automatiquement|generated\s+automatically/i,
+  /code\s+(de\s+)?(v[ée]rification|confirmation)|verification\s+code|mot\s+de\s+passe\s+oubli[ée]/i,
+]
+const AUTOMATED_SENDER = /^(no-?reply|newsletter|marketing|notifications?|promo|info|news|mailer|bounce|do-?not-?reply)@/i
+const PROMO_PATTERNS = /(-\s?\d{1,2}\s?%|\b\d{1,2}\s?%\s+de\s+r[ée]duction|code\s+promo|vente\s+flash|offre\s+limit[ée]e|soldes|black\s+friday)/i
+
+function isAutomatedOrPromo(subject: string, body: string, senderEmail: string): boolean {
+  const text = `${subject} ${body}`
+  if (AUTOMATED_SENDER.test(senderEmail || '')) return true
+  if (PROMO_PATTERNS.test(text)) return true
+  return AUTOMATED_PATTERNS.some(p => p.test(text))
+}
+
+// Un signal « urgent » doit être CONCRET : une échéance datée proche, un
+// blocage en cours, une menace de pénalité. Pas un adjectif.
+const URGENT_SIGNALS = [
+  /mise\s+en\s+demeure|assignation|convocation|huissier/i,
+  /(p[ée]nalit[ée]s?|majoration|suspension|interruption)\s+(de\s+service|du\s+compte|appliqu)/i,
+  /compte\s+(bloqu|suspendu|compromis)/i,
+  /(panne|incident|indisponibilit[ée])\s+(en\s+cours|critique|de\s+production)/i,
+  /(avant|d'?ici|au\s+plus\s+tard)\s+(ce\s+soir|aujourd'?hui|demain|\d{1,2}\s?h)/i,
+  /sous\s+(24|48)\s*h/i,
+]
+
+// « important » : un enjeu réel est nommé, pas juste un mot de vocabulaire
+// professionnel. On exige le mot ET un contexte (montant, référence, demande).
+const IMPORTANT_SIGNALS = [
+  /\bfacture\b|\bdevis\b|\bcontrat\b|\bavoir\b|\br[ée]glement\b/i,
+  /\br[ée]union\b|\brendez-?vous\b|\bentretien\b|\bvisio\b/i,
+  /\b\d[\d\s.,]*\s?(€|eur|euros)\b/i,
+  /pouvez-vous|pourriez-vous|merci\s+de\s+(bien\s+vouloir|nous|me)|j'?attends\s+votre/i,
+  /[ée]ch[ée]ance|renouvellement|r[ée]siliation|pr[ée]avis/i,
+]
+
+function classifyByKeywords(subject: string, body: string, senderEmail: string): 'urgent' | 'important' | 'normal' {
+  // Étape 1 du prompt : l'automatisé/commercial est « normal », sans exception
+  // — y compris quand il crie « URGENT ».
+  if (isAutomatedOrPromo(subject, body, senderEmail)) return 'normal'
+
+  const text = `${subject} ${body}`
+  if (URGENT_SIGNALS.some(p => p.test(text))) return 'urgent'
+  if (IMPORTANT_SIGNALS.some(p => p.test(text))) return 'important'
   return 'normal'
 }
 
-function detectEvent(subject: string, body: string) {
-  const text = (subject + ' ' + body).toLowerCase()
-  return ['réunion', 'rendez-vous', 'meeting', 'conférence', 'appel', 'entretien', 'invitation'].some(w => text.includes(w))
+// Même resserrement : exige une vraie formulation de rendez-vous, pas le
+// simple mot « appel » ou « invitation » qui apparaît dans n'importe quelle
+// newsletter (« appel à candidatures », « invitation à découvrir »).
+const EVENT_SIGNALS = [
+  /\b(r[ée]union|rendez-?vous|entretien|visio|conf[ée]rence\s+call)\b/i,
+  /\b(le|ce|mardi|mercredi|jeudi|vendredi|lundi|samedi|dimanche)\s+\d{0,2}\s*\w*\s+[àa]\s+\d{1,2}\s?h/i,
+  /\bdisponible\s+(le|ce|lundi|mardi|mercredi|jeudi|vendredi)/i,
+]
+
+function detectEvent(subject: string, body: string, senderEmail: string) {
+  if (isAutomatedOrPromo(subject, body, senderEmail)) return false
+  const text = `${subject} ${body}`
+  return EVENT_SIGNALS.some(p => p.test(text))
+}
+
+// Type d'email en mode dégradé — volontairement grossier mais JAMAIS faux :
+// seulement ce qu'une regex peut établir sans ambiguïté. Tout le reste tombe
+// sur "info", qui n'enclenche aucune automatisation.
+function classifyTypeByKeywords(subject: string, body: string, senderEmail: string, hasEvent: boolean): string {
+  if (isAutomatedOrPromo(subject, body, senderEmail)) {
+    return PROMO_PATTERNS.test(`${subject} ${body}`) ? 'promo' : 'notification'
+  }
+  if (/\bfacture\b|\bdevis\b|\bimpay[ée]\b|invoice/i.test(`${subject} ${body}`)) return 'invoice'
+  if (hasEvent) return 'meeting'
+  return 'info'
 }
 
 function buildFallback(emails: any[]) {
-  return emails.map((e: any, i: number) => ({
-    index: i,
-    priority: classifyByKeywords(e.subject, e.body || e.preview || ''),
-    hasEvent: detectEvent(e.subject, e.body || e.preview || ''),
-    eventTitle: null,
-    eventDate: null,
-    eventStartTime: null,
-    eventEndTime: null,
-    // Pas de détection par mots-clés pour les tâches (contrairement à hasEvent) :
-    // générer un actionTitle plausible sans IA risquerait de créer des tâches au
-    // titre incohérent. En mode dégradé, on préfère ne rien créer plutôt que mal.
-    hasActionItem: false,
-    actionTitle: null,
-    actionPriority: null,
-    actionDueDate: null,
-    aiReply: `Bonjour,\n\nMerci pour votre message concernant "${e.subject}".\n\nJe reviens vers vous rapidement.\n\nCordialement`,
-  }))
+  return emails.map((e: any, i: number) => {
+    const body = e.body || e.preview || ''
+    const sender = e.senderEmail || ''
+    const hasEvent = detectEvent(e.subject, body, sender)
+    return {
+      index: i,
+      priority: classifyByKeywords(e.subject, body, sender),
+      type: classifyTypeByKeywords(e.subject, body, sender, hasEvent),
+      hasEvent,
+      eventTitle: null,
+      eventDate: null,
+      eventStartTime: null,
+      eventEndTime: null,
+      // Pas de détection par mots-clés pour les tâches (contrairement à hasEvent) :
+      // générer un actionTitle plausible sans IA risquerait de créer des tâches au
+      // titre incohérent. En mode dégradé, on préfère ne rien créer plutôt que mal.
+      hasActionItem: false,
+      actionTitle: null,
+      actionPriority: null,
+      actionCategory: null,
+      actionDueDate: null,
+      aiReply: `Bonjour,\n\nMerci pour votre message concernant "${e.subject}".\n\nJe reviens vers vous rapidement.\n\nCordialement`,
+    }
+  })
 }
 
 function buildEmailSummaries(
@@ -265,12 +378,41 @@ function enforceInformationalNoAction(result: any) {
   result.hasActionItem = false
   result.actionTitle = null
   result.actionPriority = null
+  result.actionCategory = null
   result.actionDueDate = null
   result.hasEvent = false
   result.eventTitle = null
   result.eventDate = null
   result.eventStartTime = null
   result.eventEndTime = null
+  return result
+}
+
+// Filet de sécurité sur la QUALITÉ du titre de tâche. Le prompt interdit les
+// titres génériques, mais une consigne de rédaction est le genre de règle
+// qu'un modèle relâche en premier quand l'email est pauvre en contenu. Une
+// tâche intitulée « Répondre » ou « Suivi » oblige à rouvrir l'email pour
+// savoir de quoi il s'agit : elle coûte plus de temps qu'elle n'en fait
+// gagner. Mieux vaut aucune tâche qu'une tâche illisible.
+const GENERIC_TITLE = /^(r[ée]pondre|traiter|suivi|action\s+requise|voir\s+(le\s+)?(message|mail|email)|[àa]\s+traiter|lire|v[ée]rifier|faire\s+le\s+suivi|relancer|prendre\s+connaissance)\.?$/i
+
+function enforceActionQuality(result: any) {
+  if (!result || typeof result !== 'object' || !result.hasActionItem) return result
+
+  const title = typeof result.actionTitle === 'string' ? result.actionTitle.trim() : ''
+  // < 3 mots : aucun titre utile ne tient en deux mots une fois le verbe posé.
+  const tooShort = title.split(/\s+/).filter(Boolean).length < 3
+
+  if (!title || tooShort || GENERIC_TITLE.test(title)) {
+    result.hasActionItem = false
+    result.actionTitle = null
+    result.actionPriority = null
+    result.actionCategory = null
+    result.actionDueDate = null
+    return result
+  }
+
+  result.actionTitle = title
   return result
 }
 
@@ -381,7 +523,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = JSON.parse(content)
     if (Array.isArray(parsed.results)) {
-      parsed.results = parsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction)
+      parsed.results = parsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction).map(enforceActionQuality)
     }
     await incrementUsage(limited.length)
     return NextResponse.json(parsed)
@@ -443,7 +585,7 @@ export async function POST(req: NextRequest) {
 
         const retryParsed = JSON.parse(retryContent)
         if (Array.isArray(retryParsed.results)) {
-          retryParsed.results = retryParsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction)
+          retryParsed.results = retryParsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction).map(enforceActionQuality)
         }
         await incrementUsage(retryLimited.length)
         return NextResponse.json(retryParsed)

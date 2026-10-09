@@ -5,6 +5,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useProfile } from '@/hooks/useProfile'
 import Sidebar from '@/components/layout/Sidebar'
 import NotificationManager from '@/components/NotificationManager'
+import PerfProbe from '@/components/PerfProbe'
 import { applyTheme, getStoredTheme, resetTheme, THEME_STORAGE_KEY, Theme } from '@/lib/theme'
 import styles from './app-layout.module.css'
 
@@ -43,6 +44,7 @@ export default function AppRouteLayout({ children }: { children: React.ReactNode
 
   return (
     <div className={styles.layout}>
+      <PerfProbe />
       <Sidebar />
       <NotificationManager />
       <div className={styles.main}>

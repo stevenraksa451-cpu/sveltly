@@ -1,0 +1,157 @@
+﻿.page {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 56px;
+  padding: 54px 0 48px;
+}
+
+.headerText { min-width: 0; }
+
+.title {
+  font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+  font-weight: 500;
+  line-height: 1.07;
+  letter-spacing: -0.042em;
+  color: var(--mk-ink);
+  max-width: 16ch;
+}
+
+.lede {
+  margin-top: 18px;
+  font-size: clamp(1rem, 1.6vw, 1.1rem);
+  line-height: 1.66;
+  color: var(--mk-ink-2);
+  max-width: 44ch;
+}
+
+.headerVisual { min-width: 0; }
+
+/* --- Frise ------------------------------------------------------------------ */
+
+/* La frise à gauche, une illustration collante à droite. C'est elle qui
+   occupe la largeur pendant qu'on fait défiler la journée — sans elle, la
+   moitié droite de l'écran resterait blanche sur toute la hauteur. */
+.timelineRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.52fr);
+  gap: 72px;
+  align-items: start;
+}
+
+.timelineSpot {
+  position: sticky;
+  top: 140px;
+  display: flex;
+  justify-content: center;
+  color: var(--mk-ink-3);
+}
+.timelineSpot svg { width: clamp(160px, 20vw, 260px); height: auto; }
+
+.timeline { margin: 0; padding: 0; list-style: none; min-width: 0; }
+
+/* Trois colonnes : l'heure, le rail, le texte. Le rail est une vraie colonne
+   et non un ::before sur le texte — c'est ce qui permet au trait de rester
+   continu quand les blocs ont des hauteurs très différentes. */
+.moment {
+  display: grid;
+  grid-template-columns: 62px 20px minmax(0, 1fr);
+  align-items: start;
+}
+
+.time {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--mk-ink);
+  font-variant-numeric: tabular-nums;
+  padding-top: 1px;
+}
+
+.rail {
+  position: relative;
+  align-self: stretch;
+  justify-self: center;
+  width: 1px;
+  background: var(--mk-line);
+}
+/* La pastille marque le moment. Pleine par défaut, creuse pour les moments
+   « calmes » — où justement il ne se passe rien. */
+.rail::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--mk-tint);
+}
+.momentQuiet .rail::before {
+  background: var(--mk-bg);
+  box-shadow: inset 0 0 0 1.5px var(--mk-line-strong);
+}
+/* Le dernier moment ne prolonge pas le trait : la journée s'arrête là. */
+.moment:last-child .rail { background: transparent; }
+
+.momentBody { padding: 0 0 40px 22px; min-width: 0; }
+
+.momentHeading {
+  font-size: 1.08rem;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--mk-ink);
+  margin-bottom: 8px;
+  max-width: 30ch;
+}
+.momentQuiet .momentHeading { color: var(--mk-ink-2); }
+
+.momentText { font-size: 0.96rem; line-height: 1.76; color: var(--mk-ink-2); max-width: 58ch; }
+.momentText p + p { margin-top: 0.9em; }
+.momentText strong { color: var(--mk-ink); font-weight: 600; }
+
+/* --- Constats ----------------------------------------------------------------- */
+
+/* Deux colonnes larges, séparées par un simple filet. Pas de cartes : après
+   une frise, une grille de cartes casserait le fil. */
+.takeaways {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0;
+  margin-top: 24px;
+  border-top: 1px solid var(--mk-line);
+}
+
+.takeaway { padding: 36px 36px 36px 0; border-left: 1px solid var(--mk-line); padding-left: 36px; }
+.takeaway:first-child { border-left: none; padding-left: 0; }
+
+.takeawayHeading {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.024em;
+  color: var(--mk-ink);
+  margin-bottom: 10px;
+  max-width: 22ch;
+}
+.takeawayBody { font-size: 0.95rem; line-height: 1.74; color: var(--mk-ink-2); }
+
+@media (max-width: 1000px) {
+  .timelineRow { grid-template-columns: 1fr; gap: 0; }
+  /* L'illustration passe avant la frise sur une colonne : la répéter en bas,
+     après la journée, n'aurait aucun sens. */
+  .timelineSpot { position: static; justify-content: flex-start; order: -1; margin-bottom: 28px; }
+}
+
+@media (max-width: 860px) {
+  .header { grid-template-columns: 1fr; gap: 30px; padding: 36px 0 36px; align-items: start; }
+  .title { max-width: none; }
+  .moment { grid-template-columns: 52px 18px minmax(0, 1fr); }
+  .momentBody { padding-left: 16px; padding-bottom: 32px; }
+  .takeaway { border-left: none; border-top: 1px solid var(--mk-line); padding: 26px 0; }
+  .takeaway:first-child { border-top: none; }
+}

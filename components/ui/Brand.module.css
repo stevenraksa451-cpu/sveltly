@@ -1,14 +1,15 @@
 /* components/ui/Brand.module.css */
-/* Même traitement que .text dans Logo.module.css — répété ici plutôt que
-   partagé via une classe commune : Brand doit rester utilisable seul (texte
-   courant, sans l'image du logo à côté), Logo.module.css reste
-   indépendant. */
+/* Même traitement que Logo.module.css — répété ici plutôt que partagé via
+   une classe commune : Brand doit rester utilisable seul (texte courant,
+   sans l'image du logo à côté), Logo.module.css reste indépendant. Texte
+   plein (hérite color du parent par défaut) + seul le "e" en couleur de
+   marque — pas de dégradé, voir la note dans Logo.module.css. */
 .brand {
   font-family: var(--font-brand);
   font-weight: 700;
   letter-spacing: -0.01em;
-  background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+}
+
+.e {
+  color: var(--color-primary);
 }

@@ -13,22 +13,19 @@
   gap: 12px;
 }
 
-.label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
+/* Sur-titre "VOTRE GAIN" retiré — voir app/page.module.css pour le
+   raisonnement, appliqué à toute la page. */
 .title {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -0.03em;
+}
+
+.titleSparkle {
+  display: inline-block;
+  vertical-align: super;
+  margin-left: 6px;
 }
 
 .desc {
@@ -52,12 +49,12 @@
   color: white;
 }
 
+/* Celui-ci reste : il nomme la valeur affichée juste en dessous, il
+   n'annonce pas une section. En casse normale, sans interlettrage forcé. */
 .resultLabel {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.72);
   margin-bottom: 10px;
 }
 
@@ -89,6 +86,18 @@
   margin-top: 8px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Posé sur la carte violette, pas sur le fond de page : les variables de
+   texte du thème (--text-secondary/--text-primary) y sont illisibles —
+   du gris foncé sur du violet saturé. Blanc translucide, comme le reste
+   des libellés de cette carte. */
+.resultBreakdown {
+  margin-top: 10px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+}
+.resultBreakdown strong { color: #fff; font-weight: 600; }
 
 .sliderBlock {
   width: 100%;

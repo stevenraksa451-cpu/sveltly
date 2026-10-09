@@ -6,7 +6,10 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Tableau de bord — Sveltly',
+  // Titre NU : le suffixe « — Sveltly » vient du gabarit title.template du
+  // layout racine (app/layout.tsx). Le répéter ici donnait « Tableau de bord — Sveltly —
+  // Sveltly » dans l'onglet.
+  title: 'Tableau de bord',
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -70,8 +70,6 @@ export default function DashboardPage() {
 
   return (
     <AppLayout title="Tableau de bord" subtitle="" hideTitle>
-      <div className={styles.pageGlow} aria-hidden="true" />
-
       <div className={styles.page}>
         <div className={styles.greeting}>
           <div>

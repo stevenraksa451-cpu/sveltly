@@ -3,7 +3,10 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Tâches — Sveltly',
+  // Titre NU : le suffixe « — Sveltly » vient du gabarit title.template du
+  // layout racine (app/layout.tsx). Le répéter ici donnait « Tâches — Sveltly —
+  // Sveltly » dans l'onglet.
+  title: 'Tâches',
 }
 
 export default function TasksLayout({ children }: { children: React.ReactNode }) {

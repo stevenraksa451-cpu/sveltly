@@ -1,0 +1,214 @@
+/* Châssis partagé ------------------------------------------------------- */
+
+.frame {
+  border: 1px solid var(--mk-line);
+  border-radius: 18px;
+  background: var(--mk-surface);
+  box-shadow: var(--mk-shadow);
+  overflow: hidden;
+  animation-play-state: paused;
+}
+
+.frameHead {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--mk-line);
+  background: var(--mk-surface-2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--mk-ink-3);
+}
+
+.frameBody { padding: 18px; }
+
+/* Résumé ---------------------------------------------------------------- */
+
+.summary { display: flex; flex-direction: column; gap: 12px; }
+
+.summaryLine {
+  position: relative;
+  padding-left: 14px;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--mk-ink-2);
+}
+.summaryLine::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.55em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--mk-accent);
+  opacity: 0;
+  animation: dotIn 9s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 900ms);
+  animation-play-state: inherit;
+}
+
+/* Masque qui se rétracte : le texte est intégralement dans le DOM dès le
+   départ (donc lisible par un lecteur d'écran et sélectionnable), seule sa
+   révélation est animée. clip-path n'entraîne ni layout ni repaint du texte. */
+.summaryText {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  animation: typeIn 9s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 900ms);
+  animation-play-state: inherit;
+}
+
+@keyframes typeIn {
+  0%, 4% { clip-path: inset(0 100% 0 0); }
+  18%, 88% { clip-path: inset(0 0 0 0); }
+  96%, 100% { clip-path: inset(0 100% 0 0); }
+}
+@keyframes dotIn {
+  0%, 4% { opacity: 0; transform: scale(0.4); }
+  14%, 88% { opacity: 1; transform: scale(1); }
+  96%, 100% { opacity: 0; transform: scale(0.4); }
+}
+
+/* Tâches ---------------------------------------------------------------- */
+
+.tasks { display: flex; flex-direction: column; gap: 8px; }
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border: 1px solid var(--mk-line);
+  border-radius: 10px;
+  animation: taskLift 10s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 700ms);
+  animation-play-state: inherit;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--mk-line-strong);
+  border-radius: 5px;
+  color: transparent;
+  animation: checkOn 10s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 700ms);
+  animation-play-state: inherit;
+}
+
+.taskText { flex: 1; font-size: 0.82rem; color: var(--mk-ink-2); }
+.taskDue { font-size: 0.72rem; color: var(--mk-ink-3); flex-shrink: 0; }
+
+@keyframes checkOn {
+  0%, 22% { background: transparent; border-color: var(--mk-line-strong); color: transparent; }
+  34%, 82% { background: var(--mk-accent); border-color: var(--mk-accent); color: #fff; }
+  94%, 100% { background: transparent; border-color: var(--mk-line-strong); color: transparent; }
+}
+@keyframes taskLift {
+  0%, 22% { transform: translateY(0); opacity: 1; }
+  34%, 82% { transform: translateY(-2px); opacity: 0.68; }
+  94%, 100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Agenda ---------------------------------------------------------------- */
+
+.agenda { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 2px 0; }
+.slot { display: flex; align-items: center; gap: 10px; }
+.slotTime { width: 30px; flex-shrink: 0; font-size: 0.68rem; color: var(--mk-ink-3); font-variant-numeric: tabular-nums; }
+.slotLine { flex: 1; height: 1px; background: var(--mk-line); }
+
+.block {
+  position: absolute;
+  left: 40px; right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border-left: 3px solid var(--mk-accent);
+  background: var(--mk-accent-soft);
+  animation-play-state: inherit;
+  will-change: transform, opacity;
+}
+/* Le bloc prioritaire se pose en premier, l'autre s'installe ensuite —
+   l'ordre d'apparition EST le propos du visuel. */
+.blockFirst { top: 34%; animation: blockIn 9s var(--mk-ease) infinite; }
+.blockSecond {
+  top: 66%;
+  border-left-color: var(--mk-line-strong);
+  background: var(--mk-surface-2);
+  animation: blockIn 9s var(--mk-ease) infinite 1.1s;
+}
+
+.blockTitle { font-size: 0.78rem; font-weight: 600; color: var(--mk-ink); }
+.blockMeta { font-size: 0.68rem; color: var(--mk-ink-3); }
+
+@keyframes blockIn {
+  0%, 6% { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  20%, 86% { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(-8px) scale(0.98); }
+}
+
+/* Réponses -------------------------------------------------------------- */
+
+.quoted {
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--mk-surface-2);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--mk-ink-3);
+  margin-bottom: 12px;
+}
+
+.tones { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.tone {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 99px;
+  border: 1px solid var(--mk-line);
+  color: var(--mk-ink-3);
+  animation: toneOn 12s steps(1) infinite;
+  animation-delay: calc(var(--d) * 4s);
+  animation-play-state: inherit;
+}
+
+@keyframes toneOn {
+  0%, 33.3% { background: var(--mk-accent); border-color: var(--mk-accent); color: #fff; }
+  33.4%, 100% { background: transparent; border-color: var(--mk-line); color: var(--mk-ink-3); }
+}
+
+/* Les trois brouillons se superposent : le conteneur garde la hauteur du
+   plus long, donc aucun saut de mise en page quand le texte change. */
+.drafts { position: relative; min-height: 4.8em; }
+
+.draft {
+  position: absolute;
+  inset: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--mk-ink);
+  opacity: 0;
+  animation: draftOn 12s var(--mk-ease) infinite;
+  animation-delay: calc(var(--d) * 4s);
+  animation-play-state: inherit;
+}
+
+@keyframes draftOn {
+  0% { opacity: 0; transform: translateY(5px); }
+  4%, 29% { opacity: 1; transform: none; }
+  33.3%, 100% { opacity: 0; transform: translateY(-5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summaryText { clip-path: none; }
+  .summaryLine::before { opacity: 1; }
+  .check { background: var(--mk-accent); border-color: var(--mk-accent); color: #fff; }
+  .block, .draft { opacity: 1; }
+  /* Sans animation, les trois brouillons empilés se chevaucheraient : on
+     n'en garde qu'un. */
+  .draft:not(:first-child) { display: none; }
+  .tone:first-child { background: var(--mk-accent); border-color: var(--mk-accent); color: #fff; }
+}

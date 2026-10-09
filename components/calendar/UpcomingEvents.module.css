@@ -1,8 +1,15 @@
+/* --border (et non --border-light) : les deux autres colonnes de la page
+   Agenda portent ce filet, et celle-ci paraissait délavée à côté d'elles.
+   Règle : filet --border pour une carte de premier plan (--radius-card),
+   --border-light pour une carte secondaire empilée (--radius-card-sm). */
 .card {
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
   overflow: hidden;
+  /* Colonne : l'état vide peut alors occuper la hauteur restante. */
+  display: flex;
+  flex-direction: column;
 }
 
 .header { padding: 16px 20px 4px; display: flex; align-items: center; justify-content: space-between; }
@@ -60,4 +67,14 @@
   margin-top: 6px;
 }
 
-.empty { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+/* Voir EventList.module.css : même raison, même geste. */
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

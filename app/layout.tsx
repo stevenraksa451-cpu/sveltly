@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import '@/styles/globals.css'
+import { BRAND_NAME, BRAND_TAGLINE, BRAND_DESCRIPTION, SITE_URL } from '@/lib/brand'
 
 // Police auto-hébergée par Next.js (build time) : pas de round-trip réseau
 // vers fonts.googleapis.com au chargement, donc pas de blocage du premier rendu.
@@ -26,9 +27,38 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
 })
 
+// metadataBase manquait : sans elle, Next.js ne peut pas résoudre les URL
+// Open Graph relatives et les émet telles quelles — un partage sur un réseau
+// social ou dans une messagerie ne récupérait donc ni image ni URL valide.
+// Elle sert aussi de base aux canoniques construites par lib/content/meta.ts.
+//
+// Le gabarit de titre évite de réécrire « — Sveltly » dans chaque page : une
+// page qui définit `title: 'Tarifs'` affiche « Tarifs — Sveltly », et la page
+// d'accueil garde le titre complet via `default`.
 export const metadata: Metadata = {
-  title: 'Sveltly — Gestion d\'emails par IA',
-  description: 'Sveltly trie, répond et planifie vos emails automatiquement grâce à l\'intelligence artificielle.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
+    template: `%s — ${BRAND_NAME}`,
+  },
+  description: BRAND_DESCRIPTION,
+  applicationName: BRAND_NAME,
+  // Évite que Safari iOS transforme les nombres des pages tarifs/calculateur
+  // en liens téléphoniques, ce qui casse la mise en page et le contraste.
+  formatDetection: { telephone: false, address: false, email: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      // Laisse Google afficher un extrait complet et une grande image dans
+      // les résultats, plutôt que les valeurs prudentes par défaut.
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

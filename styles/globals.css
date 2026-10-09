@@ -65,11 +65,36 @@
   --purple: #6D28D9;
   --purple-light: #F1EDFC;
   --sidebar-width: 256px;
+  /* Largeur maximale du contenu de l’espace connecté. Portée par <main>
+     (AppLayout.module.css) ET par la barre du haut (Header.module.css) :
+     la barre débordait sur toute la largeur de la fenêtre pendant que le
+     contenu restait centré dessous. S’élargit quand la barre latérale se
+     replie, pour que le cadre ne saute pas. */
+  --content-max: calc(1280px + (256px - var(--sidebar-width)));
   --header-height: 60px;
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+
+  /* FORME DES CARTES — source unique.
+     Le rayon asymétrique est la signature visuelle de l'app (on la retrouve
+     sur la vitrine). Elle était redéclarée à la main dans 25 fichiers avec
+     cinq valeurs différentes — 18, 20, 22, 24 et 28 px — si bien que deux
+     cartes côte à côte sur le même écran n'avaient pas le même profil.
+     Deux niveaux, et deux seulement :
+       --radius-card    : une carte de premier plan (colonne, panneau, bloc)
+       --radius-card-sm : un bloc imbriqué DANS une carte, ou une carte
+                          compacte (encart de barre latérale, ligne groupée)
+     Ne pas réintroduire de rayon asymétrique en dur. */
+  --radius-card: 24px var(--radius-lg) 24px var(--radius-lg);
+  --radius-card-sm: 18px var(--radius) 18px var(--radius);
+
+  /* RYTHME DES CARTES — même logique : la gouttière intérieure d'une carte
+     et l'écart entre deux cartes étaient recopiés à la main partout, ce qui
+     désalignait le texte d'une colonne à l'autre. */
+  --card-pad: 20px;
+  --card-gap: 16px;
   --shadow-sm: 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.09);
   --shadow: 0 3px 12px rgba(15,23,42,0.10), 0 1px 4px rgba(15,23,42,0.08);
   --shadow-lg: 0 10px 36px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.08);
@@ -131,10 +156,17 @@
   box-sizing: border-box;
 }
 
+/* `clip` et non `hidden` — la différence est décisive ici.
+   `overflow-x: hidden` force `overflow-y` à `auto` et fait de l'élément un
+   conteneur de défilement : toute barre en `position: sticky` à l'intérieur
+   se cale alors sur CE conteneur au lieu de la fenêtre, et ne tient plus au
+   défilement. `overflow-x: clip` rogne le débordement horizontal exactement
+   pareil, sans créer de conteneur de défilement — la barre de navigation
+   reste donc collée en haut (voir components/landing/nav/Navbar.module.css). */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
 }
 
@@ -147,7 +179,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'kern' 1;
   letter-spacing: -0.01em;
-  overflow-x: hidden;
+  /* Même raison que pour html ci-dessus. */
+  overflow-x: clip;
   max-width: 100%;
 }
 

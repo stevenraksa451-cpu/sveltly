@@ -1,0 +1,113 @@
+/* Deux colonnes, pas de carte « recommandée » en relief : le Pro se
+   distingue par une bordure un peu plus marquée, rien de plus. Les badges
+   dorés et les ombres portées font vendeur. */
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+  padding: 20px 0 48px;
+  max-width: 720px;
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 26px;
+  border: 1px solid var(--mk-line);
+  border-radius: 16px;
+  background: var(--mk-surface);
+}
+.planPro { border-color: var(--mk-accent-line); }
+
+.planName { font-size: 1.05rem; font-weight: 500; color: var(--mk-ink); letter-spacing: -0.02em; }
+.planTagline { font-size: 0.86rem; color: var(--mk-ink-3); margin-top: 4px; min-height: 2.6em; line-height: 1.5; }
+
+.planPrice {
+  margin-top: 12px;
+  font-size: 2.1rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--mk-ink);
+  font-variant-numeric: tabular-nums;
+}
+.planPeriod { font-size: 0.88rem; font-weight: 400; color: var(--mk-ink-3); margin-left: 3px; }
+.planAnnual { font-size: 0.79rem; color: var(--mk-ink-3); margin-top: 4px; }
+
+.planBtn, .planBtnPro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 22px 0 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--mk-interaction) var(--mk-ease), border-color var(--mk-interaction) var(--mk-ease), color var(--mk-interaction) var(--mk-ease);
+}
+.planBtn { border: 1px solid var(--mk-line-strong); color: var(--mk-ink); }
+.planBtn:hover { border-color: var(--mk-accent); color: var(--mk-accent); }
+.planBtnPro { background: var(--mk-accent); color: #fff; }
+.planBtnPro:hover { background: var(--mk-accent-hover); }
+.planBtn:focus-visible, .planBtnPro:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 3px; }
+
+.planList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+/* Un tiret cadratin plutôt qu'une coche : une liste de coches vertes est le
+   réflexe de toutes les grilles tarifaires, et n'ajoute aucune information. */
+.planList li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--mk-ink-2);
+}
+.planList li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--mk-line-strong);
+}
+
+/* --- Comparatif ------------------------------------------------------------ */
+
+.tableSection { padding: 10px 0 40px; }
+
+.tableTitle {
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  margin-bottom: 22px;
+}
+
+.tableWrap { overflow-x: auto; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 0.89rem; min-width: 460px; }
+
+.table thead th {
+  text-align: left;
+  padding: 0 18px 12px;
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: var(--mk-ink-3);
+  border-bottom: 1px solid var(--mk-line-strong);
+}
+.table thead th:first-child { padding-left: 0; }
+
+.table tbody th { text-align: left; font-weight: 400; color: var(--mk-ink-2); padding: 15px 18px 15px 0; }
+.table tbody td { padding: 15px 18px; color: var(--mk-ink-3); }
+.table tbody tr + tr th, .table tbody tr + tr td { border-top: 1px solid var(--mk-line); }
+.proCell { color: var(--mk-ink); }
+
+/* Lisible par les lecteurs d'écran uniquement : un <caption> affiché
+   répéterait le titre juste au-dessus. */
+.srOnly {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

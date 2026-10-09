@@ -1,28 +1,31 @@
-.syncBar {
+/* Barre d'outils de la page — une seule, voir le commentaire dans page.tsx. */
+.toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  margin-bottom: 16px;
+  margin-bottom: var(--card-gap);
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card-sm);
+  flex-wrap: wrap;
+}
+
+.toolbarContext {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .syncMode {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-
-.syncActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.syncMessage {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
@@ -48,8 +51,8 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 340px 320px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 340px 320px;
+  gap: var(--card-gap);
   align-items: stretch;
 }
 

@@ -1,0 +1,289 @@
+/* components/marketing/MarketingPage.module.css
+   Mise en page commune aux pages marketing. Reprend les variables de thème,
+   le rayon asymétrique et la respiration de la landing — aucune nouvelle
+   couleur n'est introduite ici. */
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* --- Fil d'Ariane -------------------------------------------------------- */
+
+.breadcrumb { padding: 26px 0 0; }
+.breadcrumbList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.breadcrumbList li { display: inline-flex; align-items: center; gap: 6px; }
+.breadcrumbList a { color: inherit; text-decoration: none; }
+.breadcrumbList a:hover { color: var(--accent); text-decoration: underline; }
+.breadcrumbList li:last-child a { color: var(--text-secondary); font-weight: 500; }
+.sep { opacity: 0.45; }
+
+/* --- Hero ---------------------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  padding: 56px 0 72px;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 4.2vw, 3rem);
+  font-weight: 550;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.heroSubtitle {
+  margin-top: 18px;
+  font-size: 1.04rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+
+.heroCta { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 30px; }
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: 99px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.94rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ctaPrimary:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(37, 99, 235, 0.34); }
+.ctaPrimary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.ctaNote { font-size: 0.78rem; color: var(--text-muted); }
+
+.heroMock { min-width: 0; }
+
+/* --- Problème / solution ------------------------------------------------- */
+
+.contrast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+
+.contrastCard {
+  padding: 28px 26px;
+  border-radius: 24px var(--radius-lg) 24px var(--radius-lg);
+  border: 1px solid var(--border-light);
+}
+/* Le bloc "problème" reste neutre et sobre ; seul le bloc "solution" porte la
+   couleur d'accent. Dramatiser le problème en rouge serait une facilité. */
+.contrastProblem { background: var(--bg-subtle); }
+.contrastSolution { background: var(--accent-light); border-color: var(--accent-muted); }
+
+.contrastTitle { font-size: 1.02rem; font-weight: 600; color: var(--text-primary); margin-bottom: 9px; letter-spacing: -0.015em; }
+.contrastBody { font-size: 0.92rem; line-height: 1.68; color: var(--text-secondary); }
+.contrastSolution .contrastBody { color: var(--text-primary); }
+
+/* --- Sections ------------------------------------------------------------ */
+
+.section { padding: 56px 0; }
+
+.sectionTitle {
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+}
+
+/* --- Étapes -------------------------------------------------------------- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.step {
+  position: relative;
+  padding: 26px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 24px var(--radius-lg) 24px var(--radius-lg);
+}
+
+/* Le numéro est une information réelle ici : ces étapes se suivent dans le
+   temps, l'ordre compte. */
+.stepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.stepTitle { font-size: 0.98rem; font-weight: 600; color: var(--text-primary); margin-bottom: 7px; }
+.stepDesc { font-size: 0.89rem; line-height: 1.62; color: var(--text-secondary); }
+
+/* --- Fonctionnalités ----------------------------------------------------- */
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.featureCard {
+  padding: 24px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 22px var(--radius-lg) 22px var(--radius-lg);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.featureCard:hover { transform: translateY(-2px); border-color: var(--accent-muted); }
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--accent-light);
+  color: var(--accent);
+  margin-bottom: 13px;
+}
+
+.featureTitle { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+.featureDesc { font-size: 0.87rem; line-height: 1.62; color: var(--text-secondary); }
+
+/* --- Journée type -------------------------------------------------------- */
+
+.storyIntro { font-size: 0.96rem; line-height: 1.68; color: var(--text-secondary); max-width: 62ch; margin-bottom: 26px; }
+
+.timeline { margin: 0; padding: 0; list-style: none; }
+
+.moment {
+  display: grid;
+  grid-template-columns: 62px 18px 1fr;
+  align-items: start;
+  gap: 0;
+}
+
+.momentTime {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  padding-top: 1px;
+}
+
+/* Le trait vertical relie les moments entre eux ; la pastille marque chacun.
+   Le dernier n'a pas de trait, sinon la frise continuerait dans le vide. */
+.momentLine {
+  position: relative;
+  align-self: stretch;
+  width: 1px;
+  margin: 6px auto 0;
+  background: var(--border);
+}
+.momentLine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.moment:last-child .momentLine { background: transparent; }
+
+.momentText {
+  font-size: 0.91rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  padding: 0 0 22px 16px;
+}
+
+/* --- Voir aussi ---------------------------------------------------------- */
+
+.relatedGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+
+.relatedCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 18px var(--radius) 18px var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.relatedCard:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--accent); }
+.relatedCard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.relatedCard svg { flex-shrink: 0; transition: transform 0.18s ease; }
+.relatedCard:hover svg { transform: translateX(3px); }
+
+/* --- CTA final ------------------------------------------------------------ */
+
+.finalCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  margin: 40px 0 88px;
+  padding: 60px 32px;
+  border-radius: 36px var(--radius-xl) 36px var(--radius-xl);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+}
+.finalCtaTitle { font-size: clamp(1.4rem, 2.6vw, 1.85rem); font-weight: 550; letter-spacing: -0.035em; color: var(--text-primary); }
+.finalCtaDesc { font-size: 0.95rem; color: var(--text-secondary); max-width: 46ch; margin-bottom: 8px; }
+
+/* --- Adaptatif ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .page { padding: 0 24px; }
+  .hero { grid-template-columns: 1fr; gap: 36px; padding: 36px 0 52px; }
+  .contrast { grid-template-columns: 1fr; }
+  .section { padding: 40px 0; }
+  .moment { grid-template-columns: 54px 18px 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaPrimary, .featureCard, .relatedCard, .relatedCard svg { transition: none; }
+}

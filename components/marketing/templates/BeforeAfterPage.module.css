@@ -1,0 +1,203 @@
+﻿.page {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter);
+}
+
+/* Titre aligné à gauche, comme tous les autres gabarits. La version centrée
+   précédente laissait près de 500 px de vide de chaque côté et donnait
+   l'impression d'une page plus étroite que les voisines — alors que le cadre
+   est rigoureusement le même partout. Titre et accroche se partagent donc la
+   largeur, côte à côte. */
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 56px;
+  padding: 54px 0 36px;
+}
+
+.title {
+  font-size: clamp(2.1rem, 4.6vw, 3.1rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.042em;
+  color: var(--mk-ink);
+  max-width: 15ch;
+}
+
+.lede {
+  font-size: clamp(1rem, 1.6vw, 1.1rem);
+  line-height: 1.66;
+  color: var(--mk-ink-2);
+  max-width: 48ch;
+  padding-bottom: 4px;
+}
+
+/* --- Démonstration --------------------------------------------------------- */
+
+.demo { margin-bottom: 20px; }
+
+.switchRow { display: flex; justify-content: center; margin-bottom: 22px; }
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--mk-line);
+  border-radius: 99px;
+  background: var(--mk-surface-2);
+}
+
+.switchBtn {
+  position: relative;
+  z-index: 1;
+  padding: 8px 20px;
+  border: none;
+  background: none;
+  border-radius: 99px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--mk-ink-3);
+  cursor: pointer;
+  transition: color var(--mk-interaction) var(--mk-ease);
+}
+.switchBtnOn { color: var(--mk-ink); }
+.switchBtn:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 2px; }
+
+/* La pastille glisse derrière les deux libellés. Largeur à 50 % du
+   conteneur moins le padding, donc indépendante de la longueur des mots. */
+.switchThumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 99px;
+  background: var(--mk-surface);
+  box-shadow: var(--mk-shadow);
+  transition: transform 260ms var(--mk-ease);
+}
+.switchThumbRight { transform: translateX(100%); }
+
+/* Les deux états se superposent : la première couche occupe la place (flux
+   normal), la seconde est absolue par-dessus. Résultat : aucune variation
+   de hauteur à la bascule. */
+.stage { position: relative; }
+.stage > .state:nth-child(2) { position: absolute; inset: 0; }
+
+.state {
+  transition: opacity 300ms var(--mk-ease), transform 300ms var(--mk-ease);
+}
+.stateHidden {
+  opacity: 0;
+  transform: scale(0.99);
+  pointer-events: none;
+}
+
+.caption {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--mk-ink-3);
+  max-width: 46ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Texte ------------------------------------------------------------------ */
+
+/* Deux colonnes : le texte à gauche, une illustration qui tient la droite.
+   La colonne de texte garde sa mesure courte ; c'est l'illustration qui
+   occupe la largeur gagnée, au lieu de la laisser vide. */
+.proseRow {
+  display: grid;
+  grid-template-columns: minmax(0, var(--mk-measure)) minmax(0, 1fr);
+  gap: 64px;
+  margin-top: 72px;
+  align-items: start;
+}
+
+.prose { min-width: 0; }
+
+.proseSpot {
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  /* 64px de barre collante + une marge de respiration : l'illustration
+     accompagne la lecture au lieu de défiler hors de l'écran. */
+  top: 120px;
+  color: var(--mk-ink-3);
+}
+.proseSpot svg { width: clamp(150px, 18vw, 240px); height: auto; }
+
+.section + .section { margin-top: 44px; }
+
+.sectionHeading {
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  margin-bottom: 14px;
+  max-width: 24ch;
+}
+
+.sectionBody { font-size: 1rem; line-height: 1.78; color: var(--mk-ink-2); }
+.sectionBody p + p { margin-top: 1.1em; }
+.sectionBody strong { color: var(--mk-ink); font-weight: 600; }
+
+/* --- Liste de détails (filets, pas de cartes) -------------------------------- */
+
+.details { margin: 56px 0 0; padding: 0; }
+
+/* Le terme occupe une colonne fixe, la description prend tout le reste : la
+   liste traverse donc la pleine largeur, alignée de haut en bas. */
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+  gap: 48px;
+  padding: 24px 0;
+  border-top: 1px solid var(--mk-line);
+}
+.detail:last-child { border-bottom: 1px solid var(--mk-line); }
+
+.detailTerm { font-size: 0.95rem; font-weight: 500; color: var(--mk-ink); margin: 0; }
+.detailDesc { font-size: 0.93rem; line-height: 1.72; color: var(--mk-ink-2); margin: 0; }
+
+/* --- Appel intermédiaire ------------------------------------------------------ */
+
+.midCta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 56px; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: 10px;
+  background: var(--mk-accent);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
+}
+.button:hover { background: var(--mk-accent-hover); transform: translateY(-1px); }
+.button:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 3px; }
+
+.note { font-size: 0.79rem; color: var(--mk-ink-3); }
+
+@media (max-width: 1000px) {
+  .proseRow { grid-template-columns: 1fr; gap: 36px; margin-top: 48px; }
+  .proseSpot { position: static; justify-content: flex-start; }
+}
+
+@media (max-width: 860px) {
+  .header { grid-template-columns: 1fr; gap: 18px; align-items: start; }
+  .title { max-width: none; }
+}
+
+@media (max-width: 760px) {
+  .header { padding: 36px 0 28px; }
+  .detail { grid-template-columns: 1fr; gap: 8px; }
+}

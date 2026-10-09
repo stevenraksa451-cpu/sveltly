@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase'
+import { timed, startAction } from '@/lib/perf'
 
 // Au-delà de cette ancienneté, une tâche terminée n'est plus chargée par
 // défaut — sans cette limite, /tasks rapatriait l'historique complet des
@@ -25,6 +26,10 @@ function archiveCutoffIso(): string {
 const UNDEFINED_COLUMN = '42703'
 
 async function fetchTasks() {
+  return timed('tasks.load', fetchTasksInner)
+}
+
+async function fetchTasksInner() {
   // getSession() (pas getUser()) : évite un aller-retour réseau rien que
   // pour obtenir l'id déjà présent dans la session locale — ce hook tourne
   // en parallèle de useEmails/useCalendarEvents sur plusieurs pages à la
@@ -95,6 +100,15 @@ async function fetchArchivedTasks() {
 // TasksCard plutôt que dupliqué, pour que ce repli n'ait qu'un seul endroit
 // à tenir à jour.
 export async function toggleTaskCompletion(id: string, completed: boolean): Promise<string | null> {
+  const end = startAction('task.toggle')
+  try {
+    return await toggleTaskCompletionInner(id, completed)
+  } finally {
+    end({ completed: !completed })
+  }
+}
+
+async function toggleTaskCompletionInner(id: string, completed: boolean): Promise<string | null> {
   const completedAt = !completed ? new Date().toISOString() : null
   const { error } = await supabase.from('tasks').update({ completed: !completed, completed_at: completedAt }).eq('id', id)
   if (error && (error.code === UNDEFINED_COLUMN || error.code === 'PGRST204')) {

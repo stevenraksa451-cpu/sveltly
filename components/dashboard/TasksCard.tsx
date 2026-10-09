@@ -10,6 +10,7 @@ interface Task {
   id: string
   title: string
   category: string | null
+  source_label: string | null
   due_date: string | null
   completed: boolean
   position: number
@@ -144,7 +145,14 @@ function TasksCard() {
           {[...Array(4)].map((_, i) => <div key={i} className={`${styles.skeletonItem} skeleton`} />)}
         </div>
       ) : displayTasks.length === 0 ? (
-        <div className={styles.empty}><p>Aucune tâche pour l'instant.</p></div>
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon} aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </span>
+          <p>Aucune tâche pour l'instant.</p>
+        </div>
       ) : (
         <div className={styles.list}>
           {displayTasks.map(task => {
@@ -162,7 +170,11 @@ function TasksCard() {
                 </button>
                 <div className={styles.itemContent}>
                   <p className={styles.itemTitle}>{task.title}</p>
-                  {task.category && task.category !== 'email' && <p className={styles.itemSub}>{task.category}</p>}
+                  {/* La provenance (qui a envoyé l'email) plutôt que la
+                      catégorie : dans une carte de trois lignes, savoir de qui
+                      vient la demande situe mieux que de savoir qu'elle est
+                      classée « Client ». La catégorie reste visible sur /tasks. */}
+                  {(task.source_label || task.category) && <p className={styles.itemSub}>{task.source_label || task.category}</p>}
                 </div>
                 {task.from_email_id && (
                   <span className={styles.emailBadge} title="Créée automatiquement depuis un email">

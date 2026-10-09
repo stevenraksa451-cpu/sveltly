@@ -36,18 +36,35 @@
 
 .dots {
   display: flex;
-  gap: 6px;
+  gap: 2px;
 }
 
+/* La pastille visible fait 6 px, mais la CIBLE doit faire 24 px — le minimum
+   retenu par Lighthouse et le WCAG 2.2 pour une cible tactile. Avec 6 px, il
+   fallait viser au pixel près sur un téléphone. Le bouton porte donc la
+   surface cliquable, et un ::before dessine la pastille au centre. */
 .dot {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.dot::before {
+  content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--border);
-  transition: all var(--transition);
+  transition: width var(--transition), background var(--transition);
 }
-.dot:hover { background: var(--text-muted); }
-.dotActive {
+.dot:hover::before { background: var(--text-muted); }
+.dot:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+.dotActive::before {
   width: 18px;
   border-radius: 99px;
   background: var(--accent);
@@ -60,8 +77,11 @@
   margin: 0 auto;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  /* Rayon asymétrique — détail signature de l'identité (voir aussi
-     app/page.module.css .stepCard/.featureCard). */
+  /* Seule entorse volontaire à --radius-card (styles/globals.css) : ce cadre
+     fait 480 px de haut, soit quatre fois une carte courante. Au même rayon
+     de 24 px, le coin paraît plus serré à cette échelle. 32 px conserve le
+     rapport. C'est la SEULE surface du produit dans ce cas — partout
+     ailleurs, utiliser le token. */
   border-radius: 32px var(--radius-lg) 32px var(--radius-lg);
   padding: 24px 24px 26px;
   min-height: 480px;

@@ -1,5 +1,5 @@
 // app/api/emails/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { getPlan } from '@/lib/plans'
@@ -7,6 +7,20 @@ import { encryptToken, decryptToken } from '@/lib/token-crypto'
 import { getGmailMailboxes, tryAcrossMailboxes } from '@/lib/gmail-mailbox'
 import { getCachedEmails, setCachedEmails, CACHE_DURATION } from '@/lib/email-cache'
 import { createGoogleCalendarEvent } from '@/lib/google-calendar-sync'
+import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTaskSafely } from '@/lib/tasks'
+
+// L'analyse IA + planification/tâches/archivage tourne maintenant après la
+// réponse au client (voir after() dans GET plus bas) mais DANS la même
+// invocation serverless — elle a donc besoin du même budget qu'avant
+// (jusqu'à ~45s mesurés en conditions réelles, voir MAX_ANALYSIS_DURATION_MS)
+// pour ne pas être coupée en cours de route par la limite par défaut de la
+// plateforme.
+export const maxDuration = 60
+
+// Évite deux cycles d'analyse Groq concurrents pour le même utilisateur
+// (voir le verrou autour de after() dans GET plus bas) — userId présent
+// uniquement pendant qu'un cycle tourne, jamais persisté.
+const analysisInFlight = new Set<string>()
 
 async function refreshGmailToken(refreshToken: string): Promise<string | null> {
   try {
@@ -663,16 +677,37 @@ export async function GET(req: NextRequest) {
     return true
   })
 
-  try {
-    // N'envoie à Groq QUE les emails pas encore réellement analysés — pas
-    // "absents du cache précédent" : un email peut être EN cache tout en
-    // étant resté analysisStatus 'pending' (bloqué par un rate limit Groq
-    // lors d'une synchro précédente, voir analyzeEmailsInBatches) ; il doit
-    // alors rester éligible ici aussi, sinon il ne serait plus jamais
-    // réanalysé — exactement le genre de perte silencieuse à éviter.
-    const toAnalyze = emails.filter((e: any) => e.analysisStatus !== 'done')
+  // Réponse immédiate avec ce qu'on a déjà (emails Gmail + analyse IA d'une
+  // synchro précédente le cas échéant, voir previouslyCachedAll plus haut) —
+  // le reste (analyse IA de CETTE synchro, planification, tâches, archivage)
+  // continue juste après, SANS bloquer le client qui attend déjà cette
+  // réponse depuis le fetch Gmail. Mis en cache tout de suite aussi : un
+  // deuxième appel qui arriverait pendant que le bloc after() tourne encore
+  // (ex: navigation rapide vers une autre page qui utilise aussi useEmails)
+  // retombe sur ce cache plutôt que de relancer tout un fetch Gmail en double.
+  setCachedEmails(user.id, { emails })
 
-    const { analysisById, stoppedForDailyLimit } = await analyzeEmailsInBatches(req.nextUrl.origin, accessToken, toAnalyze)
+  // Le client peut maintenant repasser toutes les 4s tant que des emails
+  // restent 'pending' (voir hooks/useEmails.ts) — sans ce verrou, une 2e
+  // requête arrivant pendant que le bloc after() de la 1ère tourne encore
+  // relancerait un 2e cycle d'analyse Groq complet pour LES MÊMES emails
+  // (gaspillage direct du quota Groq, déjà serré — voir GROQ_BATCH_SIZE).
+  // On laisse simplement le cycle déjà en cours se terminer ; cette requête
+  // répond quand même immédiatement avec l'état Gmail le plus frais.
+  if (!analysisInFlight.has(user.id)) {
+    analysisInFlight.add(user.id)
+
+    after(async () => {
+    try {
+      // N'envoie à Groq QUE les emails pas encore réellement analysés — pas
+      // "absents du cache précédent" : un email peut être EN cache tout en
+      // étant resté analysisStatus 'pending' (bloqué par un rate limit Groq
+      // lors d'une synchro précédente, voir analyzeEmailsInBatches) ; il doit
+      // alors rester éligible ici aussi, sinon il ne serait plus jamais
+      // réanalysé — exactement le genre de perte silencieuse à éviter.
+      const toAnalyze = emails.filter((e: any) => e.analysisStatus !== 'done')
+
+      const { analysisById, stoppedForDailyLimit } = await analyzeEmailsInBatches(req.nextUrl.origin, accessToken, toAnalyze)
 
     console.log(`🤖 ${toAnalyze.length} email(s) à analyser sur ${emails.length}, ${analysisById.size} analysé(s) avec succès${stoppedForDailyLimit ? ' (arrêt anticipé : limite Groq quotidienne)' : ''}`)
 
@@ -699,6 +734,7 @@ export async function GET(req: NextRequest) {
         detectedAction: analysis.hasActionItem ? {
           title: analysis.actionTitle,
           priority: analysis.actionPriority,
+          category: analysis.actionCategory,
           dueDate: analysis.actionDueDate,
         } : null,
       }
@@ -894,29 +930,60 @@ export async function GET(req: NextRequest) {
           && !NO_TASK_EMAIL_TYPES.has(e.emailType)
       )
 
-      for (const email of toCreateTasks) {
-        const action = email.detectedAction
-        const { error: taskError } = await supabase
+      // Tâches DÉJÀ créées pour ces emails — lues en une requête avant la
+      // boucle.
+      //
+      // BUG CORRIGÉ ICI : l'ancien code faisait un upsert avec
+      // `completed: false` sur le conflit (user_id, from_email_id). Une tâche
+      // que l'utilisateur avait cochée RESSUSCITAIT donc, décochée, dès que
+      // son email repassait par l'analyse (expiration du cache, nouvelle
+      // synchro après un rate limit Groq, reconnexion de boîte). Pire : elle
+      // perdait au passage toute modification manuelle du titre, de la date
+      // ou de la priorité. On n'écrit désormais que pour un email qui n'a
+      // jamais produit de tâche.
+      const emailIds = toCreateTasks.map((e: any) => e.id)
+      const existingTaskEmailIds = new Set<string>()
+
+      if (emailIds.length > 0) {
+        const { data: existing } = await supabase
           .from('tasks')
-          .upsert({
+          .select('from_email_id')
+          .eq('user_id', user.id)
+          .in('from_email_id', emailIds)
+        for (const row of existing || []) {
+          if (row.from_email_id) existingTaskEmailIds.add(row.from_email_id)
+        }
+      }
+
+      const todayIso = new Date().toISOString().slice(0, 10)
+
+      for (const email of toCreateTasks) {
+        if (existingTaskEmailIds.has(email.id)) continue
+
+        const action = email.detectedAction
+        const { error: taskError } = await insertTaskSafely(supabase, {
             user_id: user.id,
             title: action.title,
-            priority: action.priority || 'medium',
-            due_date: action.dueDate || null,
+            // Priorité, catégorie et échéance passent toutes par lib/tasks.ts
+            // plutôt que d'être écrites telles quelles : l'IA ne produisait
+            // jamais 'urgent' (la ligne Urgent de /tasks restait donc vide
+            // même pour un email urgent), pouvait renvoyer une catégorie hors
+            // liste, et datait parfois l'échéance dans le passé en la
+            // calculant depuis la réception d'un vieil email.
+            priority: resolveTaskPriority(action.priority, email.priority),
+            category: resolveTaskCategory(action.category, email.emailType),
+            due_date: resolveTaskDueDate(action.dueDate, todayIso),
             completed: false,
-            // Le nom de l'expéditeur (même valeur que handleAddTask dans
-            // InboxSidePanel.tsx, l'autre façon de créer une tâche depuis un
-            // email) — pas le littéral 'email' : category s'affiche sous le
-            // titre de la tâche (voir TasksCard/app/(app)/tasks), juste à
-            // côté du badge enveloppe qui dit déjà "vient d'un email" ; y
-            // répéter le mot "email" n'apportait aucune information en plus,
-            // alors que le nom de l'expéditeur en apporte une vraie.
-            category: email.sender || 'email',
+            // La PROVENANCE a maintenant sa propre colonne. Elle vivait dans
+            // `category`, ce qui faisait lister des noms de contacts dans le
+            // filtre par catégorie de /tasks (voir la migration
+            // 20261002000000_tasks_category_source.sql).
+            source_label: email.sender || null,
             from_email_id: email.id,
-          }, { onConflict: 'user_id,from_email_id' })
+          })
 
         if (taskError) {
-          console.error('❌ Erreur upsert tasks:', taskError.message, taskError.details, taskError.hint)
+          console.error('❌ Erreur insert tasks:', taskError.message, taskError.code)
         } else {
           email.autoTaskCreated = true
         }
@@ -972,12 +1039,22 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    setCachedEmails(user.id, { emails: enrichedEmails })
-    return NextResponse.json({ emails: enrichedEmails })
-
-  } catch (err) {
-    console.error('Erreur analyse IA:', err)
-    setCachedEmails(user.id, { emails })
-    return NextResponse.json({ emails })
+      // La réponse au client est déjà partie (voir le NextResponse.json plus
+      // bas, avant cet after()) — ce cache mis à jour est ce que le prochain
+      // poll SWR (toutes les 60s, voir hooks/useEmails.ts) récupérera, avec
+      // cette fois l'analyse IA/planification/tâches/archivage inclus.
+      setCachedEmails(user.id, { emails: enrichedEmails })
+    } catch (err) {
+      // La réponse au client est déjà partie avec `emails` (non enrichis) —
+      // déjà mis en cache juste avant d'enregistrer ce after(), donc rien de
+      // plus à renvoyer : le prochain poll retentera l'analyse depuis ce même
+      // cache (analysisStatus resté à autre chose que 'done').
+      console.error('Erreur analyse IA (arrière-plan):', err)
+    } finally {
+      analysisInFlight.delete(user.id)
+    }
+    })
   }
+
+  return NextResponse.json({ emails })
 }

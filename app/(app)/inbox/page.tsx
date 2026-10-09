@@ -1,6 +1,6 @@
 'use client'
 // app/(app)/inbox/page.tsx
-import { useState, useMemo, Suspense } from 'react'
+import { useState, useMemo, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import AppLayout from '@/components/layout/AppLayout'
 import EmailListItem from '@/components/inbox/EmailListItem'
@@ -36,9 +36,23 @@ function InboxContent() {
   const selected = emails.find((e: any) => e.id === selectedId) || (!selectedId && filtered[0]) || null
   const effectiveSelectedId = selected?.id || null
 
-  const urgentCount = emails.filter((e: any) => e.priority === 'urgent').length
-  const importantCount = emails.filter((e: any) => e.priority === 'important').length
-  const unreadCount = emails.filter((e: any) => !e.isRead).length
+  // Un seul passage mémoïsé pour les trois compteurs : c'étaient trois
+  // .filter() complets sur toute la boîte (jusqu'à 300 emails), refaits à
+  // CHAQUE rendu — y compris pour un simple clic sur un email, un changement
+  // d'onglet, ou chacun des polls à 4 s pendant l'analyse IA.
+  const counts = useMemo(() => {
+    let urgent = 0, important = 0, unread = 0
+    for (const e of emails as any[]) {
+      if (e.priority === 'urgent') urgent++
+      else if (e.priority === 'important') important++
+      if (!e.isRead) unread++
+    }
+    return { urgent, important, unread }
+  }, [emails])
+
+  // Identité stable : c'est ce qui permet au memo d'EmailListItem de tenir —
+  // une fonction recréée ici à chaque rendu re-rendrait toutes les lignes.
+  const handleSelect = useCallback((id: string) => setSelectedId(id), [])
 
   async function handleAction(action: 'archive' | 'unarchive' | 'markUnread' | 'markRead') {
     if (!selected) return
@@ -72,7 +86,7 @@ function InboxContent() {
   }
 
   return (
-    <AppLayout title="Inbox" subtitle="Gérez vos emails au même endroit.">
+    <AppLayout title="Boîte de réception" subtitle="Gérez vos emails au même endroit">
       <div className={styles.layout}>
 
         {/* Liste */}
@@ -91,13 +105,13 @@ function InboxContent() {
               Tous
             </button>
             <button className={`${styles.filterBtn} ${filter === 'unread' ? styles.filterBtnActive : ''}`} onClick={() => setFilter('unread')}>
-              Non lus {unreadCount > 0 && <span className={styles.filterCount}>{unreadCount}</span>}
+              Non lus {counts.unread > 0 && <span className={styles.filterCount}>{counts.unread}</span>}
             </button>
             <button className={`${styles.filterBtn} ${styles.urgent} ${filter === 'urgent' ? styles.filterBtnActive : ''}`} onClick={() => setFilter('urgent')}>
-              Urgent {urgentCount > 0 && <span className={styles.filterCount}>{urgentCount}</span>}
+              Urgent {counts.urgent > 0 && <span className={styles.filterCount}>{counts.urgent}</span>}
             </button>
             <button className={`${styles.filterBtn} ${styles.important} ${filter === 'important' ? styles.filterBtnActive : ''}`} onClick={() => setFilter('important')}>
-              Important {importantCount > 0 && <span className={styles.filterCount}>{importantCount}</span>}
+              Important {counts.important > 0 && <span className={styles.filterCount}>{counts.important}</span>}
             </button>
           </div>
 
@@ -112,7 +126,7 @@ function InboxContent() {
                   key={email.id}
                   email={email}
                   selected={email.id === effectiveSelectedId}
-                  onClick={() => setSelectedId(email.id)}
+                  onSelect={handleSelect}
                 />
               ))
             )}

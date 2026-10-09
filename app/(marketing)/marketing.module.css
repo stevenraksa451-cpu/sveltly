@@ -1,0 +1,11 @@
+.shell {
+  min-height: 100vh;
+  /* Fond de la vitrine, pas celui de l’application : la coquille encadre
+     les pages peintes en --mk-bg, un gris légèrement différent créait un
+     liseré visible au-dessus du pied de page. */
+  background: var(--mk-bg);
+  /* Contexte d'empilement local, pour que la barre de navigation collante
+     passe bien au-dessus du contenu des pages sans z-index à rallonge. */
+  position: relative;
+  z-index: 0;
+}

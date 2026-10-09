@@ -21,7 +21,12 @@
   transition: all var(--transition);
 }
 .sideItem:hover { background: var(--bg-subtle); color: var(--text-primary); }
-.sideItemActive { background: var(--accent); color: white; }
+/* Pastille teintée, pas l'indigo plein : la barre latérale principale
+   (Sidebar.module.css .active) affiche déjà « Tâches » en indigo plein juste
+   à gauche. Deux pastilles pleines côte à côte se disputaient le regard sans
+   qu'on sache laquelle situait où on est. Même règle que la navigation des
+   Réglages. */
+.sideItemActive { background: var(--accent-light); color: var(--accent); font-weight: 500; }
 
 .sideIcon { display: flex; flex-shrink: 0; }
 
@@ -34,7 +39,7 @@
   padding: 1px 7px;
   border-radius: 99px;
 }
-.sideItemActive .sideCount { background: rgba(255,255,255,0.25); color: white; }
+.sideItemActive .sideCount { background: var(--bg-card); color: var(--accent); }
 .sideCountUrgent:not(.sideItemActive .sideCountUrgent) { background: var(--urgent-light); color: var(--urgent); }
 
 .categoriesBlock { display: flex; flex-direction: column; gap: 2px; }
@@ -87,7 +92,7 @@
 .addCard {
   background: var(--bg-card);
   border: 1px solid var(--accent-muted);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card-sm);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
@@ -104,6 +109,19 @@
   background: var(--bg-subtle);
 }
 .addTitleInput:focus { outline: none; border-color: var(--accent); }
+
+.dateChips { display: flex; gap: 6px; flex-wrap: wrap; }
+.dateChip {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  transition: all var(--transition);
+}
+.dateChip:hover { border-color: var(--accent); color: var(--accent); }
+.dateChipActive { background: var(--accent); border-color: var(--accent); color: white; }
 
 .addRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .addSelect, .addDate {
@@ -127,7 +145,7 @@
 .saveBtn:disabled { opacity: 0.5; }
 
 .groups { display: flex; flex-direction: column; gap: 18px; }
-.group { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; }
+.group { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-card-sm); overflow: hidden; }
 
 .groupHead {
   display: flex;
@@ -172,7 +190,28 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: all var(--transition);
 }
-.rowDone .checkbox { background: var(--accent); border-color: var(--accent); }
+/* Même confirmation ressort que le dashboard (voir
+   components/dashboard/TasksCard.module.css .itemDone .checkbox). */
+.rowDone .checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: checkPop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.rowDone .checkbox svg { animation: checkDraw 200ms ease-out 80ms both; }
+
+@keyframes checkPop {
+  0% { transform: scale(0.75); }
+  55% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@keyframes checkDraw {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowDone .checkbox, .rowDone .checkbox svg { animation: none; }
+}
 
 .rowContent { flex: 1; min-width: 0; }
 .rowTitle { font-size: 0.86rem; color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -229,7 +268,7 @@
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card-sm);
   padding: 18px;
 }
 .cardTitle { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
@@ -264,7 +303,7 @@
 .adviceCard {
   background: var(--accent-light);
   border: 1px solid var(--accent-muted);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card-sm);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
@@ -272,12 +311,13 @@
 }
 .adviceIcon { color: var(--accent); }
 .adviceText { font-size: 0.82rem; color: var(--text-primary); line-height: 1.5; }
+.adviceActions { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
 .adviceBtn {
   display: flex;
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  margin-top: 4px;
   padding: 7px 14px;
   background: var(--bg-card);
   color: var(--accent);
@@ -287,6 +327,18 @@
   transition: all var(--transition);
 }
 .adviceBtn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+.adviceBtnSecondary {
+  align-self: flex-start;
+  padding: 7px 14px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity var(--transition);
+}
+.adviceBtnSecondary:hover { opacity: 0.7; }
 
 @media (max-width: 1200px) {
   .layout { grid-template-columns: 200px 1fr; }

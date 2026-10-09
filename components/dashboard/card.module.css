@@ -1,0 +1,68 @@
+/* Coque commune aux trois colonnes du tableau de bord.
+
+   Les trois cartes redéclaraient chacune leur coque, leur en-tête et leur
+   pied, et avaient fini par diverger : rayons différents, ombres
+   différentes, titres décalés de 4 px verticalement, et le lien « voir
+   plus » tantôt dans l'en-tête, tantôt en pied. Une seule définition ici,
+   consommée par `composes` — ce qui rend la divergence impossible la
+   prochaine fois.
+
+   Les corps de liste restent propres à chaque carte : une frise d'agenda,
+   une liste d'emails et une liste de tâches cochables n'ont pas le même
+   rythme interne. C'est le CADRE qui doit être identique, pas le contenu. */
+
+.shell {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
+     seul le corps défile, en-tête et pied restent toujours visibles. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* min-height plutôt qu'une hauteur dictée par le contenu : une carte dont
+   l'en-tête porte un bouton (TasksCard) était 4 px plus haute que ses
+   voisines, et les trois titres ne s'alignaient pas. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 54px;
+  padding: 14px var(--card-pad) 6px;
+  flex-shrink: 0;
+}
+
+.headTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+.headTitle h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Le lien « voir plus » ferme la carte, toujours au même endroit : collé en
+   bas, séparé par un filet, sur toute la largeur. */
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+.foot:hover { background: var(--bg-subtle); }
+.foot:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

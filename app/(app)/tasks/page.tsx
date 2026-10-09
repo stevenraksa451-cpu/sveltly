@@ -5,14 +5,19 @@ import { useSearchParams } from 'next/navigation'
 import AppLayout from '@/components/layout/AppLayout'
 import { supabase } from '@/lib/supabase'
 import { useTasks, toggleTaskCompletion } from '@/hooks/useTasks'
+import { TASK_CATEGORIES, TASK_PRIORITIES, TASK_PRIORITY_LABEL, TaskPriority, isTaskCategory } from '@/lib/tasks'
 import styles from './tasks.module.css'
 
 interface Task {
   id: string
   title: string
+  // Toujours une valeur de TASK_CATEGORIES (lib/tasks.ts) — plus jamais un
+  // nom d'expéditeur, qui vit désormais dans source_label.
   category: string | null
+  // Provenance : le nom de l'expéditeur, pour une tâche née d'un email.
+  source_label: string | null
   due_date: string | null
-  priority: 'urgent' | 'high' | 'medium' | 'low'
+  priority: TaskPriority
   completed: boolean
   completed_at: string | null
   created_at: string
@@ -20,14 +25,32 @@ interface Task {
   from_email_id: string | null
 }
 
-const CATEGORIES = ['Client', 'Marketing', 'Équipe', 'Finance', 'Personnel', 'Autre']
-const PRIORITY_LABEL: Record<string, string> = { urgent: 'Urgent', high: 'Haute', medium: 'Moyenne', low: 'Basse' }
-const PRIORITY_ORDER = ['urgent', 'high', 'medium', 'low']
+// Catégories et priorités viennent de lib/tasks.ts — exactement le jeu fermé
+// appliqué côté serveur aux tâches créées depuis un email. Les deux listes
+// divergeaient jusqu'ici : cette page proposait six catégories à la main
+// pendant que le serveur y écrivait des noms d'expéditeurs.
+const CATEGORIES = TASK_CATEGORIES
+const PRIORITY_LABEL = TASK_PRIORITY_LABEL
+const PRIORITY_ORDER = TASK_PRIORITIES
 
 type SideFilter = 'all' | 'today' | 'upcoming' | 'overdue' | 'done'
 
 function todayIso() { return new Date().toISOString().split('T')[0] }
-function tomorrowIso() { return new Date(Date.now() + 86400000).toISOString().split('T')[0] }
+function inDaysIso(n: number) { return new Date(Date.now() + n * 86400000).toISOString().split('T')[0] }
+function tomorrowIso() { return inDaysIso(1) }
+
+// Même logique de classement que le useMemo `grouped` plus bas, mais
+// réutilisable aussi côté glisser-déposer (voir handleDragOver/handleDrop) —
+// un seul endroit où "à quel groupe appartient cette tâche" est défini,
+// pour que l'affichage et le comportement du drag restent toujours cohérents
+// entre eux.
+function groupKeyOf(t: Task, today: string): 'done' | 'none' | 'overdue' | 'today' | 'upcoming' {
+  if (t.completed) return 'done'
+  if (!t.due_date) return 'none'
+  if (t.due_date < today) return 'overdue'
+  if (t.due_date === today) return 'today'
+  return 'upcoming'
+}
 
 function dueLabel(dueDate: string | null): string {
   if (!dueDate) return ''
@@ -38,6 +61,96 @@ function dueLabel(dueDate: string | null): string {
   const diffDays = Math.round((d.getTime() - new Date(today).getTime()) / 86400000)
   if (diffDays > 0 && diffDays <= 6) return d.toLocaleDateString('fr-FR', { weekday: 'short' })
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+}
+
+// Depuis quand une tâche est terminée. Sans cette information, la liste
+// « Terminées » est un mur indifférencié : rien ne distingue ce qui vient
+// d'être coché de ce qui traîne depuis trois semaines, alors que c'est la
+// seule chose qu'on y cherche.
+function completedLabel(completedAt: string | null): string | null {
+  if (!completedAt) return null
+  const done = new Date(completedAt)
+  if (Number.isNaN(done.getTime())) return null
+
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const days = Math.floor((startOfToday.getTime() - done.getTime()) / 86400000) + 1
+
+  if (days <= 0) return "Terminée aujourd'hui"
+  if (days === 1) return 'Terminée hier'
+  if (days < 7) return `Terminée il y a ${days} jours`
+  if (days < 30) return `Terminée il y a ${Math.floor(days / 7)} sem.`
+  return `Terminée le ${done.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`
+}
+
+// Ligne secondaire d'une tâche : l'horodatage de complétion prime une fois la
+// tâche cochée (c'est l'information utile à ce moment-là), sinon la
+// provenance.
+function rowSubtitle(t: Task): string | null {
+  if (t.completed) return completedLabel(t.completed_at) ?? sourceOf(t)
+  return sourceOf(t)
+}
+
+// Pont pour les lignes antérieures à la migration source_label : avant elle,
+// la provenance était écrite dans `category`. Une valeur hors taxonomie EST
+// donc une provenance, et s'affiche comme telle — pas comme une catégorie.
+// Le littéral 'email' est écarté : repli d'une version encore plus ancienne,
+// il n'apprend rien que la pastille enveloppe ne dise déjà.
+function sourceOf(t: Task): string | null {
+  if (t.source_label) return t.source_label
+  if (t.category && !isTaskCategory(t.category) && t.category !== 'email') return t.category
+  return null
+}
+
+// Catégorie affichable : uniquement une valeur du jeu fermé. Sans ce filtre,
+// les anciennes lignes affichaient « Google » ou « email » en pastille de
+// catégorie, et les faisaient apparaître dans le filtre latéral.
+function displayCategory(t: Task): string | null {
+  return isTaskCategory(t.category) ? t.category : null
+}
+
+// Recherche sur le titre, la catégorie ET la provenance. La provenance
+// manquait : chercher « Google » ne ramenait plus rien une fois le nom de
+// l'expéditeur sorti de `category`.
+function matchesSearch(t: Task, q: string): boolean {
+  return (
+    t.title.toLowerCase().includes(q) ||
+    (t.category || '').toLowerCase().includes(q) ||
+    (t.source_label || '').toLowerCase().includes(q)
+  )
+}
+
+// Raccourcis de date au-dessus du champ natif <input type="date"> dans les
+// formulaires d'ajout/édition — couvre les cas les plus fréquents (aucune
+// saisie de calendrier à ouvrir pour "aujourd'hui" ou "demain") sans retirer
+// le champ natif, toujours là pour une date précise ou lointaine.
+function DateChips({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const options = [
+    { label: "Aujourd'hui", date: todayIso() },
+    { label: 'Demain', date: tomorrowIso() },
+    { label: 'Dans 1 semaine', date: inDaysIso(7) },
+  ]
+  return (
+    <div className={styles.dateChips}>
+      {options.map(opt => (
+        <button
+          key={opt.label}
+          type="button"
+          className={`${styles.dateChip} ${value === opt.date ? styles.dateChipActive : ''}`}
+          onClick={() => onChange(opt.date)}
+        >
+          {opt.label}
+        </button>
+      ))}
+      <button
+        type="button"
+        className={`${styles.dateChip} ${!value ? styles.dateChipActive : ''}`}
+        onClick={() => onChange('')}
+      >
+        Aucune
+      </button>
+    </div>
+  )
 }
 
 function TasksContent() {
@@ -80,6 +193,19 @@ function TasksContent() {
   async function deleteTask(id: string) {
     refresh((current: Task[] = []) => current.filter(t => t.id !== id), { revalidate: false })
     await supabase.from('tasks').delete().eq('id', id)
+  }
+
+  // Replanifie EN UN CLIC toutes les tâches en retard à aujourd'hui — sans
+  // ça, rattraper un retard de 10 tâches veut dire 10 glisser-déposer (ou 10
+  // éditions) d'affilée pour la même action répétitive. Le bouton apparaît
+  // uniquement via la carte de conseil "Vous avez N tâches en retard" (voir
+  // plus bas), déjà conditionnée à counts.overdue > 0.
+  async function rescheduleOverdueToToday() {
+    const overdue = (tasks as Task[]).filter(t => !t.completed && t.due_date && t.due_date < today)
+    if (overdue.length === 0) return
+    const overdueIds = new Set(overdue.map(t => t.id))
+    refresh((current: Task[] = []) => current.map(t => overdueIds.has(t.id) ? { ...t, due_date: today } : t), { revalidate: false })
+    await Promise.all(overdue.map(t => supabase.from('tasks').update({ due_date: today }).eq('id', t.id)))
   }
 
   async function handleAdd() {
@@ -134,8 +260,27 @@ function TasksContent() {
     dragItemId.current = id
   }
 
-  function handleDragOver(e: React.DragEvent, id: string) {
+  // N'affiche la ligne d'insertion (et donc n'autorise la dépose, voir
+  // handleDrop) que pour une cible "sûre" : le même groupe que la tâche
+  // glissée (simple réordonnancement, aucune date touchée), ou un groupe à
+  // date unique et non ambiguë ("Aujourd'hui"/"Sans échéance"). Vers
+  // "Prochainement"/"En retard"/"Terminées" depuis un AUTRE groupe, plusieurs
+  // échéances différentes coexistent dans la cible : impossible de deviner
+  // laquelle l'utilisateur visait, donc pas de dépose possible là.
+  function handleDragOver(e: React.DragEvent, id: string, groupKey: string) {
     e.preventDefault()
+    const draggedId = dragItemId.current
+    if (draggedId && draggedId !== id) {
+      const dragged = (tasks as Task[]).find(t => t.id === draggedId)
+      if (dragged) {
+        const draggedGroup = groupKeyOf(dragged, today)
+        const invalidTarget = groupKey !== draggedGroup && groupKey !== 'today' && groupKey !== 'none'
+        if (invalidTarget) {
+          if (dragOverId) setDragOverId(null)
+          return
+        }
+      }
+    }
     if (id !== dragOverId) setDragOverId(id)
   }
 
@@ -143,26 +288,55 @@ function TasksContent() {
     setDragOverId(null)
   }
 
-  async function handleDrop(targetId: string) {
+  // Glisser une tâche sur une autre réordonne toujours au sein du MÊME
+  // groupe. Glisser vers un AUTRE groupe replanifie en plus — mais
+  // uniquement vers "Aujourd'hui" (due_date = aujourd'hui) ou "Sans
+  // échéance" (due_date = null), les deux seuls groupes à date univoque ;
+  // voir handleDragOver pour pourquoi les autres sont refusés. C'est ce qui
+  // transforme le glisser-déposer en vraie façon de replanifier une tâche en
+  // retard d'un geste, au lieu de devoir rouvrir l'édition pour ça.
+  async function handleDrop(targetId: string, targetGroupKey: string) {
     const draggedId = dragItemId.current
     setDragOverId(null)
     dragItemId.current = null
     if (!draggedId || draggedId === targetId) return
 
     const currentList = tasks as Task[]
-    const fromIndex = currentList.findIndex(t => t.id === draggedId)
-    const toIndex = currentList.findIndex(t => t.id === targetId)
-    if (fromIndex === -1 || toIndex === -1) return
+    const dragged = currentList.find(t => t.id === draggedId)
+    const target = currentList.find(t => t.id === targetId)
+    if (!dragged || !target) return
 
+    const draggedGroup = groupKeyOf(dragged, today)
+    let newDueDate: string | null | undefined
+    if (targetGroupKey !== draggedGroup) {
+      if (targetGroupKey === 'today') newDueDate = today
+      else if (targetGroupKey === 'none') newDueDate = null
+      else return
+    }
+
+    const fromIndex = currentList.findIndex(t => t.id === draggedId)
     const list = [...currentList]
-    const [moved] = list.splice(fromIndex, 1)
-    list.splice(toIndex, 0, moved)
-    const reordered = list.map((t, i) => ({ ...t, position: i }))
+    list.splice(fromIndex, 1)
+    const toIndex = list.findIndex(t => t.id === targetId)
+    list.splice(toIndex, 0, newDueDate !== undefined ? { ...dragged, due_date: newDueDate } : dragged)
+
+    // Ne renumérote que la plage réellement déplacée (jamais tout le
+    // tableau) — un simple glisser ne doit pas réécrire la position de
+    // CHAQUE tâche de l'utilisateur en base à chaque fois.
+    const lo = Math.min(fromIndex, toIndex)
+    const hi = Math.max(fromIndex, toIndex)
+    const touched = list.slice(lo, hi + 1).map((t, i) => ({ ...t, position: lo + i }))
+    const touchedById = new Map(touched.map(t => [t.id, t]))
+    const reordered = list.map(t => touchedById.get(t.id) || t)
 
     refresh(reordered, { revalidate: false })
 
     await Promise.all(
-      reordered.map(t => supabase.from('tasks').update({ position: t.position }).eq('id', t.id))
+      touched.map(t => {
+        const updates: Record<string, any> = { position: t.position }
+        if (t.id === draggedId && newDueDate !== undefined) updates.due_date = newDueDate
+        return supabase.from('tasks').update(updates).eq('id', t.id)
+      })
     )
   }
 
@@ -180,7 +354,8 @@ function TasksContent() {
   const categories = useMemo(() => {
     const map = new Map<string, number>()
     tasks.forEach((t: Task) => {
-      if (t.category && t.category !== 'email') map.set(t.category, (map.get(t.category) || 0) + 1)
+      const cat = displayCategory(t)
+      if (cat) map.set(cat, (map.get(cat) || 0) + 1)
     })
     return Array.from(map.entries())
   }, [tasks])
@@ -200,7 +375,7 @@ function TasksContent() {
     if (categoryFilter) list = list.filter(t => t.category === categoryFilter)
 
     const q = search.trim().toLowerCase()
-    if (q) list = list.filter(t => t.title.toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q))
+    if (q) list = list.filter(t => matchesSearch(t, q))
 
     return list
   }, [tasks, sideFilter, categoryFilter, search, today])
@@ -213,7 +388,7 @@ function TasksContent() {
     let list = archivedTasks || []
     if (categoryFilter) list = list.filter(t => t.category === categoryFilter)
     const q = search.trim().toLowerCase()
-    if (q) list = list.filter(t => t.title.toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q))
+    if (q) list = list.filter(t => matchesSearch(t, q))
     return list
   }, [archivedTasks, categoryFilter, search])
 
@@ -227,11 +402,7 @@ function TasksContent() {
       { key: 'none', label: 'Sans échéance', items: [] },
     ]
     filtered.forEach(t => {
-      if (t.completed) groups.find(g => g.key === 'done')!.items.push(t)
-      else if (!t.due_date) groups.find(g => g.key === 'none')!.items.push(t)
-      else if (t.due_date < today) groups.find(g => g.key === 'overdue')!.items.push(t)
-      else if (t.due_date === today) groups.find(g => g.key === 'today')!.items.push(t)
-      else groups.find(g => g.key === 'upcoming')!.items.push(t)
+      groups.find(g => g.key === groupKeyOf(t, today))!.items.push(t)
     })
     // Les tâches archivées (chargées à la demande) rejoignent le groupe
     // "Terminées" plutôt que d'en former un nouveau — la distinction récent/
@@ -241,6 +412,14 @@ function TasksContent() {
       const doneGroup = groups.find(g => g.key === 'done')!
       doneGroup.items = [...doneGroup.items, ...filteredArchived]
     }
+    // Les terminées se lisent de la plus récente à la plus ancienne, pas dans
+    // l'ordre `position` des autres groupes : `position` sert à organiser du
+    // travail à venir, elle n'a plus de sens une fois la tâche cochée, et
+    // elle plaçait une complétion d'il y a trois semaines au-dessus de celle
+    // de ce matin. Les tâches sans completed_at (terminées avant l'ajout de
+    // la colonne) ferment la liste.
+    const doneGroup = groups.find(g => g.key === 'done')!
+    doneGroup.items.sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''))
     // Le groupe "Terminées" reste affiché même vide quand on est explicitement
     // sur ce filtre (et que l'archive n'a pas encore été chargée) — sinon le
     // bouton pour charger les tâches terminées plus anciennes que 30 jours
@@ -268,7 +447,7 @@ function TasksContent() {
   ]
 
   return (
-    <AppLayout title="Tâches" subtitle="Organisez vos tâches et suivez votre progression.">
+    <AppLayout title="Tâches" subtitle="Organisez vos tâches et suivez votre progression">
       <div className={styles.layout}>
 
         {/* Colonne gauche */}
@@ -359,6 +538,7 @@ function TasksContent() {
                 onKeyDown={e => e.key === 'Enter' && handleAdd()}
                 autoFocus
               />
+              <DateChips value={newDueDate} onChange={setNewDueDate} />
               <div className={styles.addRow}>
                 <select className={styles.addSelect} value={newCategory} onChange={e => setNewCategory(e.target.value)}>
                   <option value="">Sans catégorie</option>
@@ -402,6 +582,7 @@ function TasksContent() {
                             onKeyDown={e => e.key === 'Enter' && saveEdit(task.id)}
                             autoFocus
                           />
+                          <DateChips value={editDueDate} onChange={setEditDueDate} />
                           <div className={styles.addRow}>
                             <select className={styles.addSelect} value={editCategory} onChange={e => setEditCategory(e.target.value)}>
                               <option value="">Sans catégorie</option>
@@ -426,11 +607,11 @@ function TasksContent() {
                         className={`${styles.row} ${task.completed ? styles.rowDone : ''} ${dragOverId === task.id ? styles.rowDragOver : ''}`}
                         draggable
                         onDragStart={() => handleDragStart(task.id)}
-                        onDragOver={e => handleDragOver(e, task.id)}
+                        onDragOver={e => handleDragOver(e, task.id, group.key)}
                         onDragLeave={handleDragLeave}
-                        onDrop={() => handleDrop(task.id)}
+                        onDrop={() => handleDrop(task.id, group.key)}
                       >
-                        <span className={styles.dragHandle} title="Glisser pour réordonner">
+                        <span className={styles.dragHandle} title="Glisser pour réordonner, ou déposer sur « Aujourd'hui »/« Sans échéance » pour replanifier">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>
                         </span>
                         <button
@@ -442,14 +623,19 @@ function TasksContent() {
                         </button>
                         <div className={styles.rowContent} onClick={() => startEdit(task)} title="Cliquer pour modifier">
                           <p className={styles.rowTitle}>{task.title}</p>
-                          {task.category && <p className={styles.rowCategory}>{task.category}</p>}
+                          {/* Sous le titre : la PROVENANCE, et l'horodatage une
+                              fois la tâche terminée. La catégorie est la
+                              pastille plus à droite — les deux s'affichaient en
+                              double avant, la même colonne portant les deux
+                              notions. */}
+                          {rowSubtitle(task) && <p className={styles.rowCategory}>{rowSubtitle(task)}</p>}
                         </div>
                         {task.from_email_id && (
                           <span className={styles.emailBadge} title="Créée automatiquement depuis un email">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
                           </span>
                         )}
-                        {task.category && task.category !== 'email' && <span className={styles.categoryPill}>{task.category}</span>}
+                        {displayCategory(task) && <span className={styles.categoryPill}>{displayCategory(task)}</span>}
                         <span className={`${styles.priorityPill} ${styles[task.priority]}`}>{PRIORITY_LABEL[task.priority]}</span>
                         {task.due_date && !task.completed && <span className={styles.dueLabel}>{dueLabel(task.due_date)}</span>}
                         <button className={styles.editBtn} onClick={() => startEdit(task)} title="Modifier">
@@ -546,10 +732,15 @@ function TasksContent() {
               <p className={styles.adviceText}>
                 Vous avez {counts.overdue} tâche{counts.overdue > 1 ? 's' : ''} en retard.
               </p>
-              <button className={styles.adviceBtn} onClick={() => { setSideFilter('overdue'); setCategoryFilter(null) }}>
-                Voir les tâches en retard
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
+              <div className={styles.adviceActions}>
+                <button className={styles.adviceBtn} onClick={() => { setSideFilter('overdue'); setCategoryFilter(null) }}>
+                  Voir les tâches en retard
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <button className={styles.adviceBtnSecondary} onClick={rescheduleOverdueToToday}>
+                  Tout replanifier à aujourd'hui
+                </button>
+              </div>
             </div>
           )}
         </div>

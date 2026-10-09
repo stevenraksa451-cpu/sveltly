@@ -1,37 +1,23 @@
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
-     seule .timeline défile en interne (overflow-y: auto) — header et date
-     restent fixes (voir aussi TodayEssentials/TasksCard, même traitement). */
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+/* Coque, en-tête et pied viennent de card.module.css — voir ce fichier pour
+   la raison.
 
-.header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-
-.headerTitle { display: flex; align-items: center; gap: 8px; color: var(--accent); }
-.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
-
-.viewLink {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.76rem;
-  color: var(--accent);
-  font-weight: 500;
-}
+   Cette carte portait auparavant son padding sur la coque, une ombre plus
+   marquée que ses deux voisines et son lien « voir plus » dans l'en-tête
+   plutôt qu'en pied. Côte à côte et par ailleurs identiques, ces trois
+   écarts se lisaient comme des accidents, pas comme une hiérarchie : ce qui
+   distingue cette colonne, c'est son contenu (une frise horaire), pas son
+   cadre. */
+.card { composes: shell from './card.module.css'; }
+.header { composes: head from './card.module.css'; }
+.headerTitle { composes: headTitle from './card.module.css'; }
+.viewAll { composes: foot from './card.module.css'; }
 
 .date {
   font-size: 0.78rem;
   color: var(--text-muted);
   text-transform: capitalize;
-  margin: 4px 0 14px;
+  padding: 0 var(--card-pad);
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -41,6 +27,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  padding: 0 var(--card-pad) 12px;
 }
 
 .timelineItem { display: flex; gap: 12px; }
@@ -66,7 +53,30 @@
 .eventTitle { font-size: 0.84rem; font-weight: 500; color: var(--text-primary); }
 .eventDesc { font-size: 0.74rem; color: var(--text-muted); margin-top: 2px; }
 
-.empty { padding: 24px 0; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+/* flex: 1 — l'état vide occupe la place laissée par la frise, sinon le lien
+   de pied remontait se coller sous lui au lieu de fermer la carte. */
+.empty {
+  flex: 1;
+  padding: 28px var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.emptyIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
 
 /* Même correctif que TodayEssentials.module.css : classe référencée par
    AgendaTimeline.tsx mais absente d'ici, laissant les placeholders de

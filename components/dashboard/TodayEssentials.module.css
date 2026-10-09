@@ -1,29 +1,14 @@
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
-     seule .list défile en interne (overflow-y: auto), header et footer
-     (.viewAll) restent toujours visibles. */
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+/* Coque, en-tête et pied viennent de card.module.css — voir ce fichier
+   pour la raison. Ne rien redéclarer ici. */
+.card { composes: shell from './card.module.css'; }
+.header { composes: head from './card.module.css'; }
+.headerTitle { composes: headTitle from './card.module.css'; }
 
-.header { padding: 18px 20px 4px; flex-shrink: 0; }
-
-.headerTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--accent);
-}
-.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
-
+/* 8 px ici + 12 px sur .item : le texte des lignes tombe à 20 px du bord de
+   la carte, exactement sous le titre de l'en-tête (--card-pad). Avec 12 px,
+   il était décalé de 4 px vers la droite. */
 .list {
-  padding: 8px 12px 12px;
+  padding: 8px 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -75,7 +60,30 @@
 .itemTag.urgent { background: var(--urgent-light); color: var(--urgent); }
 .itemTag.important { background: var(--important-light); color: var(--important); }
 
-.empty { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+/* flex: 1 — l'état vide occupe la place laissée par la liste, sinon le lien
+   de pied remontait se coller sous lui au lieu de fermer la carte. */
+.empty {
+  flex: 1;
+  padding: 30px var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.emptyIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
 
 /* Référencée par TodayEssentials.tsx (`${styles.skeletonItem} skeleton`) mais
    jusqu'ici absente de ce module — la classe globale .skeleton (voir
@@ -85,17 +93,4 @@
    invisible. Hauteur alignée sur .item réel : icône 34px + padding 10px*2. */
 .skeletonItem { height: 54px; }
 
-.viewAll {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  font-size: 0.8rem;
-  color: var(--accent);
-  font-weight: 500;
-  transition: background var(--transition);
-  flex-shrink: 0;
-}
-.viewAll:hover { background: var(--bg-subtle); }
+.viewAll { composes: foot from './card.module.css'; }

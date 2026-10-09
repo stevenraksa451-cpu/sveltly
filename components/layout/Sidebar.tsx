@@ -169,7 +169,7 @@ export default function Sidebar() {
       {mobileOpen && <div className={styles.backdrop} onClick={() => setMobileSidebarOpen(false)} />}
       <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${mobileOpen ? styles.mobileOpen : ''}`}>
       <div className={styles.header}>
-        <Logo size={34} showText={showExpanded} />
+        <Logo size={34} showText={showExpanded} priority />
         <button
           className={styles.toggleBtn}
           onClick={toggleCollapsed}

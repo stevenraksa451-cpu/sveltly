@@ -1,0 +1,62 @@
+.shell {
+  border: 1px solid var(--mk-line);
+  border-radius: 16px;
+  background: var(--mk-surface);
+  box-shadow: var(--mk-shadow);
+  overflow: hidden;
+}
+
+.head {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--mk-line);
+  background: var(--mk-surface-2);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--mk-ink-3);
+}
+
+.body { padding: 6px 0; }
+
+/* Grille fixe : heure, expéditeur, objet, étiquette. Les colonnes s'alignent
+   donc d'une ligne à l'autre, et les deux états se superposent exactement —
+   ce qui rend la comparaison lisible à la bascule. */
+.row {
+  display: grid;
+  grid-template-columns: 46px 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 18px;
+}
+
+.time { font-size: 0.72rem; color: var(--mk-ink-3); font-variant-numeric: tabular-nums; }
+.from { font-size: 0.8rem; font-weight: 500; color: var(--mk-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subject { font-size: 0.8rem; color: var(--mk-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.badge {
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+/* Une seule couleur saturée sur tout le visuel — l'urgence. Les deux autres
+   niveaux se distinguent par la valeur, pas par la teinte. */
+.urgent { background: #FBE9E7; color: #9C2A1E; }
+.important { background: var(--mk-surface-2); color: var(--mk-ink-2); }
+.normal { background: transparent; color: var(--mk-ink-3); box-shadow: inset 0 0 0 1px var(--mk-line); }
+
+.divider {
+  margin: 8px 18px;
+  padding-top: 11px;
+  border-top: 1px solid var(--mk-line);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mk-ink-3);
+}
+
+@media (max-width: 700px) {
+  .row { grid-template-columns: 44px minmax(0, 1fr) auto; }
+  /* L'objet seul suffit sur écran étroit : l'expéditeur passe à la trappe
+     avant lui, parce qu'on reconnaît un message à son objet. */
+  .from { display: none; }
+}

@@ -1,11 +1,13 @@
+/* 24 px entre les colonnes — même gouttière que la page Tâches, qui pose la
+   même relation navigation / contenu. */
 .layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 32px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
-/* Navigation latérale — pattern Linear (bordure gauche active).
+/* Navigation latérale.
    Pas de position: sticky ici : .content (AppLayout.module.css) est
    devenu le conteneur de scroll de l'app (plus <body>), et le seuil
    d'activation du sticky (top de .content + offset) se retrouve alors
@@ -21,16 +23,21 @@
   gap: 2px;
 }
 
+/* Pastille teintée, sans filet à gauche : le filet de 2 px était carré sur
+   un fond arrondi, ce qui creusait une encoche visible au coin haut-gauche
+   de l'onglet actif. La teinte suffit à marquer l'état — et elle doit rester
+   plus discrète que la pastille indigo pleine de la barre latérale
+   principale (Sidebar.module.css .active), visible en même temps à l'écran :
+   deux niveaux de navigation, deux niveaux d'insistance. */
 .navItem {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  border-left: 2px solid transparent;
   font-size: 0.84rem;
   color: var(--text-secondary);
-  transition: all var(--transition);
+  transition: background var(--transition), color var(--transition);
   text-align: left;
 }
 .navItem:hover {
@@ -40,7 +47,6 @@
 .navItemActive {
   background: var(--accent-light);
   color: var(--accent);
-  border-left-color: var(--accent);
   font-weight: 500;
 }
 .navIcon {
@@ -59,7 +65,6 @@
 .navItemDanger:hover { background: var(--urgent-light); }
 .navItemDanger.navItemActive {
   background: var(--urgent-light);
-  border-left-color: var(--urgent);
   color: var(--urgent);
 }
 
@@ -93,7 +98,7 @@
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
@@ -285,7 +290,14 @@
 .dangerBtn:hover { opacity: 0.85; }
 
 /* Sauvegarde */
-.saveRow { display: flex; justify-content: flex-end; padding-top: 4px; }
+/* Filet de séparation : le bouton flottait seul sous le panneau, sans rien
+   pour le rattacher à ce qu'il enregistre. */
+.saveRow {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
 .saveBtn {
   padding: 10px 22px; background: var(--accent); color: white;
   border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500;
@@ -308,8 +320,10 @@
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
   }
-  .navItem { border-left: none; border-bottom: 2px solid transparent; white-space: nowrap; }
-  .navItemActive { border-left: none; border-bottom-color: var(--accent); }
+  /* En rangée horizontale, la pastille teintée ne suffit plus à distinguer
+     l'onglet courant d'un survol : un soulignement la complète. */
+  .navItem { border-bottom: 2px solid transparent; white-space: nowrap; }
+  .navItemActive { border-bottom-color: var(--accent); }
   .navItemDanger { margin-top: 0; padding-top: 8px; border-top: none; }
 }
 .inlineEdit {
@@ -403,7 +417,7 @@
 
 .planComparisonWrap {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: 20px;
   background: var(--bg-subtle);
 }

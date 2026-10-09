@@ -1,14 +1,27 @@
+/* La barre elle-même traverse toute la largeur : son fond et son filet
+   ferment la fenêtre d'un bord à l'autre. */
 .header {
   height: var(--header-height);
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
   position: sticky;
   top: 0;
   z-index: 50;
+}
+
+/* Son CONTENU, lui, suit le même cadre que <main> — même largeur maximale,
+   mêmes 28 px de gouttière (voir AppLayout.module.css). Le titre de la page
+   tombe ainsi exactement sur le bord gauche du contenu, et les actions sur
+   son bord droit. */
+.inner {
+  height: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .leftRow {
@@ -50,7 +63,51 @@
 .right {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
+}
+
+/* Déclencheur de recherche — dessiné comme un champ pour que la recherche se
+   voie, avec son raccourci affiché. Ce n'est pas un <input> : le vrai champ
+   vit dans la palette qu'il ouvre. */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+.search:hover { border-color: var(--accent-muted); background: var(--bg-card); color: var(--text-secondary); }
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.searchLabel { flex: 1; min-width: 0; }
+
+.kbd {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Sous 900 px, la barre n'a plus la place : le champ se replie sur sa seule
+   icône, de la taille des autres boutons. */
+@media (max-width: 900px) {
+  .search { width: 34px; justify-content: center; padding: 0; background: transparent; border-color: transparent; }
+  .searchLabel, .kbd { display: none; }
 }
 
 .iconBtn {
@@ -83,11 +140,4 @@
   background: var(--urgent);
   border-radius: 50%;
   border: 1.5px solid var(--bg-card);
-}
-
-.divider {
-  width: 1px;
-  height: 18px;
-  background: var(--border);
-  margin: 0 6px;
 }

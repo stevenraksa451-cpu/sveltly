@@ -1,15 +1,22 @@
 /* components/landing/Reveal.module.css */
+/* 0,45 s et non 0,7 s, avec des translations deux fois plus courtes : à
+   vitesse de défilement normale, une section mettait plus longtemps à
+   apparaître qu'à traverser l'écran — on voyait donc défiler des blocs
+   vides. Une entrée doit se remarquer, pas se regarder. */
 .reveal {
   opacity: 0;
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease;
   height: 100%;
 }
 
-.up { transform: translateY(28px); }
-.scale { transform: scale(0.92); }
-.blur { filter: blur(8px); transform: translateY(12px); }
-.left { transform: translateX(-40px); }
-.right { transform: translateX(40px); }
+.up { transform: translateY(14px); }
+.scale { transform: scale(0.96); }
+/* 4px et non 8px : un flou s'applique à toute la surface de la section et se
+   repeint à chaque frame de la transition — au-delà, le coût se voit sur les
+   grandes sections, pour un effet que personne ne distingue. */
+.blur { filter: blur(4px); transform: translateY(8px); }
+.left { transform: translateX(-22px); }
+.right { transform: translateX(22px); }
 
 .visible {
   opacity: 1;
@@ -17,6 +24,23 @@
   filter: blur(0);
 }
 
+/* Contenu visible sans défiler — voir la prop `immediate` dans Reveal.tsx.
+   Opaque dès le premier octet de HTML : aucune dépendance au JavaScript pour
+   que Google voie quelque chose de peint. L'entrée ne joue que sur la
+   translation ; animer l'opacité remettrait l'élément hors du calcul du LCP
+   exactement comme la version observée. */
+.immediate {
+  opacity: 1;
+  height: 100%;
+  animation: immediateIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes immediateIn {
+  from { transform: translateY(14px); }
+  to { transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  .immediate { animation: none; }
 }

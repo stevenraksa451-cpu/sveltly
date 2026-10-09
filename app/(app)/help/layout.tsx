@@ -3,7 +3,10 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Aide & Support — Sveltly',
+  // Titre NU : le suffixe « — Sveltly » vient du gabarit title.template du
+  // layout racine (app/layout.tsx). Le répéter ici donnait « Aide & Support — Sveltly —
+  // Sveltly » dans l'onglet.
+  title: 'Aide & Support',
 }
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {

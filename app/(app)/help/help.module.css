@@ -1,13 +1,17 @@
+/* Pas de largeur maximale ici : la page était bloquée à 900 px et calée à
+   gauche, ce qui laissait plus de 300 px de vide sur la droite pendant que
+   la colonne de FAQ, elle, n'en faisait que 596 — serrée dans une page à
+   moitié vide. La page occupe maintenant le cadre, et c'est le texte des
+   réponses qui porte sa propre mesure de lecture (voir .faqAnswer). */
 .layout {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  max-width: 900px;
+  gap: var(--card-gap);
 }
 
 .banner {
   background: linear-gradient(160deg, #2563EB 0%, #7C3AED 55%, #1E293B 100%);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: 20px 24px;
   display: flex;
   align-items: center;
@@ -66,8 +70,8 @@
 
 .cols {
   display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--card-gap);
   align-items: start;
 }
 
@@ -122,7 +126,10 @@
   transition: transform var(--transition);
 }
 
+/* max-width : la colonne fait désormais ~880 px, soit près de 140
+   caractères par ligne pour une réponse. On garde la mesure de lecture. */
 .faqAnswer {
+  max-width: 72ch;
   padding: 0 18px 14px;
   font-size: 0.82rem;
   color: var(--text-secondary);
@@ -135,10 +142,10 @@
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: 20px;
 }
-.card + .card { margin-top: 20px; }
+.card + .card { margin-top: var(--card-gap); }
 
 .quickstart {
   display: flex;

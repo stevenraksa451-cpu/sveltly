@@ -1,0 +1,204 @@
+/* components/landing/nav/Navbar.module.css */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Au-delà de ~10 px de défilement, la barre se détache du contenu : surface
+   translucide floutée, fine bordure, ombre à peine perceptible. Tout en haut
+   de page elle reste transparente, posée sur le hero. */
+.scrolled {
+  background: color-mix(in srgb, var(--mk-bg) 78%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom-color: var(--mk-line);
+  box-shadow: 0 1px 24px rgba(15, 23, 42, 0.04);
+}
+
+/* Un panneau ouvert impose la même surface que l'état défilé, même en haut de
+   page : sans ça, le panneau flotterait sous une barre transparente et
+   paraîtrait détaché de son bouton. */
+.menuOpen {
+  background: color-mix(in srgb, var(--mk-bg) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom-color: var(--mk-line);
+}
+
+/* Même cadre que le reste du site public : --mk-max et --mk-gutter, posés
+   une seule fois dans styles/marketing.css. Le logo tombe donc exactement
+   sur le bord gauche du fil d'Ariane, du titre et du pied de page. */
+.inner {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  height: 64px;
+  padding: 0 var(--mk-gutter);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: var(--mk-radius-sm);
+}
+
+/* --- Liens centraux ------------------------------------------------------ */
+
+.menuList {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.menuItem { position: relative; }
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border-radius: var(--mk-radius-sm);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--mk-ink-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.trigger:hover { color: var(--mk-ink); background: var(--mk-surface-2); }
+.triggerOpen { color: var(--mk-ink); background: var(--mk-surface-2); }
+
+/* Section en cours de lecture (scrollspy) : une pastille de fond teintée,
+   jamais un soulignement criard. */
+.triggerActive { color: var(--mk-accent); background: var(--mk-accent-soft); }
+
+.chevron {
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+.triggerOpen .chevron { transform: rotate(180deg); opacity: 1; }
+
+/* --- Actions de droite --------------------------------------------------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.login {
+  padding: 8px 12px;
+  border-radius: var(--mk-radius-sm);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--mk-ink-2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.login:hover { color: var(--mk-ink); background: var(--mk-surface-2); }
+
+/* Seul élément fortement coloré de la barre. Même forme et même accent que
+   le bouton de fin de page (PageChrome.module.css .ctaButton) : les deux
+   portent le même libellé et se voient souvent ensemble à l'écran — une
+   pilule indigo vif au-dessus d'un rectangle indigo sourd se lisait comme
+   deux boutons différents. Seule la taille change, la barre fait 64 px. */
+.cta {
+  padding: 9px 18px;
+  border-radius: 10px;
+  background: var(--mk-accent);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
+}
+.cta:hover { background: var(--mk-accent-hover); transform: translateY(-1px); }
+.cta:active { transform: translateY(0); }
+
+/* --- Burger (mobile) ----------------------------------------------------- */
+
+.burger {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border: none;
+  background: none;
+  border-radius: var(--mk-radius-sm);
+  cursor: pointer;
+  color: var(--mk-ink);
+}
+.burger:hover { background: var(--mk-surface-2); }
+
+.burgerBox {
+  position: relative;
+  width: 20px;
+  height: 14px;
+  display: block;
+}
+
+/* Deux traits seulement : ils pivotent en croix sans qu'un troisième trait
+   central ait à disparaître séparément. */
+.burgerLine {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.burgerLine:first-child { top: 2px; }
+.burgerLine:last-child { top: 10px; }
+
+.burgerOpen .burgerLine:first-child { top: 6px; transform: rotate(45deg); }
+.burgerOpen .burgerLine:last-child { top: 6px; transform: rotate(-45deg); }
+
+/* --- Focus clavier ------------------------------------------------------- */
+/* :focus-visible seulement : un clic souris ne doit pas laisser d'anneau. */
+.trigger:focus-visible,
+.login:focus-visible,
+.cta:focus-visible,
+.brand:focus-visible,
+.burger:focus-visible {
+  outline: 2px solid var(--mk-accent);
+  outline-offset: 2px;
+}
+
+/* --- Adaptatif ----------------------------------------------------------- */
+
+/* Seul seuil du site public qui ne vaut pas 880 px, et c'est mesuré : le
+   contenu de la barre (logo 126 + liens 473 + actions 293 + 2 gouttières de
+   24) occupe 940 px incompressibles. Avec --mk-gutter, la largeur utile ne
+   repasse au-dessus de 940 qu'aux environs de 1040 px de fenêtre. En
+   dessous, les liens se chevauchaient. Le menu burger prend donc le relais
+   là, pas à 880. */
+@media (max-width: 1040px) {
+  .inner { gap: 12px; }
+  .menuList, .actions { display: none; }
+  .burger { display: inline-flex; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header, .trigger, .chevron, .cta, .login, .burgerLine { transition: none; }
+}

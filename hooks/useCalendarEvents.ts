@@ -2,8 +2,13 @@
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase'
 import { CalendarEvent } from '@/types'
+import { timed } from '@/lib/perf'
 
 async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
+  return timed('calendar.load', fetchCalendarEventsInner)
+}
+
+async function fetchCalendarEventsInner(): Promise<CalendarEvent[]> {
   // getSession() (pas getUser()) : même raison que hooks/useTasks.ts — pas
   // d'aller-retour réseau pour un id déjà disponible localement.
   const { data: { session } } = await supabase.auth.getSession()

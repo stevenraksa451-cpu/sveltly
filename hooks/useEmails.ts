@@ -2,8 +2,15 @@
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase'
 import { Email } from '@/types'
+import { timed } from '@/lib/perf'
 
+// Chronométrée : c'est l'action la plus lourde du produit (Gmail + analyse
+// Groq) et celle dont la lenteur se voit le plus. Voir lib/perf.ts.
 async function fetchEmails(): Promise<Email[]> {
+  return timed('emails.sync', fetchEmailsInner)
+}
+
+async function fetchEmailsInner(): Promise<Email[]> {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('Non authentifié')
 
@@ -23,8 +30,17 @@ export function useEmails() {
   // au lieu du vrai type Email (voir app/(app)/dashboard/page.tsx).
   const { data, error, isLoading, mutate } = useSWR<Email[]>('emails', fetchEmails, {
     revalidateOnFocus: false, // évite de re-fetch à chaque fois que l'onglet reprend le focus
-    dedupingInterval: 60000,  // ne redemande pas deux fois en moins d'1 min, même entre pages différentes
-    refreshInterval: 60000,   // revalide automatiquement toutes les minutes, tant qu'une page qui utilise ce hook est affichée
+    dedupingInterval: 4000,   // assez court pour laisser passer le polling rapide ci-dessous tant que l'IA travaille encore
+    // GET /api/emails répond maintenant dès le fetch Gmail terminé, avant que
+    // l'analyse IA (lancée en arrière-plan côté serveur, voir after() dans
+    // app/api/emails/route.ts) soit forcément finie — tant qu'il reste des
+    // emails 'pending', on repasse toutes les 4s pour récupérer les résumés/
+    // réponses au fur et à mesure plutôt que d'attendre jusqu'à 60s à chaque
+    // fois. Dès que tout est 'done', on retombe sur un polling normal.
+    refreshInterval: (latestData) => {
+      const hasPending = (latestData || []).some(e => e.analysisStatus === 'pending')
+      return hasPending ? 4000 : 60000
+    },
   })
 
   return {

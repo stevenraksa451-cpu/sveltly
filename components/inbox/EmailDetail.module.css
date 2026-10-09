@@ -173,7 +173,7 @@
   position: relative;
   padding: 24px 26px;
   margin: 16px 24px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   border: 1px solid var(--accent-muted);
   display: flex;
   flex-direction: column;
@@ -261,7 +261,7 @@
   position: relative;
   margin: 16px 24px 24px;
   padding: 24px 26px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   border: 1px solid var(--accent-muted);
   display: flex;
   flex-direction: column;

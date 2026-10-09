@@ -1,0 +1,157 @@
+/* Le conteneur prend la largeur de l'écran (plafonnée à --mk-max) ; ce sont
+   les colonnes intérieures qui restent étroites. */
+.page {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter);
+}
+
+/* --- Titre ---------------------------------------------------------------- */
+
+/* Le titre occupe la moitié gauche, un spot tient la droite : la ligne du
+   haut traverse donc toute la largeur au lieu de laisser un vide. */
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+  padding: 60px 0 44px;
+}
+
+/* Aucune contrainte de largeur ici : `ch` se calcule sur la police de
+   l'élément qui le porte, et ce conteneur est à 1rem. Un max-width: 20ch
+   posé dessus valait donc ~200 px et écrasait le titre sur cinq lignes.
+   La mesure appartient au titre, dont la police est grande. */
+.headerText { min-width: 0; }
+
+.headerSpot {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--mk-ink-3);
+}
+.headerSpot svg { width: clamp(120px, 15vw, 190px); height: auto; }
+
+/* Grande typographie, interlettrage resserré : c'est le seul effet du
+   gabarit éditorial, il doit donc être franc. */
+.title {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  color: var(--mk-ink);
+  /* Mesure portée par le titre lui-même : `ch` s'y calcule enfin sur la
+     bonne police. 16ch à 4rem ≈ 500 px, soit deux à trois lignes. */
+  max-width: 16ch;
+}
+
+.lede {
+  margin-top: 22px;
+  font-size: clamp(1.02rem, 1.7vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--mk-ink-2);
+  max-width: 44ch;
+}
+
+.visual { margin: 10px 0 56px; }
+
+/* Chapô en pleine largeur, composé plus grand que le corps : il fait la
+   transition entre le titre et le texte courant. */
+.standfirst {
+  font-size: clamp(1.18rem, 2.2vw, 1.5rem);
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+  color: var(--mk-ink);
+  max-width: 34ch;
+  padding: 40px 0 56px;
+}
+
+/* --- Blocs ---------------------------------------------------------------- */
+
+/* Colonnes asymétriques : texte large à gauche, aparté étroit décalé à
+   droite. Les blocs sans aparté occupent naturellement la colonne de texte
+   seule — d'où une largeur de ligne qui varie d'un bloc à l'autre. */
+/* Trois colonnes désormais : texte, aparté, marge d'illustration. La
+   troisième n'est remplie que par certains blocs — c'est elle qui fait
+   respirer la largeur sans étirer les lignes. */
+.block {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 48px;
+  padding: 52px 0;
+  align-items: start;
+}
+
+.blockMain { min-width: 0; }
+
+.blockSpot { display: flex; justify-content: center; padding-top: 4px; }
+.blockSpot svg { width: clamp(100px, 11vw, 150px); height: auto; }
+
+/* Un bloc sans aparté ni illustration garde sa colonne de texte étroite et
+   laisse le reste vide : c'est voulu, toutes les lignes ne doivent pas
+   commencer et finir au même endroit. */
+
+.blockHeading {
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  margin-bottom: 16px;
+  max-width: 22ch;
+}
+
+.blockBody { font-size: 1rem; line-height: 1.78; color: var(--mk-ink-2); max-width: 62ch; }
+.blockBody p + p { margin-top: 1.1em; }
+.blockBody strong { color: var(--mk-ink); font-weight: 600; }
+
+.blockAside {
+  padding-top: 6px;
+  border-top: 1px solid var(--mk-line);
+}
+
+.asideText { font-size: 0.89rem; line-height: 1.7; color: var(--mk-ink-3); padding-top: 14px; }
+
+/* Chiffre mis en avant — la seule occasion où la teinte de famille apparaît
+   en grand sur ce gabarit. */
+.figureValue {
+  display: block;
+  padding-top: 14px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--mk-tint);
+  font-variant-numeric: tabular-nums;
+}
+.figureCaption { display: block; margin-top: 6px; font-size: 0.84rem; line-height: 1.5; color: var(--mk-ink-3); }
+
+/* --- Phrase isolée --------------------------------------------------------- */
+
+.pullQuote {
+  margin: 30px 0 20px;
+  padding: 52px 0;
+  border-top: 1px solid var(--mk-line);
+  border-bottom: 1px solid var(--mk-line);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.38;
+  letter-spacing: -0.03em;
+  color: var(--mk-ink);
+  max-width: 26ch;
+}
+
+/* Le chapô garde volontairement sa mesure courte, mais le filet qui le
+   souligne, lui, traverse toute la largeur : c'est ce contraste qui donne
+   l'impression que la page est pleine. */
+.standfirstRow { border-bottom: 1px solid var(--mk-line); margin-bottom: 20px; }
+
+@media (max-width: 1100px) {
+  .block { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr); }
+  .blockSpot { display: none; }
+}
+
+@media (max-width: 860px) {
+  .header { grid-template-columns: 1fr; gap: 28px; padding: 40px 0 28px; }
+  .headerText { max-width: none; }
+  .headerSpot { justify-content: flex-start; }
+  .block { grid-template-columns: 1fr; gap: 24px; padding: 32px 0; }
+  .standfirst { max-width: none; padding: 28px 0 36px; }
+}

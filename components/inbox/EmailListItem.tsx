@@ -1,19 +1,28 @@
 'use client'
 // components/inbox/EmailListItem.tsx
+import { memo, useCallback } from 'react'
 import { Email } from '@/types'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import styles from './EmailListItem.module.css'
 
-export default function EmailListItem({ email, selected, onClick }: {
+// memo + onSelect(id) plutôt qu'un onClick déjà fermé sur l'email : la liste
+// peut afficher plusieurs centaines d'items, et le poll SWR renvoie un nouveau
+// tableau toutes les 4 s tant que l'IA analyse (voir hooks/useEmails.ts). Sans
+// memo, chaque poll — et chaque clic, chaque changement de filtre — re-rendait
+// la totalité des lignes. Avec une prop `onClick: () => void` recréée à chaque
+// rendu du parent, memo n'aurait servi à rien : la fonction change d'identité
+// à tous les coups. D'où la signature en (id) + useCallback côté parent.
+function EmailListItem({ email, selected, onSelect }: {
   email: Email
   selected: boolean
-  onClick: () => void
+  onSelect: (id: string) => void
 }) {
   const initials = email.sender.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
   const time = new Date(email.receivedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  const handleClick = useCallback(() => onSelect(email.id), [onSelect, email.id])
 
   return (
-    <button className={`${styles.item} ${selected ? styles.selected : ''}`} onClick={onClick}>
+    <button className={`${styles.item} ${selected ? styles.selected : ''}`} onClick={handleClick}>
       {!email.isRead && <span className={styles.unreadDot} />}
       <div className={styles.avatar}>{initials}</div>
       <div className={styles.content}>
@@ -32,3 +41,5 @@ export default function EmailListItem({ email, selected, onClick }: {
     </button>
   )
 }
+
+export default memo(EmailListItem)

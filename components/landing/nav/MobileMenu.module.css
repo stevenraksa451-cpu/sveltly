@@ -1,0 +1,199 @@
+/* components/landing/nav/MobileMenu.module.css */
+
+/* Panneau plein écran sous la barre. visibility (et non seulement opacity)
+   pour qu'il sorte complètement de l'arbre une fois fermé. */
+.sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 880;
+  display: none;
+  flex-direction: column;
+  background: var(--mk-bg);
+  /* Laisse apparaître la barre de navigation au-dessus. */
+  padding-top: 64px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+}
+
+.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 20px 20px;
+}
+
+/* --- Accordéons ---------------------------------------------------------- */
+
+.group { border-bottom: 1px solid var(--mk-line); }
+
+.groupTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  /* ≥ 44 px de zone tactile. */
+  min-height: 56px;
+  padding: 14px 4px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.groupChevron { color: var(--mk-ink-3); transition: transform 0.22s ease; flex-shrink: 0; }
+.groupChevronOpen { transform: rotate(180deg); color: var(--mk-accent); }
+
+/* 0fr → 1fr anime une hauteur quelconque sans la mesurer en JS et sans
+   max-height arbitraire qui couperait un contenu plus long que prévu. */
+.groupPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.26s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.groupPanelOpen { grid-template-rows: 1fr; }
+
+.groupPanelInner { overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
+.groupPanelOpen .groupPanelInner { padding-bottom: 10px; }
+
+/* --- Entrées ------------------------------------------------------------- */
+
+.entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 11px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+}
+.entry:active { background: var(--mk-surface-2); }
+.entry:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: -2px; }
+
+.entryIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--mk-accent-soft);
+  color: var(--mk-accent);
+}
+.entryIcon svg { width: 18px; height: 18px; }
+
+.entryText { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.entryLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+}
+
+.entryTag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: var(--mk-accent-soft);
+  color: var(--mk-accent);
+}
+
+.entryDesc { font-size: 0.8rem; line-height: 1.45; color: var(--mk-ink-3); }
+
+.directLink {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 14px 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--mk-line);
+}
+
+/* --- Pied fixe ----------------------------------------------------------- */
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--mk-line);
+  background: var(--mk-bg);
+}
+
+.footerLogin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 99px;
+  border: 1px solid var(--mk-line-strong);
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+  text-decoration: none;
+}
+
+.footerCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  /* Même forme et même absence d'ombre colorée que les autres boutons
+     principaux du site public. */
+  border-radius: 10px;
+  background: var(--mk-accent);
+  color: #fff;
+  font-size: 0.94rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Même seuil que le passage au menu burger (Navbar.module.css) : en dessous
+   de 1040 px le bouton apparaît, et c'est ce panneau qu'il ouvre. Réglé à
+   1000 px, le burger restait sans effet entre 1001 et 1040. */
+@media (max-width: 1040px) {
+  .sheet { display: flex; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .groupPanel, .groupChevron { transition: none; }
+}
+
+/* --- Ajouts : page courante et lien d'aperçu ----------------------------- */
+
+.entryActive { background: var(--mk-accent-soft); }
+.entryActive .entryLabel { color: var(--mk-accent); }
+
+.overviewLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 11px 10px;
+  margin-bottom: 2px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--mk-accent);
+  text-decoration: none;
+}
+.overviewLink:active { background: var(--mk-surface-2); }
+
+.directLinkActive { color: var(--mk-accent); }

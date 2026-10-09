@@ -4,22 +4,25 @@
   gap: 10px;
 }
 
-/* Nom de la marque en dégradé (indigo -> violet, les couleurs IA de
-   l'identité — mêmes teintes que .heroAccent sur la landing) plutôt qu'en
-   couleur de texte neutre : partout où "Sveltly" est écrit (nav, sidebar,
-   footer, pages d'auth...), l'écriture se distingue immédiatement du reste
-   du texte au lieu de se fondre dans --text-primary. Poids et taille
-   relative légèrement augmentés pour la même raison — plus affirmé, plus
-   visible au premier coup d'œil. */
+/* Texte PLEIN (pas de dégradé) — un dégradé sur tout le mot est le réflexe
+   "ça fait IA" qu'on veut justement éviter ; un seul point de couleur
+   maîtrisé (voir .e ci-dessous) est plus confiant et plus premium qu'un
+   dégradé qui recouvre tout. Poids et taille légèrement au-dessus du texte
+   courant pour que "Sveltly" se distingue par sa police (--font-brand,
+   Space Grotesk) et sa graisse, pas par un effet de couleur criard. */
 .text {
   font-family: var(--font-brand);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-  background: linear-gradient(120deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
+}
+
+/* Le "e" — caractère distinctif du logotype. Seule lettre en couleur de
+   marque ; c'est ce point de couleur unique, pas un dégradé, qui doit
+   permettre de reconnaître "le e de Sveltly" en un coup d'œil. */
+.e {
+  color: var(--color-primary);
 }
 
 .animated {

@@ -1,27 +1,8 @@
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
-     seule .list défile en interne (overflow-y: auto) — header, bandeau de
-     productivité, ajout de tâche et footer (.viewAll) restent fixes. */
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px 4px;
-  flex-shrink: 0;
-}
-
-.headerTitle { display: flex; align-items: center; gap: 8px; color: var(--accent); }
-.headerTitle h3 { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+/* Coque, en-tête et pied viennent de card.module.css — voir ce fichier pour
+   la raison. Ne rien redéclarer ici. */
+.card { composes: shell from './card.module.css'; }
+.header { composes: head from './card.module.css'; }
+.headerTitle { composes: headTitle from './card.module.css'; }
 
 .addBtn {
   width: 26px;
@@ -113,8 +94,10 @@
   color: var(--text-muted);
 }
 
+/* Voir TodayEssentials.module.css : 8 + 12 aligne le texte des lignes sur le
+   titre de l'en-tête. */
 .list {
-  padding: 8px 12px 12px;
+  padding: 8px 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -146,7 +129,30 @@
   flex-shrink: 0;
   transition: all var(--transition);
 }
-.itemDone .checkbox { background: var(--accent); border-color: var(--accent); }
+/* Confirme l'action de cocher une tâche — léger effet ressort (overshoot
+   dans l'easing) plutôt qu'un simple changement de couleur instantané.
+   Ne se rejoue que quand .itemDone est ajoutée (CSS rejoue une animation à
+   chaque fois que la classe qui la porte est appliquée), jamais en boucle. */
+.itemDone .checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: checkPop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.itemDone .checkbox svg { animation: checkDraw 200ms ease-out 80ms both; }
+
+@keyframes checkPop {
+  0% { transform: scale(0.75); }
+  55% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@keyframes checkDraw {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .itemDone .checkbox, .itemDone .checkbox svg { animation: none; }
+}
 
 .itemContent { flex: 1; min-width: 0; }
 .itemTitle {
@@ -182,7 +188,29 @@
 }
 .tagUrgent { background: var(--urgent-light); color: var(--urgent); }
 
-.empty { padding: 24px 20px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+/* flex: 1 — voir TodayEssentials.module.css, même raison. */
+.empty {
+  flex: 1;
+  padding: 28px var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.emptyIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
 
 /* Même correctif que TodayEssentials.module.css : classe référencée par
    TasksCard.tsx mais absente d'ici. Hauteur alignée sur .item réel : case à
@@ -190,17 +218,4 @@
    ont une icône/pastille de 34px). */
 .skeletonItem { height: 40px; }
 
-.viewAll {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  font-size: 0.8rem;
-  color: var(--accent);
-  font-weight: 500;
-  transition: background var(--transition);
-  flex-shrink: 0;
-}
-.viewAll:hover { background: var(--bg-subtle); }
+.viewAll { composes: foot from './card.module.css'; }

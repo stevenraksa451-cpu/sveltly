@@ -1,0 +1,64 @@
+.section { padding: 10px 0 40px; }
+
+/* Date à gauche, contenu à droite — mise en page de journal plutôt que de
+   carte empilée. */
+.entry {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 40px;
+  padding: 36px 0;
+  border-top: 1px solid var(--mk-line);
+}
+
+.meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.date { font-size: 0.85rem; color: var(--mk-ink-3); }
+.label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--mk-line-strong);
+  color: var(--mk-ink-2);
+}
+
+.body { min-width: 0; }
+
+.entryTitle {
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: -0.028em;
+  color: var(--mk-ink);
+  margin-bottom: 18px;
+}
+
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.item { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 14px; align-items: baseline; }
+
+/* Étiquette en texte simple avec un filet, pas une pastille colorée : trois
+   couleurs de badge sur une même liste feraient sapin de Noël. */
+.kind {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: right;
+  color: var(--mk-ink-3);
+}
+.nouveau { color: var(--mk-accent); }
+
+.text { font-size: 0.93rem; line-height: 1.7; color: var(--mk-ink-2); }
+
+.note {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--mk-line);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--mk-ink-3);
+  max-width: 56ch;
+}
+
+@media (max-width: 760px) {
+  .entry { grid-template-columns: 1fr; gap: 16px; }
+  .meta { flex-direction: row; align-items: center; gap: 12px; }
+  .item { grid-template-columns: 1fr; gap: 2px; }
+  .kind { text-align: left; }
+}

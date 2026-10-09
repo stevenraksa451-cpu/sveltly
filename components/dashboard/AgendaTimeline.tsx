@@ -23,10 +23,6 @@ function AgendaTimeline({ events, loading }: { events: CalendarEvent[]; loading:
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           <h3>Votre agenda</h3>
         </div>
-        <Link href="/calendar" className={styles.viewLink}>
-          Voir le calendrier
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </Link>
       </div>
       <p className={styles.date}>{today}</p>
 
@@ -36,6 +32,11 @@ function AgendaTimeline({ events, loading }: { events: CalendarEvent[]; loading:
         </div>
       ) : sorted.length === 0 ? (
         <div className={styles.empty}>
+          <span className={styles.emptyIcon} aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </span>
           <p>Aucun événement prévu aujourd'hui.</p>
         </div>
       ) : (
@@ -60,6 +61,13 @@ function AgendaTimeline({ events, loading }: { events: CalendarEvent[]; loading:
           ))}
         </div>
       )}
+
+      {/* En pied, comme sur les deux cartes voisines : le même geste doit se
+          trouver au même endroit d'une colonne à l'autre. */}
+      <Link href="/calendar" className={styles.viewAll}>
+        Voir le calendrier
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </Link>
     </div>
   )
 }

@@ -425,7 +425,7 @@ function SettingsContent() {
 
   if (loading || profileLoading) {
     return (
-      <AppLayout title="Paramètres" subtitle="">
+      <AppLayout title="Paramètres" subtitle="Gérez votre compte et vos préférences">
         <div className={styles.loadingGrid}>
           {[...Array(3)].map((_, i) => (
             <div key={i} className={`${styles.skeletonBlock} skeleton`} />

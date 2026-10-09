@@ -1,0 +1,65 @@
+.footer {
+  border-top: 1px solid var(--mk-line);
+  background: var(--mk-surface-2);
+}
+
+/* Même cadre que la barre du haut et que le corps des pages : --mk-max et
+   --mk-gutter. Le pied de page avait son propre 1120 + 48, ce qui décalait
+   ses colonnes de 40 px vers l'intérieur par rapport au reste. */
+.inner {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 56px var(--mk-gutter) 40px;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2.6fr;
+  gap: 48px;
+}
+
+.brandCol { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.brandLink { text-decoration: none; }
+.tagline { font-size: 0.88rem; color: var(--mk-ink-2); max-width: 26ch; line-height: 1.6; }
+.mail { font-size: 0.85rem; color: var(--mk-accent); text-decoration: none; }
+.mail:hover { text-decoration: underline; }
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  gap: 28px 20px;
+}
+
+.col { min-width: 0; }
+
+/* <h2> plutôt qu'un <p> stylé : ce sont de vrais en-têtes de groupe de liens,
+   et c'est ce qui permet à un lecteur d'écran de parcourir le pied de page. */
+.colTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+  margin-bottom: 11px;
+}
+
+.colList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.colLink {
+  font-size: 0.84rem;
+  color: var(--mk-ink-2);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.colLink:hover { color: var(--mk-accent); }
+.colLink:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 2px; border-radius: 3px; }
+
+.bottom {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 18px var(--mk-gutter) 40px;
+  border-top: 1px solid var(--mk-line);
+  font-size: 0.79rem;
+  color: var(--mk-ink-3);
+}
+
+/* Même seuil que la barre de navigation et les gabarits de page. */
+@media (max-width: 880px) {
+  .inner { grid-template-columns: 1fr; gap: 36px; padding: 44px var(--mk-gutter) 32px; }
+  .bottom { padding: 18px var(--mk-gutter) 32px; }
+}

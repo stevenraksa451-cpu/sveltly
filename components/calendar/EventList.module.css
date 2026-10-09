@@ -1,8 +1,12 @@
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   overflow: hidden;
+  /* Colonne : la liste prend la hauteur restante, et son état vide se cale
+     au centre au lieu de rester collé sous l'en-tête d'une carte de 500 px. */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -267,6 +271,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
   min-height: 120px;
 }
 
@@ -282,7 +287,11 @@
   border-radius: var(--radius-sm);
 }
 
+/* flex: 1 — la colonne s'étire à la hauteur de l'agenda (voir .layout dans
+   calendar.module.css) ; sans ça, l'état vide se collait en haut d'une
+   carte de 500 px et laissait un grand blanc sous lui. */
 .empty {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
