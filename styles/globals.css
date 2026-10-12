@@ -96,15 +96,22 @@
   --border-strong: rgba(0, 0, 0, 0.12);
 
   /* --- Encre -------------------------------------------------------------
-     ⚠️ --text-muted vaut #78716C et NON le #A8A29E de la maquette : ce
+     ⚠️ --text-muted vaut #736D68 et NON le #A8A29E de la maquette : ce
      dernier donne 2,41:1 sur le fond de page, très en dessous du minimum AA
-     de 4,5:1 — il serait illisible pour une partie des lecteurs. #78716C
-     donne 4,59:1. Le #A8A29E reste disponible sous --text-faint, réservé à
+     de 4,5:1 — il serait illisible pour une partie des lecteurs.
+
+     Et #736D68 plutôt que #78716C : le contraste doit tenir sur la surface
+     la plus SOMBRE du système clair, #F5F5F4 (bandeau du pied de page, fond
+     de la barre latérale), pas seulement sur le fond de page. #78716C y
+     tombait à 4,40:1 — Lighthouse l'a relevé sur la ligne de copyright.
+     #736D68 donne 4,68:1 sur #F5F5F4, 4,88 sur le fond, 5,10 sur blanc.
+
+     Le #A8A29E reste disponible sous --text-faint, réservé à
      ce qui n'est PAS du texte : séparateurs, icônes décoratives, placeholders
      d'illustration. Ne jamais poser de mot dessus. */
   --text-primary: var(--color-ink);
   --text-secondary: #57534E;
-  --text-muted: #78716C;
+  --text-muted: #736D68;
   --text-faint: #A8A29E;
 
   --accent: var(--color-primary);

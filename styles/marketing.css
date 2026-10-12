@@ -1,12 +1,13 @@
 /* styles/marketing.css
    Palette et primitives d'animation des pages marketing.
 
-   Portée volontairement limitée à .mk : l'espace connecté (tableau de bord,
-   boîte de réception, réglages) garde ses propres tokens. Une refonte des
-   couleurs côté vitrine ne doit pas repeindre l'application.
+   Portée limitée à .mk et .mkc, mais la palette, elle, est commune au site
+   entier depuis la refonte — vitrine et espace connecté partagent les mêmes
+   valeurs, définies une seule fois dans globals.css.
 
-   Règle de la palette : un seul accent visible par écran, plus éventuellement
-   une teinte de famille très désaturée. Pas de dégradé, pas d'ombre lourde. */
+   Les valeurs vivent désormais dans styles/globals.css : les noms --mk-* ne
+   sont plus que des alias. Voir la section « Couleur » de CLAUDE.md pour la
+   règle qui encadre les dégradés et les teintes compagnes. */
 
 /* Les tokens sont partagés par deux porteurs :
    - .mk  : le corps d'une page vitrine (il prend aussi le fond et l'encre) ;
@@ -32,9 +33,9 @@
 
   --mk-ink: var(--text-primary);
   --mk-ink-2: var(--text-secondary);
-  /* AA sur le fond de page (4,59:1). Le gris plus pâle de la maquette
-     (#A8A29E) tombe à 2,41:1 : il vit sous --text-faint et ne porte jamais
-     de texte. Voir la note dans globals.css. */
+  /* AA sur TOUTES les surfaces claires du système, y compris la plus sombre
+     (#F5F5F4). Le gris de la maquette (#A8A29E) tombe à 2,41:1 : il vit sous
+     --text-faint et ne porte jamais de texte. Voir la note dans globals.css. */
   --mk-ink-3: var(--text-muted);
 
   /* --- Accent unique ----------------------------------------------------- */
@@ -98,7 +99,7 @@
   --mk-line-strong: rgba(0, 0, 0, 0.12);
   --mk-ink: #1C1917;
   --mk-ink-2: #57534E;
-  --mk-ink-3: #78716C;
+  --mk-ink-3: #736D68;
   --mk-accent: #4F46E5;
   --mk-accent-hover: #4338CA;
   --mk-accent-soft: #EEF2FF;

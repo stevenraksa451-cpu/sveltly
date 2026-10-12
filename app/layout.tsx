@@ -10,11 +10,14 @@ import { BRAND_NAME, BRAND_TAGLINE, BRAND_DESCRIPTION, SITE_URL } from '@/lib/br
 // voir styles/globals.css) — Bricolage Grotesque retirée précédemment.
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  // L'italique est chargée pour un seul mot — le titre du hero. Sans la vraie
-  // fonte, font-synthesis: none laisse le mot droit, et la synthèse du
-  // navigateur produit une oblique penchée mécaniquement, pas une italique.
-  style: ['normal', 'italic'],
+  // Police VARIABLE : aucun `weight` déclaré, donc un seul fichier qui couvre
+  // toutes les graisses. Les trois graisses statiques, plus leurs trois
+  // italiques, pesaient 113 Ko — deuxième poste de la page d'accueil après le
+  // JavaScript, pour un texte qui n'utilise que 400, 500 et 600.
+  //
+  // L'italique disparaît avec elles. Le mot mis en avant dans le titre du
+  // hero garde son dégradé, qui portait déjà l'emphase ; une oblique
+  // synthétique à 64 px se verrait plus qu'elle n'aiderait.
   variable: '--font-inter',
   display: 'swap',
 })
@@ -29,6 +32,13 @@ const spaceGrotesk = Space_Grotesk({
   weight: ['700'],
   variable: '--font-space-grotesk',
   display: 'swap',
+  // preload: false — et c'est délibéré. Cette police ne sert qu'au mot
+  // « Sveltly » (Brand.tsx et Logo.tsx), soit quelques dizaines de caractères
+  // par page, mais son fichier pesait 48 Ko sur le chemin critique : près de
+  // la moitié du budget de polices de la page d'accueil, préchargé avant le
+  // texte que le visiteur vient lire. Elle se charge maintenant en parallèle,
+  // et `display: swap` affiche le nom en Inter pendant ce temps.
+  preload: false,
 })
 
 // metadataBase manquait : sans elle, Next.js ne peut pas résoudre les URL

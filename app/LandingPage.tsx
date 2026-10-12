@@ -1,5 +1,12 @@
-'use client'
-import { useState } from 'react'
+// Composant SERVEUR, et il doit le rester.
+//
+// Un seul `useState` (la bascule des tarifs) suffisait à faire basculer
+// TOUTE la page côté client : chaque section devait alors être téléchargée
+// et hydratée avant que la moindre interaction réponde. Ce morceau vit
+// désormais dans components/landing/PricingSection.tsx. Les enfants qui ont
+// besoin du navigateur (Navbar, Reveal, ImpactCalculator, ScrollProgress)
+// portent leur propre 'use client' — un composant serveur peut les rendre
+// sans devenir client lui-même.
 import Link from 'next/link'
 import '@/styles/marketing.css'
 import Brand from '@/components/ui/Brand'
@@ -12,9 +19,9 @@ import ScrollProgress from '@/components/landing/ScrollProgress'
 import ProviderMarks from '@/components/landing/ProviderMarks'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
+import PricingSection from '@/components/landing/PricingSection'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import { IconCalendar, IconFocus, IconLock, IconShield, IconSync, IconCheckSquare, IconCode, IconPalette, IconBriefcase, IconPen, IconUsers, IconKey, IconDatabase, IconTrash } from '@/components/landing/icons'
-import { PLANS, formatPrice } from '@/lib/plans'
 import { SAVINGS_RATIO } from '@/lib/time-saved'
 import styles from './page.module.css'
 
@@ -119,8 +126,6 @@ const FAQ = [
 ]
 
 export default function LandingPage() {
-  const [annual, setAnnual] = useState(true)
-
   // « mkc » ne peint rien : il pose les tokens --mk-*, dont --mk-max et
   // --mk-gutter, qui règlent désormais le cadre de la landing comme celui des
   // pages vitrine. Les couleurs de la landing restent les siennes.
@@ -194,16 +199,19 @@ export default function LandingPage() {
               La mise en route tient en une autorisation Google.
             </p>
           </div>
+          {/* Les <li> sont des enfants DIRECTS du <ol>. Chaque carte était
+              enveloppée dans un Reveal, qui insère un <div> : la liste
+              n'était donc plus une liste pour un lecteur d'écran, et
+              Lighthouse le signalait sur deux règles. La cascade d'entrée
+              est reprise en CSS, sur les :nth-child. */}
           <ol className={styles.stepsGrid}>
-            {STEPS.map((s, i) => (
-              <Reveal key={s.number} variant="up" delay={i * 80}>
-                <li className={styles.stepCard}>
-                  <span className={styles.stepNumber}>{s.number}</span>
-                  <h3 className={styles.stepTitle}>{s.title}</h3>
-                  <p className={styles.stepDesc}>{s.desc}</p>
-                  <div className={styles.stepVisual} aria-hidden="true">{s.visual}</div>
-                </li>
-              </Reveal>
+            {STEPS.map(s => (
+              <li key={s.number} className={styles.stepCard}>
+                <span className={styles.stepNumber}>{s.number}</span>
+                <h3 className={styles.stepTitle}>{s.title}</h3>
+                <p className={styles.stepDesc}>{s.desc}</p>
+                <div className={styles.stepVisual} aria-hidden="true">{s.visual}</div>
+              </li>
             ))}
           </ol>
         </section>
@@ -400,74 +408,7 @@ export default function LandingPage() {
       </Reveal>
 
       <Reveal variant="up">
-        <section id="pricing" className={styles.pricing}>
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>Un tarif simple, sans surprise</h2>
-            <p className={styles.sectionDesc}>
-              Commencez gratuitement. Passez au plan Pro quand votre activité le justifie.
-            </p>
-          </div>
-
-          <div className={styles.billingToggleRow}>
-            <span className={!annual ? styles.billingToggleLabelActive : styles.billingToggleLabel}>Mensuel</span>
-            <button
-              className={`${styles.billingToggle} ${annual ? styles.billingToggleOn : ''}`}
-              onClick={() => setAnnual(!annual)}
-              aria-label="Basculer entre facturation mensuelle et annuelle"
-            >
-              <span className={styles.billingToggleThumb} />
-            </button>
-            <span className={annual ? styles.billingToggleLabelActive : styles.billingToggleLabel}>
-              Annuel
-              <span className={styles.savingsBadge}>-20%</span>
-            </span>
-          </div>
-
-          <div className={styles.planGrid}>
-            {PLANS.map((plan, i) => {
-              const { price, period } = formatPrice(plan, annual)
-
-              return (
-                <Reveal key={plan.id} variant="scale" delay={i * 100}>
-                  <div className={`${styles.planCard} ${plan.id === 'pro' ? styles.planCardFeatured : ''}`}>
-                    {plan.id === 'pro' && (
-                      <span className={styles.featuredBadge}>
-                        Recommandé
-                      </span>
-                    )}
-
-                    <h3 className={styles.planName}>{plan.name}</h3>
-                    <p className={styles.planTagline}>{plan.tagline}</p>
-
-                    <p className={styles.planPrice}>
-                      {price}<span className={styles.planPeriod}>{period}</span>
-                    </p>
-
-                    {/* Le forfait gratuit porte un bouton secondaire : deux
-                        boutons dégradés côte à côte ne désignent plus rien, et
-                        la carte Pro est justement celle qu'on recommande. */}
-                    <Link href="/auth/register" className={`${styles.planBtn} ${plan.id === 'free' ? styles.planBtnQuiet : ''}`}>
-                      {plan.id === 'free' ? 'Commencer gratuitement' : <>Essayer <Brand color="white" /> Pro</>}
-                    </Link>
-
-                    <ul className={styles.planFeatures}>
-                      {plan.features.map(f => (
-                        <li key={f} className={styles.planFeatureItem}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12"/></svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </Reveal>
-              )
-            })}
-          </div>
-
-          <p className={styles.pricingFootnote}>
-            Changez de forfait ou annulez à tout moment.
-          </p>
-        </section>
+        <PricingSection />
       </Reveal>
 
       <Reveal variant="blur">

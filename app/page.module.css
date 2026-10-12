@@ -158,8 +158,10 @@
    font-synthesis: none interdit au navigateur de fabriquer une oblique
    penchee mecaniquement si elle venait a manquer. */
 .heroEm {
-  font-style: italic;
-  font-synthesis: none;
+  /* Plus d'italique : la fonte italique d'Inter coûtait trois fichiers pour
+     ce seul mot. Le dégradé portait déjà l'emphase, et une oblique
+     synthétique à cette taille se verrait plus qu'elle n'aiderait. */
+  font-style: normal;
   background: linear-gradient(120deg, #C7D2FE 0%, #DDD6FE 45%, #99F6E4 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -480,6 +482,19 @@
 }
 /* Le filet fonce, rien d'autre. Une carte qui se soulève et change de fond
    au survol, répétée en grille, donne une page qui frétille. */
+/* Cascade d'entrée reprise en CSS : les cartes etaient enveloppees
+   chacune dans un Reveal, ce qui cassait la structure de la liste. Trois
+   delais suffisent, et rien n'est anime en opacite — la section entiere a
+   deja son propre Reveal au defilement. */
+.stepsGrid > li { animation: carteEntree 520ms var(--mk-ease) both; }
+.stepsGrid > li:nth-child(2) { animation-delay: 80ms; }
+.stepsGrid > li:nth-child(3) { animation-delay: 160ms; }
+
+@keyframes carteEntree {
+  from { transform: translateY(12px); }
+  to { transform: none; }
+}
+
 .stepCard:hover {
   border-color: var(--mk-line-strong);
   box-shadow: var(--mk-shadow-lift);

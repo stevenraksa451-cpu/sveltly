@@ -8,7 +8,17 @@ export interface DetectedEvent {
   endTime?: string
 }
 
+/**
+ * Un email, tel que l'application le manipule.
+ *
+ * Ce type était éclaté en QUATRE déclarations `export interface Email`
+ * réparties dans le fichier, fusionnées en silence par TypeScript. Rien ne
+ * cassait, mais le type était illisible : chaque bloc s'ouvrait sur
+ * « ... champs existants » et il fallait les retrouver tous pour savoir ce
+ * qu'un email contient. Une seule déclaration désormais, groupée par origine.
+ */
 export interface Email {
+  // --- Message brut (Gmail) ---
   id: string
   threadId?: string
   subject: string
@@ -19,22 +29,49 @@ export interface Email {
   bodyHtml?: string | null
   receivedAt: string
   isRead: boolean
-  priority: Priority
   tags: string[]
+  attachments?: EmailAttachment[]
+  labelIds?: string[]
+
+  // --- Produit par l'analyse IA (app/api/analyze) ---
+  priority: Priority
+  emailType?: EmailType
+  dailySummary?: string
+  keyPoints?: string[]
   hasAIReply?: boolean
   aiDraftReply?: string
-  // 'pending' tant que Groq n'a pas encore produit d'analyse pour cet email
-  // (voir app/api/emails/route.ts) — absent sur les emails jamais passés par
-  // ce pipeline. Utilisé côté client pour accélérer le polling (voir
-  // hooks/useEmails.ts) tant qu'il en reste.
+  /**
+   * 'pending' tant que Groq n'a pas encore produit d'analyse pour cet email
+   * (voir app/api/emails/route.ts) — absent sur les emails jamais passés par
+   * ce pipeline. Utilisé côté client pour accélérer le polling (voir
+   * hooks/useEmails.ts) tant qu'il en reste.
+   */
   analysisStatus?: 'pending' | 'done'
+
+  // --- Rendez-vous détecté et planification (lib/scheduling.ts) ---
   calendarEventDetected?: boolean
   detectedEvent?: DetectedEvent | null
   autoScheduled?: boolean
-  // 'clear' (planifié), un statut de conflit (voir lib/scheduling.ts), ou
-  // 'plan_limit' — événement au-delà de 7 jours, planification auto réservée
-  // au forfait Pro au-delà de cette fenêtre (voir app/api/emails/route.ts).
+  /**
+   * 'clear' (planifié), un statut de conflit (voir lib/scheduling.ts), ou
+   * 'plan_limit' — événement au-delà de 7 jours, planification auto réservée
+   * au forfait Pro au-delà de cette fenêtre (voir app/api/emails/route.ts).
+   */
   schedulingStatus?: string
+  schedulingConflicts?: unknown[]
+  schedulingAlternative?: { startTime: string; endTime: string } | null
+  /**
+   * Autres événements du jour que la planification automatique propose de
+   * déplacer (moins prioritaires que celui détecté dans cet email). Jamais
+   * appliqué tout seul : l'utilisateur confirme depuis le panneau email.
+   */
+  schedulingDisplaced?: unknown[]
+
+  // --- Actions dérivées (app/api/emails/route.ts) ---
+  actionItemDetected?: boolean
+  detectedAction?: DetectedAction | null
+  autoTaskCreated?: boolean
+  autoArchived?: boolean
 }
 
 export interface CalendarEvent {
@@ -103,24 +140,11 @@ export type EmailType =
   | 'change' | 'invoice' | 'job' | 'info' | 'newsletter' | 'promo'
   | 'notification' | 'spam'
 
-export interface Email {
-  // ... champs existants
-  emailType?: EmailType
-  dailySummary?: string
-}
-
 export interface EmailAttachment {
   filename: string
   mimeType: string
   size: number
   attachmentId: string
-}
-
-export interface Email {
-  // ... champs existants
-  keyPoints?: string[]
-  attachments?: EmailAttachment[]
-  labelIds?: string[]
 }
 
 export interface DetectedAction {
@@ -136,21 +160,3 @@ export interface DetectedAction {
   dueDate?: string | null
 }
 
-// Champs produits par app/api/emails/route.ts (détection d'action sans
-// créneau, résultat de la planification automatique) — jusqu'ici absents de
-// ce type malgré un usage réel côté app/composants, qui s'appuyait donc sur
-// `any` ou des assertions non vérifiées pour y accéder.
-export interface Email {
-  // ... champs existants
-  actionItemDetected?: boolean
-  detectedAction?: DetectedAction | null
-  schedulingConflicts?: unknown[]
-  schedulingAlternative?: { startTime: string; endTime: string } | null
-  // Autres événements du jour que la planification automatique propose de
-  // déplacer (moins prioritaires que celui détecté dans cet email) — voir
-  // resolveScheduling dans lib/scheduling.ts. Jamais appliqué tout seul :
-  // l'utilisateur doit confirmer depuis le panneau email (bouton "Réorganiser").
-  schedulingDisplaced?: unknown[]
-  autoTaskCreated?: boolean
-  autoArchived?: boolean
-}

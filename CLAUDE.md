@@ -337,13 +337,20 @@ en étaient deux copies, servies telles quelles par Next (le dossier `app/`
 n'est pas optimisé : ces fichiers doivent être physiquement petits).
 Poids total de la page d'accueil : **2 580 Ko → 394 Ko**.
 
-Scores après correction (`npm run build` + `npm run start`, Lighthouse mobile) :
+Scores mesurés ( + , Lighthouse mobile) :
 
 | Page | Perf | A11y | Bonnes pratiques | SEO | LCP |
 |---|---|---|---|---|---|
-| `/` | 85 | 100 | 100 | 100 | 3,7 s |
-| `/produit` | 97 | 100 | 100 | 100 | 2,6 s |
-| `/faq` | 91 | 100 | 100 | 100 | 3,5 s |
+|  | 87 | 100 | 100 | 100 | 3,6 s |
+|  | 95 | 100 | 100 | 100 | 2,7 s |
+|  | 90 | 100 | 100 | 100 | 3,5 s |
+|  | 89 | 100 | 100 | 100 | 3,7 s |
+
+Trois corrections ont porté ces chiffres, toutes trouvées en mesurant :
+
+1. **Police variable plutôt que graisses statiques.**  téléchargeait six fichiers, 113 Ko — deuxième poste de la page après le JavaScript. Sans , next/font prend la variable : un seul fichier, 62 Ko au total. L'italique a disparu avec elles ; le mot mis en avant dans le titre garde son dégradé, qui portait déjà l'emphase.
+2. **Space Grotesk en .** Elle ne sert qu'au mot « Sveltly » mais occupait 48 Ko du chemin critique, préchargée avant le texte que le visiteur vient lire.
+3. **La landing est un composant SERVEUR.** Un seul  — la bascule mensuel/annuel des tarifs — forçait toute la page côté client. Il vit dans  ; le reste est du HTML rendu par le serveur. Ne pas remettre  sur .
 
 Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 contre
 86 — plus de requêtes, aucun gain. Ne pas le réintroduire sans le remesurer.
