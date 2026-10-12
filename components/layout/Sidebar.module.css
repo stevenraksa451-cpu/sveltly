@@ -1,7 +1,9 @@
 .sidebar {
-  width: var(--sidebar-width, 256px);
+  width: var(--sidebar-width, 240px);
   height: 100vh;
-  background: var(--bg-card);
+  /* Legerement plus sombre que le contenu, et non blanche comme lui : c'est
+     ce qui donne au cadre une profondeur sans avoir besoin d'une ombre. */
+  background: var(--bg-subtle);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -56,19 +58,20 @@
 }
 
 .link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
   border-radius: var(--radius);
   color: var(--text-secondary);
-  font-size: 0.86rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--weight-ui);
   white-space: nowrap;
   transition: all var(--transition);
 }
 .link:hover {
-  background: var(--bg-subtle);
+  background: var(--border-light);
   color: var(--text-primary);
 }
 .collapsed .link {
@@ -76,12 +79,33 @@
   padding: 10px;
 }
 
+/* L'entree active est une surface BLANCHE posee sur le fond gris de la barre,
+   avec un filet et une ombre tres douce — pas un pave indigo plein.
+   L'indigo plein etait l'element le plus sature de l'ecran : il attirait
+   l'oeil vers la page ou on se trouve deja, au lieu du contenu. */
 .active {
-  /* Solide, pas de dégradé — c'est un état interactif (nav active), le
-     dégradé reste réservé aux éléments décoratifs (voir .avatar). */
-  background: var(--color-primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(55, 48, 163, 0.3);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-weight: var(--weight-strong);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  /* Compense le filet pour que l'entree active ne saute pas d'un pixel. */
+  padding: 9px 13px;
+}
+.collapsed .active { padding: 9px; }
+
+/* Liseré indigo a gauche : il dit « vous etes ici » sans repeindre toute la
+   ligne. */
+.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
 }
 
 .icon {
@@ -99,9 +123,9 @@
 }
 
 .profileInfo { flex: 1; min-width: 0; text-align: left; }
-.profileName { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profileName { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .profileEmail {
-  font-size: 0.68rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -121,15 +145,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 10px 12px;
   width: 100%;
   border-radius: var(--radius);
-  border: 1px solid var(--border-light);
-  background: var(--bg-subtle);
-  transition: background var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition);
   color: var(--text-muted);
 }
-.profileCard:hover { background: var(--border-light); }
+.profileCard:hover { border-color: var(--border-strong); }
 .collapsed .profileCard {
   justify-content: center;
   padding: 8px;
@@ -157,7 +182,7 @@
   gap: 10px;
   padding: 9px 10px;
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;

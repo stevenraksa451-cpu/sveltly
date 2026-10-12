@@ -20,16 +20,17 @@
 
 .greetingTitle {
   font-family: var(--font-display);
-  font-size: 1.85rem;
-  font-weight: 600;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-strong);
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .greetingSub {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  margin-top: 3px;
 }
 
 .topRow {
@@ -48,7 +49,7 @@
 .statBand {
   position: relative;
   display: grid;
-  grid-template-columns: 1.7fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -59,6 +60,9 @@
      lieu de compter sur le clipping du parent. */
 }
 
+/* Filet degrade en haut du bandeau : il reprend les trois teintes de la
+   famille, comme sur la vitrine. L'aplat indigo plein en faisait le trait le
+   plus sature d'un ecran ou rien d'autre n'est colore. */
 .statBand::before {
   content: '';
   position: absolute;
@@ -66,10 +70,8 @@
   left: 0;
   right: 0;
   height: 3px;
-  /* Suit les deux coins hauts de --radius-card : 24 px à gauche, 16 px
-     (--radius-lg) à droite. */
-  border-radius: 24px var(--radius-lg) 0 0;
-  background: var(--accent);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--grad-line);
 }
 
 /* justify-content: center — la hauteur du bandeau est dictée par la carte IA
@@ -81,47 +83,42 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 .statCell:first-child { border-left: none; }
 
-.statChip {
-  width: 18px;
-  height: 3px;
-  border-radius: 99px;
-  margin-bottom: 6px;
-}
-.chipCoral { background: var(--urgent); }
-.chipGold { background: var(--important); }
-.chipDusk { background: var(--purple); }
+/* Les trois traits de couleur au-dessus des chiffres ne codaient rien : ni
+   etat, ni priorite, ni categorie. Du decor qui ressemblait a de
+   l'information. Supprimes. */
+.statChip { display: none; }
 
-.statHeroValue {
+/* Les trois chiffres ont la MEME taille. Le premier etait a 2,6 rem et les
+   deux autres a 1,65 : trois mesures du meme ecran affichees a deux echelles
+   se lisent comme deux niveaux d'importance, ce qu'elles ne sont pas.
+
+   tabular-nums partout : sans lui, un compteur qui passe de 11 a 12 fait
+   sauter toute la ligne, le « 1 » d'Inter etant plus etroit que les autres
+   chiffres. */
+.statHeroValue,
+.statValue {
   font-family: var(--font-display);
-  font-size: 2.6rem;
-  font-weight: 600;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-strong);
   color: var(--text-primary);
   letter-spacing: -0.03em;
   line-height: 1;
-}
-
-.statValue {
-  font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .statLabel {
-  font-size: 0.82rem;
+  font-size: var(--text-base);
   color: var(--text-secondary);
 }
 
 .statSub {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: var(--text-muted);
-  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Case "Temps économisé" — icône + libellé + bouton d'info sur une même
@@ -137,7 +134,7 @@
 .statIcon {
   display: flex;
   align-items: center;
-  color: var(--purple);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -165,10 +162,10 @@
   top: calc(100% + 8px);
   right: -10px;
   transform: translateY(-4px);
-  width: 220px;
+  width: 240px;
   background: var(--text-primary);
   color: var(--bg-card);
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 400;
   line-height: 1.5;
   padding: 10px 12px;
@@ -223,3 +220,17 @@
 @media (max-width: 768px) {
   .cols { grid-template-columns: 1fr; }
 }
+/* Action proposée à la place du sous-titre quand le chiffre est à zéro mais
+   que la boîte, elle, ne l'est pas. Un « 0 » sec laisse croire qu'il n'y a
+   rien à faire. */
+.statAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-ui);
+  color: var(--accent);
+  transition: gap var(--transition);
+}
+.statAction:hover { gap: 8px; }

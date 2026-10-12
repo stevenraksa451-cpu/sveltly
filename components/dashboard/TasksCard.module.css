@@ -28,7 +28,7 @@
   padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   background: var(--bg-subtle);
   color: var(--text-primary);
 }
@@ -38,7 +38,7 @@
   background: var(--accent);
   color: white;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   font-weight: 500;
 }
 
@@ -63,13 +63,13 @@
 }
 
 .productivityLabel {
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
 .productivityValue {
   font-family: var(--font-display);
-  font-size: 0.86rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--accent);
   flex-shrink: 0;
@@ -90,7 +90,7 @@
 }
 
 .productivitySub {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
@@ -120,7 +120,7 @@
 .checkbox {
   width: 19px;
   height: 19px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
   background: var(--bg-card);
   display: flex;
@@ -156,13 +156,13 @@
 
 .itemContent { flex: 1; min-width: 0; }
 .itemTitle {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.itemSub { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+.itemSub { font-size: var(--text-xs); color: var(--text-muted); margin-top: 1px; }
 
 .emailBadge {
   flex-shrink: 0;
@@ -199,7 +199,7 @@
   gap: 10px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 }
 .emptyIcon {
   width: 36px;

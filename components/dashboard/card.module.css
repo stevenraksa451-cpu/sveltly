@@ -15,7 +15,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
   /* Remplit toute la hauteur de la rangée .cols (dashboard.module.css) ;
      seul le corps défile, en-tête et pied restent toujours visibles. */
   display: flex;
@@ -41,12 +41,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--accent);
+  /* L'icône de titre passe en encre secondaire : six icônes indigo sur un
+     même écran diluent l'accent, qui ne doit designer qu'une action. */
+  color: var(--text-muted);
 }
 .headTitle h3 {
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--weight-strong);
   color: var(--text-primary);
+  letter-spacing: -0.014em;
 }
 
 /* Le lien « voir plus » ferme la carte, toujours au même endroit : collé en
@@ -58,8 +61,8 @@
   gap: 6px;
   padding: 12px;
   border-top: 1px solid var(--border-light);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-ui);
   color: var(--accent);
   flex-shrink: 0;
   transition: background var(--transition);

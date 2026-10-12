@@ -13,7 +13,7 @@
 }
 
 .header { padding: 16px 20px 4px; display: flex; align-items: center; justify-content: space-between; }
-.title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+.title { font-size: var(--text-base); font-weight: 600; color: var(--text-primary); }
 
 .list { padding: 8px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
 
@@ -41,7 +41,7 @@
 .itemContent { flex: 1; min-width: 0; }
 
 .itemTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.itemTitle { font-size: 0.87rem; font-weight: 600; color: var(--text-primary); }
+.itemTitle { font-size: var(--text-base); font-weight: 600; color: var(--text-primary); }
 
 .badge {
   flex-shrink: 0;
@@ -56,13 +56,13 @@
 .badge.later { background: var(--normal-light); color: var(--normal); }
 .badge.planned { background: var(--bg-subtle); color: var(--text-secondary); }
 
-.itemDesc { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+.itemDesc { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; }
 
 .itemTime {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.74rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   margin-top: 6px;
 }
@@ -76,5 +76,5 @@
   padding: 30px 20px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-base);
 }

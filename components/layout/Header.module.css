@@ -2,7 +2,11 @@
    ferment la fenêtre d'un bord à l'autre. */
 .header {
   height: var(--header-height);
-  background: var(--bg-card);
+  /* Translucide et floutee : le contenu qui defile dessous se devine, ce qui
+     ancre la barre a la page au lieu de la poser dessus comme un couvercle. */
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -49,14 +53,14 @@
 }
 
 .title {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
 .subtitle {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
@@ -73,33 +77,34 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 240px;
-  height: 34px;
+  width: 260px;
+  height: 32px;
   padding: 0 10px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
+  border-radius: var(--radius);
+  background: var(--bg-card);
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-base);
   font-family: inherit;
   cursor: pointer;
   text-align: left;
   transition: border-color var(--transition), background var(--transition), color var(--transition);
 }
-.search:hover { border-color: var(--accent-muted); background: var(--bg-card); color: var(--text-secondary); }
+.search:hover { border-color: var(--border-strong); color: var(--text-secondary); }
 .search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .searchLabel { flex: 1; min-width: 0; }
 
 .kbd {
   flex-shrink: 0;
   padding: 2px 6px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
   font-family: inherit;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-ui);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -111,9 +116,9 @@
 }
 
 .iconBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;

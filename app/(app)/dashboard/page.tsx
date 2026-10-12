@@ -1,6 +1,7 @@
 'use client'
 // app/(app)/dashboard/page.tsx
 import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
 import AppLayout from '@/components/layout/AppLayout'
 import TodayEssentials from '@/components/dashboard/TodayEssentials'
 import AgendaTimeline from '@/components/dashboard/AgendaTimeline'
@@ -82,14 +83,24 @@ export default function DashboardPage() {
         <div className={styles.topRow}>
           <div className={styles.statBand}>
             <div className={styles.statCell}>
-              <span className={`${styles.statChip} ${styles.chipCoral}`} />
               <p className={styles.statHeroValue}>{emailsPending ? '—' : importantCount}</p>
               <p className={styles.statLabel}>Emails importants</p>
-              <p className={styles.statSub}>{emailsPending ? '' : `${unreadCount} non lus`}</p>
+              {/* Zéro important mais des non lus : un simple « 0 » laisse
+                  croire qu'il n'y a rien à faire. On propose l'action qui
+                  correspond vraiment à l'état de la boîte. */}
+              {!emailsPending && importantCount === 0 && unreadCount > 0 ? (
+                <Link href="/inbox" className={styles.statAction}>
+                  Trier mes {unreadCount} email{unreadCount > 1 ? 's' : ''}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              ) : (
+                <p className={styles.statSub}>{emailsPending ? '' : `${unreadCount} non lus`}</p>
+              )}
             </div>
 
             <div className={styles.statCell}>
-              <span className={`${styles.statChip} ${styles.chipGold}`} />
               <p className={styles.statValue}>{eventsPending ? '—' : todayEvents.length}</p>
               <p className={styles.statLabel}>Réunions aujourd'hui</p>
               <p className={styles.statSub}>
@@ -98,7 +109,6 @@ export default function DashboardPage() {
             </div>
 
             <div className={styles.statCell}>
-              <span className={`${styles.statChip} ${styles.chipDusk}`} />
               <p className={styles.statValue}>{emailsPending ? '—' : formatTimeSaved(timeSavedSeconds)}</p>
               <div className={styles.statLabelRow}>
                 <span className={styles.statIcon} aria-hidden="true">
@@ -125,8 +135,11 @@ export default function DashboardPage() {
                   </span>
                 </button>
               </div>
+              {/* Le chiffre est un cumul : le sous-titre doit dire sur quoi,
+                  sinon il laisse croire que le total ne porte que sur la
+                  journée. */}
               <p className={styles.statSub}>
-                {emailsPending ? '' : `sur ${todayEmailsCount} email${todayEmailsCount !== 1 ? 's' : ''} traité${todayEmailsCount !== 1 ? 's' : ''}`}
+                {emailsPending ? '' : `dont ${todayEmailsCount} email${todayEmailsCount !== 1 ? 's' : ''} aujourd'hui`}
               </p>
             </div>
           </div>

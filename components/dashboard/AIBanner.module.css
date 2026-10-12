@@ -1,34 +1,57 @@
+/* Carte IA du tableau de bord.
+   Surface blanche, filet, et un seul accent indigo — pas un aplat violet
+   plein. Le dégradé indigo→violet qui remplissait cette carte en faisait la
+   plus grande surface saturée d'un écran par ailleurs calme, pour un contenu
+   qui ne fait que rappeler ce que le produit sait faire. */
 .banner {
+  position: relative;
+  overflow: hidden;
   background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  padding: 22px 24px;
-  color: white;
+  box-shadow: var(--shadow);
+  padding: var(--card-pad);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.32);
+  height: 100%;
 }
 
+/* Halo indigo très doux dans l'angle : l'accent, sans repeindre la carte. */
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(420px 220px at 100% 0%, var(--accent-light), transparent 70%);
+}
+
+.banner > * { position: relative; }
+
 .bannerIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.18);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  background: var(--tint-indigo-bg);
+  color: var(--tint-indigo-fg);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .bannerTitle {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  color: var(--text-primary);
+  letter-spacing: -0.016em;
   margin-top: 4px;
 }
 
 .bannerText {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.5;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: 1.55;
   flex: 1;
 }
 
@@ -38,12 +61,16 @@
   gap: 6px;
   align-self: flex-start;
   margin-top: 8px;
-  padding: 8px 16px;
-  background: white;
-  color: var(--accent-hover);
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all var(--transition);
+  height: 32px;
+  padding: 0 14px;
+  background: var(--grad-brand);
+  color: #fff;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-ui);
+  box-shadow: var(--glow-accent);
+  transition: filter var(--transition);
 }
-.bannerBtn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.bannerBtn:hover { filter: saturate(1.08) brightness(1.04); }
+.bannerBtn svg { transition: transform var(--transition); }
+.bannerBtn:hover svg { transform: translateX(2px); }

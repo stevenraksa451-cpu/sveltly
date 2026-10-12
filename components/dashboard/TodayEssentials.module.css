@@ -46,7 +46,7 @@
    cette page apporte vraiment. Le couper à une ligne revenait à afficher le
    début d'une phrase en masquant son objet. */
 .itemTitle {
-  font-size: 0.84rem;
+  font-size: var(--text-sm);
   font-weight: 450;
   line-height: 1.45;
   color: var(--text-primary);
@@ -56,7 +56,7 @@
   overflow: hidden;
 }
 .itemSub {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--text-muted);
   margin-bottom: 3px;
@@ -87,7 +87,7 @@
   gap: 10px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 }
 .emptyIcon {
   width: 36px;

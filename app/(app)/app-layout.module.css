@@ -21,21 +21,22 @@
   position: relative;
 }
 
+/* Nappe tres douce en haut de page. Les quatre couches a 7-16 % teintaient
+   visiblement le haut de chaque ecran et faisaient flotter les cartes
+   blanches dessus ; a 4-6 %, elle ne fait plus que donner un peu d'air. */
 .pageGlow {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 480px;
+  height: 420px;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(600px 380px at 12% -10%, rgba(37, 99, 235, 0.16), transparent 65%),
-    radial-gradient(560px 360px at 55% 5%, rgba(124, 58, 237, 0.14), transparent 65%),
-    radial-gradient(520px 340px at 90% -5%, rgba(37, 99, 235, 0.12), transparent 65%),
-    radial-gradient(400px 300px at 30% 30%, rgba(124, 58, 237, 0.07), transparent 70%);
-  mask-image: linear-gradient(to bottom, black 0%, black 10%, transparent 70%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 10%, transparent 70%);
+    radial-gradient(700px 400px at 14% -12%, rgba(79, 70, 229, 0.06), transparent 64%),
+    radial-gradient(620px 380px at 72% -6%, rgba(124, 58, 237, 0.05), transparent 62%);
+  mask-image: linear-gradient(to bottom, black 0%, black 12%, transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 12%, transparent 72%);
 }
 
 @media (max-width: 768px) {
