@@ -14,69 +14,72 @@
 }
 
 /* ==========================================================================
-   HERO — deux colonnes : texte à gauche, interface à droite.
+   HERO — panneau sombre arrondi, contenu centre.
 
-   Le panneau violet en biais qui occupait 54 % de la largeur a été retiré :
-   c'était la plus grande surface colorée de la page pour l'information la
-   moins dense, et il montrait une carte flottante plutôt que le produit.
+   Le hero etait blanc sur blanc : la page s'ouvrait sur rien. Il reprend
+   desormais le traitement de la section vitesse, le seul element de la page
+   qui avait de la presence — encre profonde + nappes colorees.
+
+   C'est un PANNEAU INSERE, pas une bande pleine largeur : la barre de
+   navigation reste posee sur le fond clair. Une bande sombre collee sous
+   elle l'obligerait a inverser son encre au defilement, et le logo comme
+   les liens changeraient de couleur en pleine lecture.
    ========================================================================== */
 
-/* Nappes colorées du hero — quatre halos très doux posés sur le blanc
-   chaud. C'est le principal levier « premium » de la page : une page qui
-   n'a qu'un bouton coloré sur du blanc est juste, mais froide et plate.
-
-   Quatre arrêts et pas un de plus, tous sous 10 % d'opacité : au-delà, les
-   nappes se mettent à se voir comme des taches et le texte perd son fond.
-   Elles ne bougent pas — un fond qui dérive en boucle derrière un titre
-   fatigue avant d'impressionner. */
-.bgGlow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background:
-    radial-gradient(760px 520px at 8% -8%, rgba(79, 70, 229, 0.10), transparent 62%),
-    radial-gradient(620px 480px at 62% 0%, rgba(124, 58, 237, 0.08), transparent 60%),
-    radial-gradient(680px 520px at 100% 42%, rgba(13, 148, 136, 0.07), transparent 62%),
-    radial-gradient(520px 420px at 26% 100%, rgba(217, 119, 6, 0.05), transparent 66%),
-    var(--mk-bg);
+.heroShell {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 12px var(--mk-gutter) clamp(72px, 9vw, 128px);
 }
 
 .heroSection {
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--mk-line);
-  /* Le cadre commun, posé une fois : le titre tombe exactement sous le logo
-     de la barre de navigation. */
-  width: min(var(--mk-max), 100%);
-  margin: 0 auto;
-  padding: clamp(56px, 7vw, 96px) var(--mk-gutter) clamp(64px, 8vw, 104px);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  isolation: isolate;
+  border-radius: clamp(20px, 2.4vw, 32px);
+  padding: clamp(56px, 7vw, 92px) clamp(24px, 5vw, 64px) clamp(40px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: clamp(32px, 5vw, 72px);
+  text-align: center;
+  gap: clamp(32px, 4vw, 52px);
+
+  /* Les trois nappes sont posees aux angles opposes pour que l'encre ne
+     reste nulle part totalement plate. Elles ne bougent pas : un fond qui
+     derive en boucle derriere un titre fatigue avant d'impressionner. */
+  background:
+    radial-gradient(900px 520px at 82% 6%, rgba(124, 58, 237, 0.42), transparent 62%),
+    radial-gradient(760px 480px at 10% 92%, rgba(13, 148, 136, 0.30), transparent 60%),
+    radial-gradient(680px 460px at 46% 0%, rgba(79, 70, 229, 0.34), transparent 58%),
+    #16130F;
+  color: #FAFAF9;
+
+  /* Les tokens --pm-* repeignent ProviderMarks, dont les classes vivent dans
+     un autre module CSS et sont donc inatteignables d'ici. */
+  --pm-ink: #FAFAF9;
+  --pm-ink-soft: rgba(250, 250, 249, 0.62);
+  --pm-line: rgba(250, 250, 249, 0.18);
+  --pm-badge-bg: rgba(250, 250, 249, 0.08);
+  --brand-e: #A5B4FC;
 }
 
-/* Le filet du bas doit aller d'un bord à l'autre, pas s'arrêter à la
-   gouttière : il sépare deux bandes de page, pas deux colonnes. */
+/* Grain tres fin : sans lui, un degrade sombre aussi large montre des bandes
+   de quantification sur les ecrans 8 bits. */
 .heroSection::after {
   content: '';
   position: absolute;
-  left: calc(50% - 50vw);
-  width: 100vw;
-  bottom: -1px;
-  border-bottom: 1px solid var(--mk-line);
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
 }
 
 .hero {
   position: relative;
   z-index: 1;
-  min-width: 0;
-}
-
-.heroVisual {
-  position: relative;
-  min-width: 0;
+  width: 100%;
   display: flex;
   justify-content: center;
 }
@@ -84,139 +87,172 @@
 .heroContent {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   gap: 20px;
+  max-width: 760px;
 }
 
-/* Pastille du hero. Le filet est un dégradé posé en fond sous un fond
-   blanc rogné — un border-image empêcherait le rayon de 999 px de
-   s'appliquer au filet, qui ressortirait carré. */
+/* --- Sequence d'ouverture ------------------------------------------------
+   Un seul moment orchestre, au chargement, plutot que des effets disperses :
+   chaque element entre 70 ms apres le precedent, de haut en bas, dans l'ordre
+   ou on le lit. « both » retient l'etat initial avant le delai, sinon tout
+   clignote une image avant de partir.
+
+   L'animation ne joue QUE sur la translation. Animer l'opacite d'un contenu
+   visible d'emblee repousse le LCP : tant que le h1 est transparent, Google
+   considere que rien n'est peint (mesure : 11,9 s sur cette page). */
+.heroContent > * {
+  animation: heroEntree 620ms var(--mk-ease) both;
+}
+.heroContent > *:nth-child(1) { animation-delay: 40ms; }
+.heroContent > *:nth-child(2) { animation-delay: 110ms; }
+.heroContent > *:nth-child(3) { animation-delay: 180ms; }
+.heroContent > *:nth-child(4) { animation-delay: 250ms; }
+.heroContent > *:nth-child(5) { animation-delay: 320ms; }
+.heroContent > *:nth-child(6) { animation-delay: 390ms; }
+
+@keyframes heroEntree {
+  from { transform: translateY(14px); }
+  to { transform: none; }
+}
+
+/* Pastille du hero, sur fond sombre. */
 .badge {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   margin: 0;
-  padding: 6px 13px;
+  padding: 7px 15px;
   border-radius: 999px;
-  background:
-    linear-gradient(var(--mk-surface), var(--mk-surface)) padding-box,
-    var(--grad-line) border-box;
-  border: 1px solid transparent;
-  box-shadow: var(--shadow-sm);
-  color: var(--mk-ink-2);
+  background: rgba(250, 250, 249, 0.06);
+  border: 1px solid rgba(250, 250, 249, 0.14);
+  color: rgba(250, 250, 249, 0.82);
   font-size: var(--text-sm);
   font-weight: var(--weight-ui);
   letter-spacing: -0.004em;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .badge::before {
   content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--grad-brand);
   flex-shrink: 0;
+  background: linear-gradient(135deg, #A5B4FC, #5EEAD4);
+  box-shadow: 0 0 10px rgba(165, 180, 252, 0.9);
 }
 
 .heroTitle {
   margin: 0;
-  font-size: clamp(2.25rem, 4.6vw, 4rem);
+  font-size: clamp(2.5rem, 5.6vw, 4.5rem);
   font-weight: var(--weight-strong);
-  letter-spacing: -0.03em;
-  line-height: 1.06;
-  color: var(--mk-ink);
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  color: #FAFAF9;
 }
 
-/* L'italique d'Inter est une oblique optique : à cette taille elle se
-   distingue nettement sans changer ni la couleur ni la graisse. */
+/* L'italique d'Inter est une vraie fonte, chargee dans app/layout.tsx.
+   font-synthesis: none interdit au navigateur de fabriquer une oblique
+   penchee mecaniquement si elle venait a manquer. */
 .heroEm {
   font-style: italic;
   font-synthesis: none;
+  background: linear-gradient(120deg, #C7D2FE 0%, #DDD6FE 45%, #99F6E4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .heroDesc {
   margin: 0;
-  font-size: 1.125rem;
-  color: var(--mk-ink-2);
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  color: rgba(250, 250, 249, 0.68);
   line-height: 1.6;
-  /* Deux lignes pleines à cette taille, pas quatre. */
-  max-width: 38ch;
+  max-width: 46ch;
   font-weight: var(--weight-body);
   letter-spacing: -0.008em;
 }
 
 .heroCtas {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   margin-top: 4px;
 }
 
-/* Bouton principal du site public — même forme que PageChrome .ctaButton et
-   que le bouton de la barre. Dégradé et ombre teintée : c'est le seul
-   élément saturé de l'écran, il peut se le permettre. Une ombre grise sous
-   un bouton indigo le fait paraître sale. */
 .heroCta {
   display: inline-flex;
   align-items: center;
-  height: 44px;
-  padding: 0 22px;
-  background: var(--grad-brand);
-  color: #fff;
+  height: 46px;
+  padding: 0 24px;
+  background: #FAFAF9;
+  color: #16130F;
   border-radius: var(--mk-radius);
   font-size: var(--text-md);
-  font-weight: var(--weight-ui);
+  font-weight: var(--weight-strong);
   letter-spacing: -0.008em;
-  box-shadow: var(--glow-accent);
-  transition: box-shadow var(--mk-interaction) var(--mk-ease), filter var(--mk-interaction) var(--mk-ease);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 10px 30px -12px rgba(250, 250, 249, 0.5);
+  transition: transform var(--mk-interaction) var(--mk-ease), box-shadow var(--mk-interaction) var(--mk-ease);
 }
+/* Sur l'encre, c'est le bouton CLAIR qui porte le contraste maximal. Un
+   bouton indigo sur ce fond aurait moins de presence que le texte. */
 .heroCta:hover {
-  filter: saturate(1.08) brightness(1.04);
-  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.28), 0 12px 28px -8px rgba(79, 70, 229, 0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 14px 36px -12px rgba(250, 250, 249, 0.62);
 }
 
-/* Action secondaire en texte seul : elle ne doit pas rivaliser avec le
-   bouton. Deux boutons côte à côte posent une question au visiteur ; un
-   bouton et un lien lui donnent une réponse et une échappatoire. */
 .heroCtaGhost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 44px;
-  padding: 0 14px;
+  gap: 7px;
+  height: 46px;
+  padding: 0 18px;
   border-radius: var(--mk-radius);
-  color: var(--mk-ink-2);
+  border: 1px solid rgba(250, 250, 249, 0.18);
+  color: rgba(250, 250, 249, 0.86);
   font-size: var(--text-md);
   font-weight: var(--weight-ui);
   letter-spacing: -0.008em;
-  transition: background var(--mk-interaction) var(--mk-ease), color var(--mk-interaction) var(--mk-ease);
+  transition: background var(--mk-interaction) var(--mk-ease), border-color var(--mk-interaction) var(--mk-ease);
 }
-.heroCtaGhost:hover { background: var(--mk-surface-2); color: var(--mk-ink); }
-.heroCtaGhost svg { opacity: 0.7; }
+.heroCtaGhost:hover {
+  background: rgba(250, 250, 249, 0.08);
+  border-color: rgba(250, 250, 249, 0.3);
+}
+.heroCtaGhost svg { opacity: 0.6; transition: transform var(--mk-interaction) var(--mk-ease); }
+.heroCtaGhost:hover svg { transform: translateY(2px); }
 
 .heroReassure {
   margin: -8px 0 0;
   font-size: var(--text-sm);
-  color: var(--mk-ink-3);
+  color: rgba(250, 250, 249, 0.5);
 }
 
-@media (max-width: 980px) {
-  .heroSection {
-    grid-template-columns: minmax(0, 1fr);
-    padding-top: clamp(40px, 7vw, 64px);
-  }
-  .heroContent { align-items: flex-start; }
-  .heroDesc { max-width: 46ch; }
-  .heroVisual { justify-content: flex-start; }
+/* Le visuel entre apres le texte, un cran plus ample : il est plus grand,
+   donc il doit se poser plus longtemps pour paraitre aussi rapide. */
+.heroVisual {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  animation: heroVisuelEntree 760ms var(--mk-ease) 460ms both;
+}
+
+@keyframes heroVisuelEntree {
+  from { transform: translateY(26px) scale(0.985); }
+  to { transform: none; }
 }
 
 @media (max-width: 560px) {
-  .heroTitle { font-size: clamp(2.25rem, 10vw, 2.5rem); }
-  .heroDesc { font-size: var(--text-md); }
-  .heroCtas { width: 100%; }
-  .heroCta, .heroCtaGhost { flex: 1; justify-content: center; }
+  .heroShell { padding-bottom: 72px; }
+  .heroCtas { width: 100%; flex-direction: column; align-items: stretch; }
+  .heroCta, .heroCtaGhost { justify-content: center; }
 }
 
 /* ==========================================================================
@@ -240,7 +276,11 @@
 
 .solutionCard {
   height: 100%;
-  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 22px;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   /* Signature commune à toutes les cartes du produit — voir --radius-card
@@ -302,6 +342,10 @@
 }
 
 .securityCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   height: 100%;
   padding: 22px 20px;
   background: var(--bg-card);
@@ -352,32 +396,34 @@
   .securityGridSection { padding: 0 24px 64px; }
 }
 
-/* En-tête de section — aligné à gauche, comme tout le reste de la page.
-   Centré, il obligeait l'œil à repartir du milieu à chaque section alors que
-   le contenu dessous repart de la gouttière. */
+/* En-tête de section — centré. Toute la page est construite autour d'un axe
+   median : hero, etapes, tuiles, tarifs. Un titre aligne a gauche au-dessus
+   d'une grille centree casse cet axe a chaque section. */
 .sectionHead {
-  margin-bottom: 40px;
+  margin: 0 auto 48px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 760px;
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.875rem, 3.2vw, 2.75rem);
   font-weight: var(--weight-strong);
   color: var(--mk-ink);
   letter-spacing: -0.03em;
-  line-height: 1.12;
-  max-width: 20ch;
+  line-height: 1.1;
+  max-width: 22ch;
 }
 
 .sectionDesc {
   margin: 0;
   font-size: var(--text-md);
   color: var(--mk-ink-2);
-  max-width: 56ch;
+  max-width: 58ch;
   line-height: 1.6;
 }
 
@@ -424,17 +470,21 @@
   border: 1px solid var(--mk-line);
   border-radius: var(--mk-radius-lg);
   box-shadow: var(--mk-shadow);
-  padding: 24px;
+  padding: 28px 24px 24px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 8px;
-  transition: border-color var(--mk-interaction) var(--mk-ease);
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  transition: border-color var(--mk-interaction) var(--mk-ease), box-shadow var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
 }
 /* Le filet fonce, rien d'autre. Une carte qui se soulève et change de fond
    au survol, répétée en grille, donne une page qui frétille. */
-.stepCard:hover { border-color: var(--mk-line-strong); }
+.stepCard:hover {
+  border-color: var(--mk-line-strong);
+  box-shadow: var(--mk-shadow-lift);
+  transform: translateY(-2px);
+}
 
 /* La numérotation est légitime ici : c'est une séquence, on ne peut pas
    faire l'étape 2 avant la 1. */
@@ -583,6 +633,7 @@
     radial-gradient(640px 400px at 6% 96%, rgba(13, 148, 136, 0.24), transparent 62%),
     #1C1917;
   color: #FAFAF9;
+  --brand-e: #A5B4FC;
 }
 
 /* Le chiffre tient sur le degrade de marque, eclairci pour rester lisible
@@ -896,7 +947,8 @@
    inégales pour quatre questions donnaient une mosaïque à lire en zigzag. */
 .faqList {
   border-top: 1px solid var(--mk-line);
-  max-width: 68ch;
+  max-width: 72ch;
+  margin: 0 auto;
 }
 
 .faqItem { border-bottom: 1px solid var(--mk-line); }
@@ -939,74 +991,92 @@
 }
 
 /* ==========================================================================
-   APPEL À L'ACTION FINAL — un titre fort, un bouton, beaucoup d'espace.
+   APPEL A L'ACTION FINAL — meme panneau sombre que le hero.
+
+   La page s'ouvre et se ferme sur le meme objet : l'encre profonde et ses
+   nappes. Entre les deux, tout est clair. C'est ce qui donne un debut et une
+   fin a la lecture plutot qu'un defilement sans bornes.
    ========================================================================== */
+.ctaShell {
+  width: min(var(--mk-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--mk-gutter) clamp(72px, 9vw, 112px);
+}
+
 .ctaBanner {
   position: relative;
+  overflow: hidden;
   isolation: isolate;
-  padding: clamp(96px, 12vw, 160px) var(--mk-gutter);
+  border-radius: clamp(20px, 2.4vw, 32px);
+  padding: clamp(64px, 8vw, 104px) clamp(24px, 5vw, 56px);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  width: min(var(--mk-max), 100%);
-  margin: 0 auto;
-  border-top: 1px solid var(--mk-line);
+  background:
+    radial-gradient(820px 460px at 16% 4%, rgba(79, 70, 229, 0.38), transparent 62%),
+    radial-gradient(700px 440px at 88% 96%, rgba(13, 148, 136, 0.28), transparent 60%),
+    radial-gradient(620px 420px at 58% 100%, rgba(124, 58, 237, 0.32), transparent 58%),
+    #16130F;
+  color: #FAFAF9;
+  --brand-e: #A5B4FC;
 }
 
-/* Nappe de fermeture — reprend les teintes du hero pour que la page boucle
-   sur la lumiere qu'elle a ouverte. */
-.ctaBanner::before {
+/* Meme grain que le hero : un degrade sombre de cette taille montre sinon
+   des bandes de quantification sur les ecrans 8 bits. */
+.ctaBanner::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(620px 340px at 50% 8%, rgba(79, 70, 229, 0.11), transparent 66%),
-    radial-gradient(520px 320px at 16% 100%, rgba(124, 58, 237, 0.08), transparent 66%),
-    radial-gradient(520px 320px at 86% 92%, rgba(13, 148, 136, 0.07), transparent 66%);
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
 }
 
 .ctaBannerTitle {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: var(--weight-strong);
-  color: var(--mk-ink);
+  color: #FAFAF9;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.08;
 }
 
 .ctaBannerDesc {
   margin: 0;
   font-size: var(--text-md);
-  color: var(--mk-ink-2);
-  max-width: 46ch;
+  color: rgba(250, 250, 249, 0.68);
+  max-width: 48ch;
   line-height: 1.6;
 }
 
 .ctaBannerBtn {
   display: inline-flex;
   align-items: center;
-  height: 44px;
-  padding: 0 22px;
+  height: 46px;
+  padding: 0 24px;
   margin-top: 10px;
-  background: var(--grad-brand);
-  color: #fff;
+  background: #FAFAF9;
+  color: #16130F;
   border-radius: var(--mk-radius);
   font-size: var(--text-md);
-  font-weight: var(--weight-ui);
+  font-weight: var(--weight-strong);
   letter-spacing: -0.008em;
-  box-shadow: var(--glow-accent);
-  transition: box-shadow var(--mk-interaction) var(--mk-ease), filter var(--mk-interaction) var(--mk-ease);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 10px 30px -12px rgba(250, 250, 249, 0.5);
+  transition: transform var(--mk-interaction) var(--mk-ease), box-shadow var(--mk-interaction) var(--mk-ease);
 }
-.ctaBannerBtn:hover { filter: saturate(1.08) brightness(1.04); }
+.ctaBannerBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 14px 36px -12px rgba(250, 250, 249, 0.62);
+}
 
 .ctaBannerNote {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--mk-ink-3);
+  color: rgba(250, 250, 249, 0.46);
 }
 
 /* FOOTER */
@@ -1067,8 +1137,9 @@
 .billingToggleRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 .billingToggleLabel {
   font-size: 0.85rem;
@@ -1124,6 +1195,7 @@
   gap: var(--card-gap);
   width: 100%;
   max-width: 840px;
+  margin: 0 auto;
 }
 
 .planCard {
@@ -1241,6 +1313,7 @@
 
 .pricingFootnote {
   margin: 20px 0 0;
+  text-align: center;
   font-size: var(--text-sm);
   color: var(--mk-ink-3);
 }

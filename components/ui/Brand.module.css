@@ -10,6 +10,8 @@
   letter-spacing: -0.01em;
 }
 
+/* Surchargeable : l'indigo de marque tombe sous 2:1 sur le panneau sombre
+   du hero. Les surfaces sombres posent --brand-e sur une version eclaircie. */
 .e {
-  color: var(--color-primary);
+  color: var(--brand-e, var(--color-primary));
 }

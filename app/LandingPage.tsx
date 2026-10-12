@@ -129,18 +129,17 @@ export default function LandingPage() {
       <ScrollProgress />
       <Navbar />
 
-      {/* Hero en deux colonnes : le texte à gauche, l'interface à droite.
-          Le panneau violet en biais qui occupait 54 % de l'écran a sauté —
-          il montrait une carte flottante au lieu du produit, et c'était la
-          plus grande surface colorée de la page pour l'information la moins
-          dense. */}
-      <section className={styles.heroSection}>
-        <div className={styles.bgGlow} aria-hidden="true" />
+      {/* Hero : panneau sombre arrondi, contenu centré. Le panneau est
+          INSÉRÉ et non pleine largeur — la barre de navigation reste posée
+          sur le fond clair et n'a donc pas à inverser son encre.
 
+          Aucun Reveal ici : la séquence d'ouverture est en CSS pur (voir
+          .heroContent dans page.module.css). Un IntersectionObserver sur du
+          contenu déjà visible au chargement n'apporte rien et retarde le
+          premier rendu utile. */}
+      <div className={styles.heroShell}>
+      <section className={styles.heroSection}>
         <div className={styles.hero}>
-          {/* immediate : contenu au-dessus de la ligne de flottaison, il ne
-              doit jamais partir à opacity 0 (voir Reveal.tsx). */}
-          <Reveal variant="up" immediate>
             <div className={styles.heroContent}>
               <p className={styles.badge}>
                 ~{HOURS_GIVEN_BACK} h rendues par semaine sur {BASELINE_EMAIL_HOURS} h d'emails
@@ -170,13 +169,17 @@ export default function LandingPage() {
               <p className={styles.heroReassure}>Gratuit, sans limite de durée.</p>
               <ProviderMarks />
             </div>
-          </Reveal>
         </div>
 
-        <Reveal variant="scale" delay={120} immediate className={styles.heroVisual}>
+        {/* Plus de Reveal ici : l'entrée du visuel fait partie de la séquence
+            d'ouverture du hero, jouée en CSS pur (voir .heroVisual). Un
+            IntersectionObserver sur un élément déjà visible au chargement
+            ajoute un aller-retour d'hydratation pour rien. */}
+        <div className={styles.heroVisual}>
           <ProductPreview />
-        </Reveal>
+        </div>
       </section>
+      </div>
 
       {/* Les trois photos de banque d'images ont été retirées : génériques,
           interchangeables d'un SaaS à l'autre, et trois requêtes vers
@@ -497,7 +500,7 @@ export default function LandingPage() {
         </section>
       </Reveal>
 
-      <Reveal variant="scale">
+      <Reveal variant="scale" className={styles.ctaShell}>
         <section className={styles.ctaBanner}>
           <h2 className={styles.ctaBannerTitle}>Demain matin, votre boîte<br />aura déjà été triée.</h2>
           <p className={styles.ctaBannerDesc}>
