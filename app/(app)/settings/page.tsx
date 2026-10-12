@@ -225,8 +225,11 @@ function SettingsContent() {
   }
 
   async function handleConnectGmail() {
+    // Même exception que côté serveur (/api/mailboxes/connect) : réparer une
+    // boîte déconnectée reste possible au plafond du forfait.
     const mailboxLimit = getPlan(currentPlan).limits.mailboxes
-    if (mailboxLimit !== null && mailboxes.length >= mailboxLimit) return
+    const hasBroken = mailboxes.some(b => !b.is_connected)
+    if (mailboxLimit !== null && mailboxes.length >= mailboxLimit && !hasBroken) return
 
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
@@ -541,6 +544,16 @@ function SettingsContent() {
                         <span className={`${styles.connectedBadge} ${!box.is_connected ? styles.disconnected : ''}`}>
                           {box.is_connected ? 'Connecté' : 'Déconnecté'}
                         </span>
+                        {/* Seule issue quand un jeton Gmail expire. Sans ce
+                            bouton, un compte Gratuit au plafond d'une boîte
+                            n'avait aucun moyen de réparer sa connexion : la
+                            seule action proposée était « Passer à Pro », qui
+                            n'aurait rien réparé. */}
+                        {!box.is_connected && (
+                          <button className={styles.reconnectBtn} onClick={handleConnectGmail}>
+                            Reconnecter
+                          </button>
+                        )}
                       </div>
                       {i < mailboxes.length - 1 && <div className={styles.divider} />}
                     </div>
@@ -550,7 +563,10 @@ function SettingsContent() {
                 {(() => {
                   const mailboxLimit = getPlan(currentPlan).limits.mailboxes
                   const atLimit = mailboxLimit !== null && mailboxes.length >= mailboxLimit
-                  return atLimit ? (
+                  // Au plafond mais avec une boîte à réparer : on montre le
+                  // bouton de connexion, pas l'invitation à payer.
+                  const needsRepair = mailboxes.some(b => !b.is_connected)
+                  return atLimit && !needsRepair ? (
                     <UsageLimitCard
                       title="Limite de boîtes mail atteinte"
                       message={`${userName.split(' ')[0] ? userName.split(' ')[0] + ', vous avez' : 'Vous avez'} connecté ${mailboxes.length} boîte mail sur ${mailboxLimit} pour le forfait Gratuit. Passez à Pro pour en connecter d'autres.`}

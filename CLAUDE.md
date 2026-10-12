@@ -213,6 +213,60 @@ retransformer en liste plate : c'est l'ordre qui tranche les cas ambigus
   `new Date()` annonce à Google que les 21 pages changent à chaque requête —
   le signal finit ignoré. À mettre à jour quand le contenu change vraiment.
 
+### Budget de tokens Groq — à surveiller à chaque modification du prompt
+
+Le palier gratuit impose **200 000 tokens par JOUR** (en plus de la limite par
+minute). C'est la limite qui mord réellement — message relevé sur ce projet :
+
+```
+on tokens per day (TPD): Limit 200000, Used 195614, Requested 4587
+```
+
+Les deux limites comptent le prompt + les emails + les **max_tokens réservés**,
+pas les tokens réellement produits.
+
+| | avant | après |
+|---|---|---|
+| prompt système | ~4 900 tokens | **~2 180** |
+| requête de 3 emails | ~8 800 | **4 587 (mesuré)** |
+| emails analysables/jour | ~68 | **~130** |
+
+Au-delà, l'analyse s'arrête au milieu d'une synchro et les emails restent
+`pending`. Si vous étoffez le prompt (nouvelles règles, exemples), **mesurez** :
+`usage.prompt_tokens` de la réponse Groq dit la vérité, pas l'intuition. La
+prose explicative coûte le même prix que les règles — les justifications
+vivent dans les commentaires du code, jamais dans le prompt.
+
+**Le levier décisif est ailleurs : ne jamais réanalyser.**
+`lib/email-analysis-store.ts` conserve le résultat de chaque analyse en base
+(table `email_analyses`). Avant, le seul cache était une Map en mémoire de
+5 minutes qui disparaissait à chaque démarrage à froid — donc quasiment
+toujours en production : les mêmes emails repayaient leur analyse plusieurs
+fois par jour. Un email analysé une fois ne l'est désormais plus jamais, sauf
+si le ton ou la langue de réponse change (mémorisés avec l'analyse).
+
+Seul le RÉSULTAT est stocké, jamais le corps de l'email : le dupliquer
+durablement changerait la nature des données conservées, ce qui demande une
+décision explicite et une mise à jour de la politique de confidentialité.
+
+Les trois leviers suivants, par ordre de rendement : taille du prompt · `maxTokensFor`
+(réservation dimensionnée sur le lot, pas forfaitaire) · `EMAIL_CHARS_FOR_ANALYSIS`.
+
+### Le quota mensuel compte des RÉPONSES, pas des emails
+
+`aiRepliesPerMonth` (50 au forfait Gratuit) ne doit décompter que les emails
+qui reçoivent une vraie réponse — voir `countBillableReplies` et
+`NO_REPLY_EMAIL_TYPES` dans `/api/analyze`. Une pub, une newsletter, un spam
+ou une notification reçoit un brouillon qui dit « Aucune réponse nécessaire » :
+la facturer contredit la page Tarifs, qui promet « 50 réponses IA par mois ».
+
+Le compteur s'incrémentait du nombre d'emails ANALYSÉS. Cas réel relevé sur un
+compte de test : **51/50 consommés**, essentiellement sur des notifications
+Google, un code 2FA Instagram et une promo ChatGPT — zéro réponse réelle.
+Le tri, les résumés et la détection de tâches restent gratuits pour ces types.
+
+---
+
 ### Deux règles tirées de mesures Lighthouse réelles
 
 **1. Rien au-dessus de la ligne de flottaison ne part à `opacity: 0`.**

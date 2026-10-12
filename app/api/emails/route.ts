@@ -8,6 +8,7 @@ import { getGmailMailboxes, tryAcrossMailboxes } from '@/lib/gmail-mailbox'
 import { getCachedEmails, setCachedEmails, CACHE_DURATION } from '@/lib/email-cache'
 import { createGoogleCalendarEvent } from '@/lib/google-calendar-sync'
 import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTaskSafely } from '@/lib/tasks'
+import { loadAnalyses, applyStoredAnalysis, saveAnalyses } from '@/lib/email-analysis-store'
 
 // L'analyse IA + planification/tâches/archivage tourne maintenant après la
 // réponse au client (voir after() dans GET plus bas) mais DANS la même
@@ -73,10 +74,30 @@ async function gmailFetchJson(supabase: any, tokenState: GmailTokenState, url: s
       res = await fetch(url, { headers: { Authorization: `Bearer ${tokenState.token}` } })
     } else {
       tokenState.refreshFailed = true
+      await markMailboxDisconnected(supabase, tokenState.mailboxId)
     }
+  } else if (res.status === 401 && !tokenState.refreshToken) {
+    // Pas de refresh_token : un 401 est définitif, rien ne pourra le réparer
+    // tout seul. Même traitement que l'échec de rafraîchissement.
+    await markMailboxDisconnected(supabase, tokenState.mailboxId)
   }
 
   return res.json()
+}
+
+// is_connected n'était JAMAIS repassé à false : il ne valait true que depuis
+// le callback OAuth. Une boîte dont le jeton avait expiré ou été révoqué
+// continuait donc d'être affichée « Connecté » dans les Réglages, pendant
+// que la synchro échouait silencieusement à chaque appel — l'utilisateur
+// voyait une boîte vide sans savoir pourquoi, et sans rien à cliquer.
+async function markMailboxDisconnected(supabase: any, mailboxId: string) {
+  const { error } = await supabase
+    .from('mailboxes')
+    .update({ is_connected: false })
+    .eq('id', mailboxId)
+    .eq('is_connected', true)
+  if (error) console.error('❌ Marquage boîte déconnectée:', error.message)
+  else console.log(`🔌 Boîte ${mailboxId} marquée déconnectée (jeton invalide)`)
 }
 
 // Récupère le détail de plusieurs messages par lots concurrents bornés
@@ -489,7 +510,8 @@ const NO_TASK_EMAIL_TYPES = new Set(['spam', 'promo', 'newsletter', 'notificatio
 // Toute synchro envoie ses emails à /api/analyze par lots de cette taille,
 // jamais en un seul appel même pour un petit nombre d'emails — le prompt
 // système seul pèse déjà une grosse partie du budget TPM (tokens par minute)
-// du tier Groq gratuit (8000 TPM pour gpt-oss-120b) : un envoi "tout en un"
+// du tier Groq gratuit, ET du budget de 200 000 tokens PAR JOUR (la limite
+// qui mord réellement — voir buildSystemPrompt) : un envoi "tout en un"
 // de ne serait-ce que 6-8 emails suffisait à dépasser cette limite d'un coup
 // (bug réel constaté : 9314 tokens demandés pour 8000 disponibles). Des lots
 // de cette taille, espacés, restent sous la limite avec marge.
@@ -670,12 +692,48 @@ export async function GET(req: NextRequest) {
   // différent dans chacune (propre à la boîte) mais le même Message-ID
   // RFC822 — on ne garde que la première occurrence (déjà triée par date).
   const seenMessageIds = new Set<string>()
-  const emails = merged.filter(e => {
+  const deduped = merged.filter(e => {
     if (!e.messageIdHeader) return true
     if (seenMessageIds.has(e.messageIdHeader)) return false
     seenMessageIds.add(e.messageIdHeader)
     return true
   })
+
+  // --- Analyses déjà produites, relues en base ------------------------------
+  // LE point qui économise le plus de tokens. Le cache mémoire ne vit que
+  // 5 minutes et disparaît à chaque démarrage à froid : sans ce store, les
+  // mêmes emails repayaient leur analyse Groq plusieurs fois par jour, ce qui
+  // épuisait le budget de 200 000 tokens quotidiens avant la fin de la
+  // matinée. Un email analysé une fois ne l'est plus jamais.
+  //
+  // Lu AVANT la réponse au client (et non dans le bloc after()) pour une
+  // deuxième raison : les résumés et brouillons s'affichent alors
+  // immédiatement, au lieu d'apparaître après un cycle d'analyse.
+  const { data: analysisProfile } = await supabase
+    .from('profiles')
+    .select('reply_tone, reply_language')
+    .eq('id', user.id)
+    .single()
+
+  const storedTone = analysisProfile?.reply_tone || 'professional'
+  const storedLanguage = analysisProfile?.reply_language || 'fr'
+
+  const storedAnalyses = await loadAnalyses(
+    supabase,
+    user.id,
+    deduped.map((e: any) => e.id),
+    storedTone,
+    storedLanguage
+  )
+
+  const emails = deduped.map((e: any) => {
+    const row = storedAnalyses.get(e.id)
+    return row ? applyStoredAnalysis(e, row) : e
+  })
+
+  if (storedAnalyses.size > 0) {
+    console.log(`💾 ${storedAnalyses.size} analyse(s) relue(s) en base — autant d'appels Groq évités`)
+  }
 
   // Réponse immédiate avec ce qu'on a déjà (emails Gmail + analyse IA d'une
   // synchro précédente le cas échéant, voir previouslyCachedAll plus haut) —
@@ -710,6 +768,13 @@ export async function GET(req: NextRequest) {
       const { analysisById, stoppedForDailyLimit } = await analyzeEmailsInBatches(req.nextUrl.origin, accessToken, toAnalyze)
 
     console.log(`🤖 ${toAnalyze.length} email(s) à analyser sur ${emails.length}, ${analysisById.size} analysé(s) avec succès${stoppedForDailyLimit ? ' (arrêt anticipé : limite Groq quotidienne)' : ''}`)
+
+    // Enregistré AVANT tout le reste (planification, tâches, archivage) : ces
+    // étapes peuvent échouer ou être coupées par le budget de temps de la
+    // requête, et ce serait absurde de perdre une analyse déjà payée à Groq
+    // à cause d'une écriture d'agenda ratée. Best-effort, jamais bloquant.
+    const saved = await saveAnalyses(supabase, user.id, analysisById, storedTone, storedLanguage)
+    if (saved > 0) console.log(`💾 ${saved} analyse(s) enregistrée(s) — ne seront plus jamais refaites`)
 
     const enrichedEmails = emails.map((email: any) => {
       const analysis = analysisById.get(email.id)

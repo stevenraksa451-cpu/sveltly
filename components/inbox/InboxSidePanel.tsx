@@ -97,6 +97,37 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         }
         setAnalyzedFields(enriched)
         onAnalyzed?.(email.id, enriched)
+
+        // Enregistré comme n'importe quelle analyse de synchro : sans ça,
+        // rouvrir cet email le ferait réanalyser indéfiniment, une facture
+        // Groq à chaque fois. L'écriture passe par RLS sur le compte courant.
+        // Best-effort : une erreur ici ne doit rien casser à l'affichage,
+        // qui a déjà le résultat en main.
+        supabase.from('email_analyses').upsert({
+          user_id: session.user.id,
+          email_id: email.id,
+          priority: analysis.priority ?? null,
+          email_type: analysis.type ?? null,
+          daily_summary: analysis.dailySummary ?? null,
+          key_points: analysis.keyPoints ?? [],
+          ai_reply: analysis.aiReply ?? null,
+          has_event: !!analysis.hasEvent,
+          event_title: analysis.eventTitle ?? null,
+          event_date: analysis.eventDate ?? null,
+          event_start_time: analysis.eventStartTime ?? null,
+          event_end_time: analysis.eventEndTime ?? null,
+          has_action: !!analysis.hasActionItem,
+          action_title: analysis.actionTitle ?? null,
+          action_priority: analysis.actionPriority ?? null,
+          action_category: analysis.actionCategory ?? null,
+          action_due_date: analysis.actionDueDate ?? null,
+          analyzed_at: new Date().toISOString(),
+        }, { onConflict: 'user_id,email_id' }).then(({ error }) => {
+          // 42P01 / PGRST205 = migration email_analyses pas encore appliquée.
+          if (error && error.code !== '42P01' && error.code !== 'PGRST205') {
+            console.error('Enregistrement analyse:', error.message)
+          }
+        })
       } catch {
         setSummaryError(true)
       }

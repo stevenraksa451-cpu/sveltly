@@ -152,6 +152,24 @@
   border-radius: 99px; padding: 3px 10px;
 }
 .connectedBadge.disconnected { color: var(--urgent); background: var(--urgent-light); }
+
+/* Apparaît à côté du badge « Déconnecté », jamais autrement. Pas de
+   margin-left: auto ici : c'est le badge qui pousse déjà la paire à droite. */
+.reconnectBtn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.reconnectBtn:hover { background: var(--accent-light); border-color: var(--accent); }
+.reconnectBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .emptyMailbox { padding: 24px 20px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
 .addMailboxBtn {
   display: flex; align-items: center; justify-content: center; gap: 6px;

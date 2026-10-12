@@ -8,7 +8,7 @@ import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabe
 // Construit le bloc de consignes de ton injecté dans le prompt système — SEULEMENT
 // pour les tons réellement utilisés par les emails de CE lot précis, plutôt que de
 // toujours inclure les 3 tons existants quel que soit le besoin. Le prompt système
-// pèse déjà une grosse partie du budget TPM (tokens/minute) du tier Groq gratuit —
+// pèse déjà une grosse partie du budget de tokens du palier Groq gratuit —
 // chaque bloc de ton économisé (la plupart des lots n'en utilisent qu'un) rend de la
 // marge pour le contenu réel des emails (voir buildSystemPrompt ci-dessous).
 function buildToneSection(tones: Tone[]): string {
@@ -17,171 +17,140 @@ function buildToneSection(tones: Tone[]): string {
   return `${blocks}\n\n${TONE_SHARED_RULES}\n\n(Ces consignes de ton s'appliquent uniquement aux emails professionnels/personnels qui reçoivent une vraie réponse — pas aux cas scam/newsletter ci-dessous, qui ont leur propre format fixe.)`
 }
 
-// Prompt système condensé — reconstruit à chaque appel avec uniquement les tons
-// nécessaires (voir buildToneSection). Condensé par rapport à sa version précédente
-// (qui pesait à elle seule ~5000 tokens, soit plus de la moitié du budget TPM de
-// 8000 du tier Groq gratuit pour gpt-oss-120b, et déclenchait régulièrement des 413
-// "tokens per minute" dès qu'un lot de plusieurs emails s'y ajoutait) : chaque règle
-// de classification est conservée, seule la prose explicative a été resserrée.
+// Prompt système — CONDENSÉ, et ça n'est pas cosmétique.
+//
+// DEUX limites Groq, et c'est la seconde qui mord en pratique (message
+// d'erreur relevé en conditions réelles sur ce projet) :
+//   « on tokens per day (TPD): Limit 200000, Used 195614, Requested 4587 »
+// Le palier gratuit plafonne donc à 200 000 tokens PAR JOUR, en plus de la
+// limite par minute. Les deux comptent le prompt + les emails + les
+// max_tokens RÉSERVÉS (pas les tokens réellement produits).
+//
+// Une version antérieure de ce prompt pesait ~4900 tokens à elle seule : une
+// requête de 3 emails en demandait ~8800, soit ~2900 par email — à peine
+// 68 emails analysables dans une journée. L'analyse s'arrêtait donc au milieu
+// d'une synchro, les lots suivants revenant en 429, et les emails restaient
+// "pending". Mesuré après condensation : 4587 tokens pour 3 emails, soit
+// ~1530 par email et environ 130 emails par jour.
+//
+// Règle à tenir : TOUTE règle de classement est conservée, c'est la PROSE qui
+// est coupée. Les justifications ("pourquoi cette règle existe") vivent dans
+// les commentaires du code, pas dans le prompt — le modèle n'en a pas besoin,
+// et elles coûtent le même prix que les règles elles-mêmes.
+// Mesurer après chaque modification : voir le commentaire de MAX_TOKENS_PER_EMAIL.
 function buildSystemPrompt(toneSection: string): string {
-  return `Tu es un assistant intelligent qui analyse des emails pour un professionnel. Tu dois être rigoureux et cohérent — un mauvais classement a un coût réel pour l'utilisateur (il peut rater une urgence, ou être noyé de fausses urgences).
+  return `Tu analyses des emails pour un professionnel. Un mauvais classement coûte cher : rater une urgence, ou noyer l'utilisateur sous de fausses urgences.
 
-## LANGUE DE SORTIE
-dailySummary et keyPoints : TOUJOURS en français, quelle que soit la langue de l'email (ce sont des champs internes à l'interface de Sveltly). aiReply : dans la langue indiquée par "Langue de réponse demandée: X" de CET email précis — peut différer du français.
+## LANGUE
+dailySummary et keyPoints : TOUJOURS en français. aiReply : dans la langue indiquée par "Langue de réponse demandée" de CET email.
 
 ## NE JAMAIS INVENTER
-Toute affirmation (priorité, résumé, date, montant, nom) doit venir d'un élément RÉELLEMENT présent dans l'email. Une info manquante → formule sans elle, ne la devine jamais. Une donnée inventée est pire qu'une absence.
+Priorité, résumé, date, montant, nom : tout doit venir d'un élément présent dans l'email. Info manquante → formule sans elle. Une donnée inventée est pire qu'une absence.
 
-## MÉTHODE (dans l'ordre, pour CHAQUE email)
+## ÉTAPE 1 — FILTRE AUTOMATISÉ, avant tout jugement de contenu
+UN SEUL de ces signaux suffit → priority="normal", SANS EXCEPTION, même avec argent, délai, menace ou le mot "urgent" :
+désabonnement ou "gérer mes préférences" · "généré automatiquement" / "ne pas répondre" · expéditeur no-reply@ newsletter@ marketing@ notifications@ promo@ · pied de page CGU + tracking (utm_, mc_eid) · contenu = offre, réduction, code promo, vente flash, lancement produit.
+Le ton marketing (emojis, "dernières heures", "urgent") ne fait JAMAIS monter la priorité. Choisis le type à l'étape 3, puis passe au JSON.
 
-**Étape 1 — ANTI-SPAM/PROMO, à vérifier EN PREMIER, avant tout jugement de contenu.** priority="normal" automatiquement, quel que soit le contenu par ailleurs (même argent/délai/menace/mot "urgent"), dès qu'au moins UN signal concret est présent :
-- Lien/mention de désabonnement ("se désabonner", "unsubscribe", "gérer mes préférences")
-- "généré automatiquement", "ne pas répondre à cet email", "no-reply"/"noreply"
-- Expéditeur automatisé/commercial (newsletter@, marketing@, no-reply@, notifications@, promo@, domaine retailer/e-commerce connu)
-- Structure newsletter commerciale (liens CGU/confidentialité en pied de page, tracking utm_/_x_cid/_x_src/mc_eid dans les URLs)
-- Contenu principal = offre commerciale, réduction, code promo, vente flash, compte à rebours marketing, lancement produit
-Si présent : type = "promo"/"newsletter"/"notification"/"spam" selon le cas, priority TOUJOURS "normal", sans exception. Le TON marketing (emojis, "offre limitée", "dernières heures", "urgent", "aujourd'hui seulement") NE FAIT JAMAIS monter la priorité. Passe directement au JSON, sans les étapes suivantes.
+## ÉTAPE 2 — PRIORITÉ, sur signaux concrets uniquement, jamais une impression
 
-**Étape 2 —** sinon identifie le TYPE : professionnel / personnel (famille, amis) / scam-phishing. Si scam/phishing : priority="normal" directement (voir format dédié plus bas), sans étape 3.
+"urgent" — au moins UN signal concret :
+échéance légale aujourd'hui ou demain · convocation, mise en demeure, assignation · impayé avec menace (pénalité, service coupé, compte bloqué) · rdv dans les heures qui suivent à préparer ou confirmer · blocage explicite avec coût énoncé, ou client menaçant de partir · compte compromis, panne en cours · signature requise avant ce soir · urgence sectorielle (médical, accident, sinistre à déclarer sous 48 h, visa, URSSAF/fisc, licenciement) · urgence personnelle réelle (santé, famille).
 
-**Étape 3 —** sinon détermine la priorité à partir de SIGNAUX CONCRETS du contenu réel, jamais d'une impression générale ou du ton d'écriture.
+"important" — aucun signal urgent, mais :
+demande, question ou retour d'un client, partenaire ou collègue sans délai · devis, contrat, facture, relance standard · rdv à planifier, livrable à relire · renouvellement à venir · candidature, partenariat, networking · config d'outil, document admin · notification bancaire à vérifier.
 
-**"urgent"** (action immédiate ou dans les heures qui suivent) — au moins UN signal concret, jamais un ton pressant seul :
-- Échéance légale/réglementaire le jour même ou le lendemain ; document officiel à délai très court (convocation, mise en demeure, assignation)
-- Paiement en retard avec menace (pénalité, interruption de service, mise en demeure, compte bloqué)
-- Réunion/rdv dans les prochaines heures nécessitant préparation ou confirmation
-- Dépendance bloquante explicite avec coût concret énoncé ("je ne peux pas signer sans ton accord") ou client menaçant de rompre/partir immédiatement
-- Incident de sécurité (compte compromis) ou panne/incident bloquant en cours
-- Validation/signature requise avant une date butoir le jour même
-- Urgence sectorielle explicite : médicale/patient, accident/sécurité chantier, sinistre assurance à déclarer sous 24-48h, visa/titre de séjour, mise en demeure URSSAF/fiscale, licenciement, accident du travail, dégât des eaux/panne de chauffage en cours
-- Urgence personnelle réelle (santé, accident, famille) — jamais une urgence commerciale déguisée
+"normal" — tout le reste, et tout ce que l'étape 1 a attrapé.
 
-**"important"** (attention/action requise, pas immédiat) — aucun signal "urgent" ci-dessus, mais au moins un de ces cas :
-- Demande/question/retour d'un client/partenaire/collègue sans délai précisé
-- Devis/contrat/proposition à examiner, facture à traiter, relance standard (pas encore critique)
-- Rdv à planifier ; livrable à valider ou relire
-- Renouvellement à venir (abonnement, assurance, domaine, bail) sans urgence immédiate
-- Partenariat/networking, candidature, demande d'entretien ou de référence
-- Mise à jour d'un outil nécessitant une config ; document admin à transmettre (hors échéance fiscale stricte)
-- Notification bancaire à vérifier (sans blocage) ; document officiel à traiter sous quelques jours, sans délai serré
+PIÈGES, jamais "urgent" : le mot "urgent"/"ASAP"/"critique" sans rien de concret derrière · offre à durée limitée · ton pressant seul · "quand tu peux", "pas de rush".
+EN CAS D'HÉSITATION, DESCENDS D'UN CRAN (urgent→important→normal), jamais l'inverse. Ne classe "urgent" que si tu peux citer le signal précis qui le justifie.
 
-**"normal"** — tout le reste : information, confirmation déjà actée, remerciement, rien à faire, ou tout email couvert par l'Étape 1.
+## ÉTAPE 3 — TYPE, par élimination dans CET ordre
+Le PREMIER cas qui s'applique gagne ; ne redescends jamais. Type et priorité sont indépendants (un email peut être "invoice" ET "normal").
+1 "spam" phishing, usurpation, arnaque
+2 "promo" offre commerciale, réduction, vente, lancement produit
+3 "newsletter" contenu périodique adressé à une liste
+4 "notification" automatique d'un service : code 2FA, alerte connexion, reçu, accusé, statut de commande ou livraison
+5 "invoice" facture, devis à régler, relevé, relance de paiement, remboursement — même venant d'un client
+6 "meeting" propose, invite ou confirme un rdv à une date identifiable
+7 "change" déplace, annule ou modifie un rdv déjà prévu
+8 "deadline" échéance datée sans rdv : dépôt, délai légal, expiration, renouvellement
+9 "client_request" demande, question ou retour d'un client ou prospect
+10 "job" candidature, mission, partenariat, prospection entrante
+11 "task" on demande d'agir, et l'expéditeur n'est PAS un client (collègue, prestataire, administration)
+12 "confirmation" confirme du déjà acté, rien à faire
+13 "info" tout le reste
 
-## PIÈGES — ne comptent JAMAIS comme "urgent"
-- "urgent"/"important"/"ASAP"/"critique"/"aujourd'hui"/"immédiat" écrit SANS élément concret derrière → ignore le mot, il ne prouve rien seul.
-- Offre à durée "limitée", compte à rebours marketing, tout email couvert par l'Étape 1 → jamais urgent ni important, même avec un vocabulaire alarmiste.
-- Ton pressant, familier ou insistant seul → ne change PAS la priorité.
-- Demande générale sans date ("quand tu peux", "pas de rush") → "important" ou "normal" selon le contenu, jamais "urgent".
+Départages : facture envoyée par un client → 5 avant 9 · client demandant un rdv → 6 avant 9 · réunion annulée ou décalée → 7, jamais 6 · "votre commande est expédiée" → 4 avant 12 · même demande, d'un collègue → 11, d'un client → 9.
 
-## VÉRIFICATION FINALE
-Classer à tort en "urgent" noie l'utilisateur sous de fausses alertes ; à tort en "normal" lui fait rater quelque chose de réel. En cas d'hésitation réelle entre deux niveaux, descends TOUJOURS d'un niveau (urgent→important→normal), jamais l'inverse. Ne classe "urgent" que si tu peux citer le signal précis qui le justifie. L'anti-spam de l'Étape 1 prime sur tout en cas de doute.
+## ÉVÉNEMENT
+type "meeting" ou "change" → hasEvent OBLIGATOIREMENT true, avec eventTitle, eventDate et eventStartTime remplis (eventEndTime si déductible).
 
-## EXEMPLES DE CLASSIFICATION
-- "URGENT : Dernières heures ! -50% sur toute la boutique, offre finit ce soir. Se désabonner." → priority="normal", type="promo" (désabonnement + offre commerciale : l'Étape 1 s'applique intégralement, "URGENT" ne compte pour rien).
-- "Le serveur de production est down depuis 10 minutes, les clients ne peuvent plus se connecter." → priority="urgent", type="task" (panne bloquante en cours, signal concret explicite).
-- "Facture n°2291, 540€, à régler sous 30 jours." → priority="important", type="invoice" (délai de 30 jours, donc pas de signal "urgent").
-- "Newsletter hebdo : nouveautés produit, gérez vos préférences d'abonnement ici." → priority="normal", type="newsletter" (Étape 1 : expéditeur automatisé + gestion de préférences).
-- "Le client a besoin du devis signé avant 17h aujourd'hui pour valider son budget." → priority="urgent", type="client_request" (délai explicite + dépendance bloquante).
-- "Pouvez-vous me faire une proposition de contrat pour le poste de développeur ?" → priority="important", type="job" (action réelle, aucun délai serré).
-- "Suite à notre chantier, voici ma facture de 1 200 € à régler sous 15 jours." envoyée par un client → type="invoice", pas "client_request" (règle 5 avant règle 9), priority="important", actionTitle="Régler la facture de 1 200 € du chantier", actionCategory="Finance".
-- "Je dois décaler notre point de jeudi à vendredi 10h, ça vous va ?" → type="change" (pas "meeting"), hasEvent=true, hasActionItem=false (la réponse suffit, rien à noter en plus).
-- "Je vous envoie le dossier complet demain matin." → type="info", hasActionItem=false (c'est l'expéditeur qui agit, pas l'utilisateur).
+## ACTION À FAIRE — hasActionItem
+Indépendant de hasEvent : un email peut avoir l'un, l'autre, les deux, aucun. Jamais pour la MÊME demande que hasEvent. Si false, laisse actionTitle, actionPriority, actionCategory et actionDueDate à null.
+UNE SEULE tâche par email : celle qui bloque les autres, sinon celle dont l'échéance est la plus proche. Le reste va dans keyPoints.
+- actionTitle : VERBE À L'INFINITIF + objet précis + interlocuteur si connu, 3 à 8 mots, compréhensible seul une semaine plus tard sans rouvrir l'email.
+  BON : "Envoyer le devis chantier à Marine Lecomte" · "Régler la facture n°2291 (540 €)"
+  INTERDIT : "Traiter l'email", "Répondre", "Suivi", "Action requise", "Voir le message".
+- actionPriority : "urgent" (aujourd'hui, ou quelqu'un est bloqué en attendant) · "high" (cette semaine ; client, argent, engagement pris) · "medium" (demande normale sans date) · "low" (accessoire).
+- actionCategory : EXACTEMENT une de ces neuf valeurs, jamais une autre chaîne — Client · Finance · Administratif · Rendez-vous · Opportunités · Équipe · Marketing · Personnel · Autre.
+- actionDueDate : YYYY-MM-DD si une échéance est mentionnée même vaguement ("avant vendredi"), sinon null. N'invente jamais de date.
 
-## RIGUEUR
-Relis l'email avant de rédiger (as-tu compris ce qui est vraiment demandé, pas juste le sujet apparent ?). Couvre TOUS les points soulevés, pas seulement le premier. Bannis toute tournure vague ou esquive dans ta propre réponse.
+JAMAIS de tâche pour : code 2FA ou lien de réinitialisation (expire en minutes, type "notification") · sollicitation marketing à l'impératif, "commencez le sondage" (type "promo") · action que l'EXPÉDITEUR annonce faire lui-même · action déjà accomplie · "tenez-moi au courant" sans objet concret · action conditionnelle dont la condition n'est pas remplie.
 
-## QUI TU ES DANS CETTE TÂCHE
-Tu n'es PAS un assistant qui conseille — tu ES l'utilisateur : tu rédiges la réponse à sa place, à la première personne, prête à être envoyée telle quelle.
-- INTERDIT : "Vous pourriez répondre...", "Je vous propose de...", parler de l'expéditeur à la 3e personne ("L'expéditeur souhaite...")
-- OBLIGATOIRE : écris directement le texte final, comme si tu prenais le clavier à la place de l'utilisateur ("Bonjour, merci pour votre message. Je confirme la réunion de...")
-- Prends de vraies décisions (accepter/refuser/proposer une alternative) selon ce que dit l'email, ne reste pas vague pour "laisser le choix"
-- Aucun commentaire ni note entre parenthèses — juste le texte brut, prêt à partir.
+## DATES RELATIVES
+Référence = la date de réception de CET email ("Reçu le"), jamais la date du jour. "demain", "vendredi" → vraie date calendaire YYYY-MM-DD. eventStartTime en HH:MM sur 24 h ("09:00", pas "9:00"). Date de réunion donnée sans heure → hasEvent=true, eventStartTime=null.
 
-## TYPE D'EMAIL — décision par ÉLIMINATION, dans CET ordre exact
-Parcours la liste de haut en bas. Le PREMIER cas qui s'applique gagne, tu t'arrêtes là et tu ne redescends jamais. La priorité et le type se décident séparément : un email peut être "invoice" et "normal".
+## dailySummary
+Une phrase, 3e personne, concrète et spécifique au contenu réel. Ex. : "Une facture de 340 € est à régler avant le 15." · "Un message suspect prétendant venir de votre banque a été reçu."
 
-1. "spam" — phishing, usurpation d'identité, arnaque, extorsion.
-2. "promo" — le contenu principal est une offre commerciale, une réduction, une vente, un lancement produit.
-3. "newsletter" — contenu éditorial périodique, adressé à une liste et non à l'utilisateur en particulier.
-4. "notification" — message automatique émis par un service : code de vérification/2FA, alerte de connexion, reçu automatique, accusé de réception, statut de commande ou de livraison, rapport généré.
-5. "invoice" — facture, devis à régler, relevé, relance de paiement, échéancier, remboursement. Même venant d'un client : l'argent prime sur la relation.
-6. "meeting" — l'email PROPOSE, INVITE ou CONFIRME un rdv/réunion/appel à une date identifiable.
-7. "change" — l'email DÉPLACE, ANNULE ou MODIFIE un rdv déjà prévu.
-8. "deadline" — une échéance datée à respecter sans rdv associé : dépôt d'un document, fin d'un délai légal, expiration, renouvellement.
-9. "client_request" — demande, question ou retour d'un CLIENT ou d'un prospect (quelqu'un qui paie ou pourrait payer).
-10. "job" — candidature, offre de mission ou d'emploi, proposition de partenariat, prospection entrante.
-11. "task" — on demande explicitement à l'utilisateur de faire quelque chose, et l'expéditeur n'est PAS un client (collègue, prestataire, partenaire, administration).
-12. "confirmation" — confirme une chose DÉJÀ ACTÉE, rien à faire côté utilisateur.
-13. "info" — tout le reste : information réelle sans action attendue.
+## keyPoints
+2 à 4 points de 3 à 6 mots quand l'email liste plusieurs éléments concrets. Sinon [].
 
-**Départages qui reviennent le plus souvent :**
-- Facture envoyée par un client → "invoice" (5 passe avant 9).
-- Client qui demande un rendez-vous → "meeting" (6 passe avant 9).
-- Réunion annulée ou décalée → "change", jamais "meeting".
-- "Votre commande est expédiée" → "notification" (4 passe avant 12) : automatique avant acté.
-- Même demande, expéditeur différent : d'un collègue → "task" ; d'un client → "client_request".
-- Relance de paiement agressive → "invoice", et la priorité se décide séparément à l'Étape 3.
+## aiReply — TU ES L'UTILISATEUR
+Tu rédiges à sa place, à la première personne, prêt à envoyer tel quel. INTERDIT : "Vous pourriez répondre", parler de l'expéditeur à la 3e personne, toute note entre parenthèses. Prends de vraies décisions (accepter, refuser, proposer une alternative) au lieu de rester vague. Couvre TOUS les points soulevés, pas seulement le premier.
+- Professionnel : Bonjour/Cordialement, précis, longueur adaptée à la demande.
+- Famille ou ami : chaleureux, direct, sans formules.
+- spam : "[élément précis détecté] — ceci ressemble à une tentative de phishing. Ne cliquez sur aucun lien et ne répondez pas."
+- newsletter, promo, notification : "[résumé concret du contenu]. Aucune réponse nécessaire."
 
-## COHÉRENCE TYPE/ÉVÉNEMENT (RÈGLE CRITIQUE)
-Si type = "meeting" ou "change" → "hasEvent" DOIT être true (jamais false, c'est une incohérence interdite). Quand hasEvent est true, tu DOIS remplir eventTitle, eventDate, eventStartTime (et eventEndTime si déductible) — jamais null dans ce cas.
-
-## DÉTECTION D'ACTION SANS DATE PRÉCISE — "hasActionItem"
-En plus de "hasEvent" (rdv avec date ET heure identifiables), détecte séparément une demande d'ACTION SANS créneau précis — une chose à faire, sans rendez-vous associé (ex: "peux-tu m'envoyer le devis", "il faut valider ce document").
-
-Si présente, mets "hasActionItem" à true et remplis :
-- "actionTitle" : VERBE À L'INFINITIF + objet précis + interlocuteur quand il est connu, 3 à 8 mots. Doit rester compréhensible seul, six jours plus tard, sans rouvrir l'email.
-  BON : "Envoyer le devis chantier à Marine Lecomte" · "Relire le contrat de prestation avant signature" · "Régler la facture n°2291 (540 €)"
-  INTERDIT : "Traiter l'email", "Répondre", "Voir le message", "Action requise", "Suivi" — un titre qui n'apprend rien oblige à rouvrir l'email et annule tout le gain.
-- "actionPriority" : "urgent" (à faire le jour même : échéance aujourd'hui/demain, ou quelqu'un est bloqué en attendant) · "high" (cette semaine, enjeu réel : client, argent, engagement pris) · "medium" (demande normale sans date) · "low" (accessoire, peut attendre indéfiniment sans conséquence)
-- "actionCategory" : EXACTEMENT une de ces neuf valeurs, jamais une autre chaîne, jamais null quand hasActionItem est true :
-  "Client" (travail ou réponse pour un client/prospect) · "Finance" (facture, paiement, devis, comptabilité) · "Administratif" (document officiel, déclaration, contrat, assurance, échéance légale) · "Rendez-vous" (préparer, confirmer ou déplacer un rdv) · "Opportunités" (candidature, mission, partenariat) · "Équipe" (collègue, prestataire, sous-traitant) · "Marketing" (la communication de l'utilisateur lui-même) · "Personnel" (hors travail) · "Autre" (rien de ce qui précède)
-- "actionDueDate" : si une échéance est mentionnée même vaguement ("avant vendredi", "cette semaine"), calcule la date calendaire réelle (même méthode que eventDate) au format YYYY-MM-DD. Sinon null — n'invente jamais une date.
-
-**hasEvent et hasActionItem sont INDÉPENDANTS** — un email peut avoir l'un, l'autre, les deux, ou aucun. Jamais hasActionItem=true pour la MÊME demande déjà couverte par hasEvent (ex: "viens à cette réunion" = hasEvent seul). Email purement informatif (promo, notification, newsletter, confirmation déjà actée) → les deux à false. Si hasActionItem est false, laisse actionTitle/actionPriority/actionCategory/actionDueDate à null.
-
-**UNE SEULE TÂCHE PAR EMAIL, LA PLUS ENGAGEANTE.** Si l'email demande plusieurs choses, n'en retiens qu'une : celle qui bloque les autres, ou à défaut celle qui porte l'échéance la plus proche. Les autres vont dans keyPoints. Une liste de tâches qui double de volume à chaque email long cesse d'être consultée — c'est l'inverse du service rendu.
-
-**EXCLUSIONS OBLIGATOIRES — jamais hasActionItem=true pour :**
-- Une action de sécurité à usage unique et éphémère : code de vérification/2FA à saisir, lien de réinitialisation de mot de passe, confirmation d'adresse email. Ces actions expirent en quelques minutes — en faire une tâche persistante n'a aucun sens, elle est déjà obsolète quand l'utilisateur la voit. type="notification" dans ce cas, pas "task".
-- Une sollicitation marketing déguisée en demande directe (répondre à un sondage, s'inscrire à une offre, "profitez-en maintenant") : même si l'email est formulé à l'impératif ("Commencez le sondage"), ce n'est pas une tâche pour l'utilisateur — c'est de la promo. type="promo", pas "task".
-- Une action que l'EXPÉDITEUR annonce faire lui-même ("je vous envoie le contrat demain", "je m'occupe de la réservation") : ce n'est pas une tâche de l'utilisateur. Attendre n'est pas une action.
-- Une action déjà accomplie au moment de l'email ("merci pour le devis reçu", "bien noté, c'est validé de notre côté") : la demande est close.
-- Une simple invitation à répondre, sans objet concret ("tenez-moi au courant", "dites-moi ce que vous en pensez", "n'hésitez pas") : le brouillon de réponse couvre déjà ce cas, une tâche en plus ferait doublon avec l'email lui-même.
-- Une action conditionnelle dont la condition n'est pas remplie ("si jamais vous changez d'avis, prévenez-moi").
-
-## DATES RELATIVES — CALCUL OBLIGATOIRE
-Chaque email a sa propre date de réception ("Reçu le: ...") — c'est CETTE date qui sert de référence pour ses dates relatives, jamais la date du jour où tu traites la requête. "demain"/"lundi prochain"/"vendredi" → calcule la vraie date calendaire depuis la réception de CET email, au format YYYY-MM-DD (jamais de texte comme "demain"). Exemple : reçu lundi 2 mars, "réunion demain à 15h" → eventDate="2026-03-03", même si tu traites l'analyse plus tard dans la semaine. eventStartTime au format HH:MM (24h, zéro devant si besoin : "09:00" pas "9:00"). Si une date de réunion est donnée sans heure → hasEvent=true, eventDate rempli, eventStartTime=null dans ce cas précis uniquement.
-
-## RÉSUMÉ DU JOUR (dailySummary) — une phrase simple par email
-3e personne (contrairement à aiReply qui est à la 1re), commençant par "Vous avez reçu un email concernant..." ou équivalent naturel adapté au contenu. Une seule phrase, simple, concrète, spécifique au contenu réel — jamais de formulation générique.
-Ex. : meeting → "Vous avez reçu une invitation à une réunion avec l'équipe marketing jeudi à 14h." · invoice → "Une facture de 340€ est à régler avant le 15." · spam → "Un message suspect prétendant venir de votre banque a été reçu."
-
-## POINTS CLÉS
-Pour les emails pro qui listent plusieurs éléments concrets : 2 à 4 points courts (3-6 mots chacun) dans "keyPoints". Sinon tableau vide [].
-
-## TON DE LA RÉPONSE — OBLIGATOIRE
-Chaque email ci-dessous indique une ligne "Ton demandé: X". Applique EXACTEMENT les consignes du ton correspondant pour CET email précis — deux emails du même lot peuvent demander des tons différents, ne les mélange jamais.
+Chaque email indique "Ton demandé: X" — applique EXACTEMENT ce ton pour CET email ; deux emails du même lot peuvent en demander des différents.
 
 ${toneSection}
 
-## RÈGLES PAR TYPE D'EMAIL
+## EXEMPLES
+"URGENT : -50 %, finit ce soir. Se désabonner." → normal / promo (étape 1 prime, "URGENT" ne compte pas).
+"Serveur de production down, les clients ne peuvent plus se connecter." → urgent / task.
+"Voici ma facture de 1 200 € à régler sous 15 jours.", d'un client → important / invoice (5 avant 9), actionCategory "Finance".
+"Je dois décaler notre point de jeudi à vendredi 10h." → change, hasEvent=true, hasActionItem=false.
+"Je vous envoie le dossier demain matin." → info, hasActionItem=false (c'est l'expéditeur qui agit).
 
-**Email professionnel** : ton sérieux, formule adaptée (Bonjour/Cordialement), réponse précise et structurée selon la demande, longueur adaptée (courte si simple, détaillée si complexe).
-
-**Email familial ou ami** : ton chaleureux et naturel, pas de formules trop formelles, réponse courte et directe.
-
-**Scam / Phishing** : jamais de texte générique — explique en une phrase précise CE QUI, dans cet email précis, a déclenché la suspicion, en citant l'élément concret.
-- aiReply : "[élément précis détecté] — ceci ressemble à une tentative de phishing. Ne cliquez sur aucun lien et ne répondez pas." (ex: "L'expéditeur usurpe visiblement l'identité d'une banque mais l'adresse email ne correspond pas à un domaine officiel — ceci ressemble à une tentative de phishing.")
-- priority : "normal"
-
-**Newsletter / Notification automatique** : jamais de texte générique — résume en une phrase ce dont parle CETTE notification précise.
-- aiReply : "[résumé concret du contenu]. Aucune réponse nécessaire."
-- priority : "normal"
-
-## FORMAT DE RÉPONSE
-Retourne UNIQUEMENT un JSON valide :
-{"results": [{"index": 0, "priority": "urgent", "type": "meeting", "dailySummary": "phrase de résumé ici", "keyPoints": ["Bilan du projet", "Prochaines étapes"], "hasEvent": true, "eventTitle": "Réunion avec M. Lavoisier", "eventDate": "2026-09-06", "eventStartTime": "15:00", "eventEndTime": null, "hasActionItem": true, "actionTitle": "Préparer le bilan trimestriel pour M. Lavoisier", "actionPriority": "high", "actionCategory": "Client", "actionDueDate": "2026-09-05", "aiReply": "réponse rédigée ici"}]}`
+## SORTIE — un JSON valide, et rien d'autre
+{"results":[{"index":0,"priority":"urgent","type":"meeting","dailySummary":"...","keyPoints":["Bilan du projet"],"hasEvent":true,"eventTitle":"Réunion avec M. Lavoisier","eventDate":"2026-09-06","eventStartTime":"15:00","eventEndTime":null,"hasActionItem":true,"actionTitle":"Préparer le bilan trimestriel pour M. Lavoisier","actionPriority":"high","actionCategory":"Client","actionDueDate":"2026-09-05","aiReply":"..."}]}`
 }
+
+// --- Budget de tokens par requête ------------------------------------------
+// Groq compte les max_tokens RÉSERVÉS dans la limite par minute, pas les
+// tokens réellement produits. Un forfait de 2200 pour un lot de 3 emails
+// réservait donc en pure perte environ le double du nécessaire : une sortie
+// réelle pèse ~300 tokens par email (dailySummary 25, keyPoints 25, aiReply
+// 150-220, champs 50). On calcule désormais selon la taille du lot, avec une
+// marge de sécurité d'environ 1,6x — descendre plus bas tronquerait le JSON,
+// ce qui coûte un appel entier pour rien.
+const MAX_TOKENS_PER_EMAIL = 500
+const MAX_TOKENS_BASE = 300
+function maxTokensFor(emailCount: number): number {
+  return MAX_TOKENS_BASE + MAX_TOKENS_PER_EMAIL * Math.max(1, emailCount)
+}
+
+// 900 (et non 1500) caractères par email : la demande, la date et le montant
+// se trouvent dans les premières lignes. Les 600 caractères suivants étaient
+// surtout des signatures, des citations du fil et des pieds de page — ~160
+// tokens par email dépensés pour du bruit.
+const EMAIL_CHARS_FOR_ANALYSIS = 900
+// Repli après un rate limit : encore plus court, on cherche à faire passer
+// la requête, pas à être exhaustif.
+const EMAIL_CHARS_FOR_RETRY = 600
 
 // Emails générés par Sveltly lui-même (digest quotidien, notifications système) —
 // jamais envoyés au pipeline IA, ça n'a aucun sens d'y répondre.
@@ -371,6 +340,31 @@ function enforceEventConsistency(result: any) {
 // pour re-vérifier le type.
 const NO_ACTION_EMAIL_TYPES = new Set(['spam', 'promo', 'newsletter', 'notification', 'confirmation'])
 
+// Types qui ne donnent JAMAIS lieu à une vraie réponse : le brouillon produit
+// pour eux dit en substance « Aucune réponse nécessaire » (voir le prompt).
+//
+// BUG CORRIGÉ ICI : le compteur mensuel s'incrémentait du NOMBRE D'EMAILS
+// ANALYSÉS, alors que le forfait annonce « 50 réponses IA par mois » (voir
+// lib/plans.tsx et la page Tarifs). Dans une boîte ordinaire, la majorité du
+// volume est faite de pubs, newsletters et notifications automatiques : le
+// quota partait donc presque entièrement sur des emails auxquels personne ne
+// répond. Cas réel relevé sur ce compte : 51/50 consommés, dont des
+// notifications Google, un code 2FA Instagram et une promo ChatGPT.
+//
+// Le tri, les résumés et la détection de tâches restent gratuits pour ces
+// types — c'est bien ce que la page Tarifs promet.
+const NO_REPLY_EMAIL_TYPES = new Set(['spam', 'promo', 'newsletter', 'notification'])
+
+function countBillableReplies(results: unknown, fallbackCount: number): number {
+  if (!Array.isArray(results)) return fallbackCount
+  return results.filter(r => {
+    const type = r && typeof r === 'object' ? (r as { type?: string }).type : undefined
+    // Type absent (modèle qui l'oublie) : on compte, pour ne jamais rendre la
+    // limite contournable par une sortie malformée.
+    return !type || !NO_REPLY_EMAIL_TYPES.has(type)
+  }).length
+}
+
 function enforceInformationalNoAction(result: any) {
   if (!result || typeof result !== 'object') return result
   if (!NO_ACTION_EMAIL_TYPES.has(result.type)) return result
@@ -492,19 +486,13 @@ export async function POST(req: NextRequest) {
     // Le nombre d'emails envoyés est déjà borné par l'appelant (voir /api/emails) —
     // on ne re-tronque pas ici pour éviter toute incohérence entre les deux limites.
     const limited = filtered
-    // 1500 (pas 2000) : laisse plus de marge au budget TPM du tier Groq gratuit
-    // (8000 tokens/minute) maintenant que l'appelant envoie des lots plus petits
-    // mais toujours potentiellement plusieurs emails par appel.
-    const emailSummaries = buildEmailSummaries(limited, 1500, resolveTone, resolveLanguage)
+    const emailSummaries = buildEmailSummaries(limited, EMAIL_CHARS_FOR_ANALYSIS, resolveTone, resolveLanguage)
     const systemPrompt = buildSystemPrompt(buildToneSection(limited.map((e: any) => resolveTone(e))))
 
     const completion = await groq.chat.completions.create({
       model: 'openai/gpt-oss-120b',
-      // 2200 (pas 2500) : sur un lot de 3 emails max désormais (voir
-      // GROQ_BATCH_SIZE dans /api/emails), largement suffisant pour le JSON de
-      // sortie — et ce budget est compté dans le total "demandé" par Groq pour
-      // la limite TPM, donc chaque token non réservé ici est de la marge en plus.
-      max_tokens: 2200,
+      // Dimensionné sur la taille du lot, pas forfaitaire — voir maxTokensFor.
+      max_tokens: maxTokensFor(limited.length),
       temperature: 0.15,
       reasoning_effort: 'medium',
       reasoning_format: 'hidden',
@@ -525,7 +513,8 @@ export async function POST(req: NextRequest) {
     if (Array.isArray(parsed.results)) {
       parsed.results = parsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction).map(enforceActionQuality)
     }
-    await incrementUsage(limited.length)
+    // Seules les vraies réponses sont décomptées — voir countBillableReplies.
+    await incrementUsage(countBillableReplies(parsed.results, limited.length))
     return NextResponse.json(parsed)
 
   } catch (err: any) {
@@ -564,12 +553,12 @@ export async function POST(req: NextRequest) {
         await new Promise(resolve => setTimeout(resolve, 2000))
 
         const retryLimited = filtered.slice(0, 1)
-        const retrySummary = buildEmailSummaries(retryLimited, 800, resolveTone, resolveLanguage)
+        const retrySummary = buildEmailSummaries(retryLimited, EMAIL_CHARS_FOR_RETRY, resolveTone, resolveLanguage)
         const retrySystemPrompt = buildSystemPrompt(buildToneSection(retryLimited.map((e: any) => resolveTone(e))))
 
         const retryCompletion = await groq.chat.completions.create({
           model: 'openai/gpt-oss-120b',
-          max_tokens: 1200,
+          max_tokens: maxTokensFor(retryLimited.length),
           temperature: 0.2,
           reasoning_effort: 'low',
           reasoning_format: 'hidden',
@@ -587,7 +576,7 @@ export async function POST(req: NextRequest) {
         if (Array.isArray(retryParsed.results)) {
           retryParsed.results = retryParsed.results.map(enforceEventConsistency).map(enforceInformationalNoAction).map(enforceActionQuality)
         }
-        await incrementUsage(retryLimited.length)
+        await incrementUsage(countBillableReplies(retryParsed.results, retryLimited.length))
         return NextResponse.json(retryParsed)
       } catch (retryErr: any) {
         console.error('❌ Retry Groq également échoué:', retryErr?.message)

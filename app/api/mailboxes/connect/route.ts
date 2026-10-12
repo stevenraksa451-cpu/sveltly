@@ -35,8 +35,22 @@ export async function GET(req: NextRequest) {
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
+  // Une boîte dont le jeton est mort doit TOUJOURS pouvoir être réautorisée,
+  // même au plafond du forfait : réparer une connexion existante n'est pas
+  // « ajouter une boîte ». Sans cette exception, un utilisateur du forfait
+  // Gratuit (1 boîte) dont le jeton Gmail expirait se retrouvait enfermé —
+  // la seule action proposée étant « Passer à Pro », qui n'aurait rien
+  // réparé. Le vrai verrou est dans le callback, qui connaît l'adresse
+  // choisie et n'applique la limite qu'à une adresse NOUVELLE.
+  const { count: brokenCount } = await supabase
+    .from('mailboxes')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('is_connected', false)
+
   const mailboxLimit = getPlan(profile?.plan).limits.mailboxes
-  if (mailboxLimit !== null && (count ?? 0) >= mailboxLimit) {
+  const atLimit = mailboxLimit !== null && (count ?? 0) >= mailboxLimit
+  if (atLimit && (brokenCount ?? 0) === 0) {
     return NextResponse.json({ error: 'Limite de boîtes mail atteinte pour ce forfait' }, { status: 403 })
   }
 
