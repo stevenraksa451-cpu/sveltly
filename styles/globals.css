@@ -442,6 +442,12 @@ time,
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    /* animation-delay aussi, et pas seulement transition-delay : les séquences
+       d'ouverture (hero, cartes d'étapes, visuel du produit) s'échelonnent sur
+       des retards allant jusqu'à 460 ms. Sans cette ligne, un élément restait
+       décalé de quelques pixels pendant tout son retard avant de se poser
+       d'un coup — un saut, exactement ce que le réglage cherche à éviter. */
+    animation-delay: 0ms !important;
     transition-duration: 0.001ms !important;
     transition-delay: 0ms !important;
   }
