@@ -10,7 +10,11 @@ import { BRAND_NAME, BRAND_TAGLINE, BRAND_DESCRIPTION, SITE_URL } from '@/lib/br
 // voir styles/globals.css) — Bricolage Grotesque retirée précédemment.
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['400', '500', '600'],
+  // L'italique est chargée pour un seul mot — le titre du hero. Sans la vraie
+  // fonte, font-synthesis: none laisse le mot droit, et la synthèse du
+  // navigateur produit une oblique penchée mécaniquement, pas une italique.
+  style: ['normal', 'italic'],
   variable: '--font-inter',
   display: 'swap',
 })

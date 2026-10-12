@@ -35,12 +35,3 @@
 .placeholder {
   color: var(--mk-line-strong);
 }
-
-/* Masquées sous 1180 px, et c'est délibéré : la barre bascule au menu burger
-   à 1040 px parce que son contenu est incompressible (898 px mesurés sans ces
-   icônes, 1024 avec). Les garder plus bas aurait repoussé ce seuil, donc
-   affiché le burger sur des écrans d'ordinateur portable où la navigation
-   tient encore. Des liens de réseaux sociaux ne valent pas ce prix-là. */
-@media (max-width: 1180px) {
-  .list { display: none; }
-}

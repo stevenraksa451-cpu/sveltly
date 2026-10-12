@@ -54,8 +54,13 @@
   margin: 0 auto;
   padding: 18px var(--mk-gutter) 40px;
   border-top: 1px solid var(--mk-line);
-  font-size: 0.79rem;
+  font-size: var(--text-sm);
   color: var(--mk-ink-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* Même seuil que la barre de navigation et les gabarits de page. */
@@ -63,3 +68,5 @@
   .inner { grid-template-columns: 1fr; gap: 36px; padding: 44px var(--mk-gutter) 32px; }
   .bottom { padding: 18px var(--mk-gutter) 32px; }
 }
+
+.copy { margin: 0; }

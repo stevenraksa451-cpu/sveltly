@@ -46,14 +46,14 @@ const MARQUES = {
   outlook: <OutlookMark />,
 }
 
-export default function ProviderMarks() {
+export default function ProviderMarks({ compact = false }: { compact?: boolean }) {
   return (
-    <ul className={styles.row}>
+    <ul className={`${styles.row} ${compact ? styles.compact : ''}`}>
       {PROVIDERS.map(({ id, name, status }) => (
         <li key={id} className={`${styles.item} ${status === 'planned' ? styles.planned : ''}`}>
           {MARQUES[id]}
           <span className={styles.name}>{name}</span>
-          {status === 'planned' && <span className={styles.badge}>{PLANNED_BADGE}</span>}
+          {status === 'planned' && !compact && <span className={styles.badge}>{PLANNED_BADGE}</span>}
         </li>
       ))}
     </ul>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import { FOOTER_COLUMNS, NAV_DIRECT_LINK } from '@/lib/navigation'
 import { BRAND_EMAIL, BRAND_TAGLINE } from '@/lib/brand'
+import SocialLinks from '@/components/landing/nav/SocialLinks'
 import styles from './SiteFooter.module.css'
 
 // Pied de page commun à toutes les pages marketing. Les colonnes viennent de
@@ -48,7 +49,8 @@ export default function SiteFooter() {
       </div>
 
       <div className={styles.bottom}>
-        <p>© {new Date().getFullYear()} Sveltly. Tous droits réservés.</p>
+        <p className={styles.copy}>© {new Date().getFullYear()} Sveltly. Tous droits réservés.</p>
+        <SocialLinks />
       </div>
     </footer>
   )

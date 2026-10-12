@@ -47,3 +47,9 @@
   .row { gap: 8px 18px; }
   .item { font-size: 0.875rem; }
 }
+
+/* Variante compacte — dans un fragment d'interface (étape 1), où la rangée
+   n'est plus l'information principale mais le décor d'un bouton. */
+.compact { gap: 6px 12px; margin: 0; }
+.compact .item { font-size: var(--text-sm); }
+.compact .mark { width: 16px; height: 16px; }

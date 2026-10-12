@@ -6,17 +6,13 @@ import Logo from '@/components/ui/Logo'
 import Brand from '@/components/ui/Brand'
 import ImpactCalculator from '@/components/landing/ImpactCalculator'
 import Reveal from '@/components/landing/Reveal'
+import Kbd from '@/components/ui/Kbd'
 import Navbar from '@/components/landing/nav/Navbar'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import ScrollProgress from '@/components/landing/ScrollProgress'
-import HeroSpotlight from '@/components/landing/HeroSpotlight'
-import ParallaxImage from '@/components/landing/ParallaxImage'
 import ProviderMarks from '@/components/landing/ProviderMarks'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
-import PaperPlaneDoodle from '@/components/landing/PaperPlaneDoodle'
-import SparkleDoodle from '@/components/landing/SparkleDoodle'
-import ConfettiDoodle from '@/components/landing/ConfettiDoodle'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import { IconCalendar, IconFocus, IconLock, IconLink, IconBrain, IconShield, IconSync, IconCheckSquare, IconCode, IconPalette, IconBriefcase, IconPen, IconUsers, IconKey, IconDatabase, IconTrash } from '@/components/landing/icons'
 import { PLANS, formatPrice } from '@/lib/plans'
@@ -71,12 +67,49 @@ const SECURITY_POINTS = [
   { icon: <IconTrash />, title: 'Suppression définitive', desc: 'Un bouton dans vos réglages supprime le compte, les données associées et les jetons de connexion. Sans délai et sans démarche à faire.' },
 ]
 
+// Chaque étape porte un fragment d'interface réel plutôt qu'une icône
+// abstraite : une icône de cadenas n'apprend rien, un bouton « Autoriser »
+// montre ce qui va effectivement s'afficher.
 const STEPS = [
-  // PROVIDERS_LIVE_LABEL, pas « Gmail ou Outlook » en dur : cette étape décrit
-  // ce qu'on peut faire maintenant, et Outlook n'est pas encore branché.
-  { number: '1', icon: <IconLink />, title: 'Connectez votre boîte mail', desc: <>{PROVIDERS_LIVE_LABEL}, en toute sécurité via OAuth. <Brand /> ne stocke jamais votre mot de passe.</> },
-  { number: '2', icon: <IconBrain />, title: 'L\'IA analyse vos emails', desc: 'Chaque message est classé par priorité et une réponse est proposée automatiquement, prête à relire.' },
-  { number: '3', icon: <IconShield />, title: 'Vous gardez le contrôle', desc: 'Vous validez, modifiez ou ignorez chaque suggestion. Rien n\'est envoyé sans votre accord.' },
+  {
+    number: '1',
+    // PROVIDERS_LIVE_LABEL, pas « Gmail ou Outlook » en dur : cette étape
+    // décrit ce qu'on peut faire maintenant, et Outlook n'est pas branché.
+    title: 'Connectez votre boîte',
+    desc: <>{PROVIDERS_LIVE_LABEL}, via OAuth. <Brand /> ne voit jamais votre mot de passe.</>,
+    visual: (
+      <div className={styles.stepConnect}>
+        <ProviderMarks compact />
+        <span className={styles.stepConnectBtn}>Autoriser</span>
+      </div>
+    ),
+  },
+  {
+    number: '2',
+    title: 'L’IA trie et résume',
+    desc: 'Chaque message est classé par priorité, résumé en une ligne, et les tâches qu’il contient en sont extraites.',
+    visual: (
+      <div className={styles.stepRows}>
+        <span className={styles.stepRow}><i className={styles.dotUrgent} />Devis à valider<em>Urgent</em></span>
+        <span className={styles.stepRow}><i className={styles.dotImportant} />Facture n° 2291<em>Important</em></span>
+        <span className={styles.stepRow}><i className={styles.dotNormal} />Newsletter<em>Normal</em></span>
+      </div>
+    ),
+  },
+  {
+    number: '3',
+    title: 'Vous décidez',
+    desc: 'Vous validez, modifiez ou ignorez chaque suggestion. Rien n’est envoyé sans votre accord.',
+    visual: (
+      <div className={styles.stepDraft}>
+        <p className={styles.stepDraftText}>Bonjour Marine, le devis est validé de mon côté…</p>
+        <span className={styles.stepDraftRow}>
+          <span className={styles.stepTone}>Professionnel</span>
+          <span className={styles.stepSend}>Envoyer</span>
+        </span>
+      </div>
+    ),
+  },
 ]
 
 const FAQ = [
@@ -97,85 +130,80 @@ export default function LandingPage() {
       <ScrollProgress />
       <Navbar />
 
+      {/* Hero en deux colonnes : le texte à gauche, l'interface à droite.
+          Le panneau violet en biais qui occupait 54 % de l'écran a sauté —
+          il montrait une carte flottante au lieu du produit, et c'était la
+          plus grande surface colorée de la page pour l'information la moins
+          dense. */}
       <section className={styles.heroSection}>
         <div className={styles.bgGlow} aria-hidden="true" />
-        <div className={styles.bgGrid} aria-hidden="true" />
-        <HeroSpotlight />
 
         <div className={styles.hero}>
           {/* immediate : contenu au-dessus de la ligne de flottaison, il ne
               doit jamais partir à opacity 0 (voir Reveal.tsx). */}
           <Reveal variant="up" immediate>
             <div className={styles.heroContent}>
-              <PaperPlaneDoodle size={34} className={styles.heroPlane} />
-              <div className={styles.badge}>
+              <p className={styles.badge}>
                 ~{HOURS_GIVEN_BACK} h rendues par semaine sur {BASELINE_EMAIL_HOURS} h d'emails
-              </div>
+              </p>
               <h1 className={styles.heroTitle}>
                 Planifiez. Simplifiez.<br />
-                <span className={styles.heroAccentWrap}>
-                  <span className={styles.heroAccent}>Avancez.</span>
-                  <SparkleDoodle size={20} rotate={14} className={styles.heroSparkle} />
-                </span>
+                {/* Un seul mot en italique plutôt qu'en couleur : l'emphase
+                    reste, sans voler l'accent au bouton principal. */}
+                <em className={styles.heroEm}>Avancez.</em>
               </h1>
               <p className={styles.heroDesc}>
-                <Brand /> centralise vos emails, votre agenda et vos tâches pour vous aider à rester concentré sur l'essentiel.
+                <Brand /> trie vos emails, en tire les tâches et place les rendez-vous.
+                Vous arrivez le matin sur des décisions, pas sur une pile.
               </p>
               <div className={styles.heroCtas}>
                 <Link href="/auth/register" className={styles.heroCta}>Commencer gratuitement</Link>
+                <a href="#how" className={styles.heroCtaGhost}>
+                  Voir comment ça marche
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 5v14M6 13l6 6 6-6" />
+                  </svg>
+                </a>
               </div>
-              {/* La note « Gratuit · … » a sauté : le bouton juste au-dessus
-                  dit déjà « Commencer gratuitement ». La ligne sert mieux à
-                  répondre à la question suivante — avec quelle boîte ? */}
+              {/* Vérifié dans lib/plans.tsx : le forfait gratuit n'a pas de
+                  durée, et aucune route Stripe n'existe — rien à payer pour
+                  commencer. Ne rien écrire ici qui ne soit vérifiable. */}
+              <p className={styles.heroReassure}>Gratuit, sans limite de durée.</p>
               <ProviderMarks />
             </div>
           </Reveal>
         </div>
 
-        <Reveal variant="scale" delay={150} immediate className={styles.heroVisual}>
+        <Reveal variant="scale" delay={120} immediate className={styles.heroVisual}>
           <ProductPreview />
         </Reveal>
       </section>
 
-      <Reveal variant="left">
-        <section className={styles.photoSection}>
-          <div className={styles.photoContent}>
-            <h2 className={styles.photoTitle}>
-              Une meilleure façon de travailler.
-              <SparkleDoodle size={14} rotate={-8} className={styles.titleSparkle} />
-            </h2>
-            <p className={styles.photoDesc}>
-              <Brand /> réunit vos emails, votre agenda et vos priorités dans un seul espace, afin de simplifier votre quotidien et de garder le contrôle sur votre temps.
-            </p>
-          </div>
-          <ParallaxImage
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&q=80"
-            alt="Freelance travaillant sereinement sur son ordinateur"
-          />
-        </section>
-      </Reveal>
-
-      <Reveal variant="scale">
-        <ImpactCalculator />
-      </Reveal>
-
+      {/* Les trois photos de banque d'images ont été retirées : génériques,
+          interchangeables d'un SaaS à l'autre, et trois requêtes vers
+          unsplash.com au milieu du chargement. Leur texte, lui, a été
+          conservé — réparti dans les étapes et la section Sécurité. */}
       <Reveal variant="up">
         <section id="how" className={styles.howSection}>
           <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>Trois étapes, aucune configuration compliquée</h2>
+            <h2 className={styles.sectionTitle}>Trois étapes, aucune configuration</h2>
+            <p className={styles.sectionDesc}>
+              <Brand /> réunit vos emails, votre agenda et vos priorités dans un seul espace.
+              La mise en route tient en une autorisation Google.
+            </p>
           </div>
-          <div className={styles.stepsGrid}>
+          <ol className={styles.stepsGrid}>
             {STEPS.map((s, i) => (
-              <Reveal key={s.number} variant="up" delay={i * 100}>
-                <div className={styles.stepCard}>
-                  <div className={styles.stepIconWrap}>{s.icon}</div>
+              <Reveal key={s.number} variant="up" delay={i * 80}>
+                <li className={styles.stepCard}>
                   <span className={styles.stepNumber}>{s.number}</span>
                   <h3 className={styles.stepTitle}>{s.title}</h3>
                   <p className={styles.stepDesc}>{s.desc}</p>
-                </div>
+                  <div className={styles.stepVisual} aria-hidden="true">{s.visual}</div>
+                </li>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </section>
       </Reveal>
 
@@ -205,26 +233,6 @@ export default function LandingPage() {
         </section>
       </Reveal>
 
-      <Reveal variant="right">
-        <section className={styles.photoSectionReverse}>
-          <ParallaxImage
-            src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=900&q=80"
-            alt="Bureau organisé avec agenda et planification claire"
-          />
-          <div className={styles.photoContent}>
-            <h2 className={styles.photoTitle}>
-              Le problème du calendrier éclaté, enfin résolu.
-              <SparkleDoodle size={14} rotate={10} className={styles.titleSparkle} />
-            </h2>
-            <p className={styles.photoDesc}>
-              Chaque réunion mentionnée dans un email atterrit directement dans votre agenda — plus besoin de la recopier vous-même.
-              Et avec la synchronisation Google Calendar (Pro), plus besoin non plus de jongler entre deux calendriers : <Brand /> et
-              Google Calendar restent alignés en permanence, dans les deux sens.
-            </p>
-          </div>
-        </section>
-      </Reveal>
-
       <Reveal variant="up">
         <section id="features" className={styles.features}>
           <div className={styles.sectionHead}>
@@ -241,7 +249,6 @@ export default function LandingPage() {
                 <span className={styles.featureNumber}>01</span>
                 <h3 className={styles.bentoTitle}>
                   Tri intelligent
-                  <SparkleDoodle size={16} rotate={-10} />
                 </h3>
                 <p className={styles.bentoDesc}>
                   Chaque email est analysé et classé automatiquement selon son urgence. Urgent, important ou normal — vous savez immédiatement sur quoi vous concentrer.
@@ -319,33 +326,59 @@ export default function LandingPage() {
         </section>
       </Reveal>
 
-      <Reveal variant="left">
-        <section id="securite" className={styles.photoSection}>
-          <div className={styles.photoContent}>
-            <h2 className={styles.photoTitle}>
-              Vos emails sont sensibles. Nous les traitons comme tels.
-              <SparkleDoodle size={14} rotate={-6} className={styles.titleSparkle} />
-            </h2>
-            {/* Formulation revue : la version précédente annonçait un
-                "chiffrement de bout en bout" que le produit n'implémente pas
-                (les emails sont déchiffrables côté serveur — ils doivent
-                l'être pour être analysés). Ne restent que des affirmations
-                vérifiables, détaillées dans la grille juste en dessous. */}
-            <p className={styles.photoDesc}>
-              Connexion par OAuth, données cloisonnées compte par compte, jetons chiffrés au repos :
-              vos emails ne sont ni partagés, ni revendus, ni utilisés pour entraîner un modèle d'IA.
-              Chaque affirmation ci-dessous correspond à quelque chose d'implémenté, pas à une intention.
-            </p>
+      {/* Seule section sombre du site, et c'est délibéré : une rupture unique
+          marque un changement de registre ; répétée, elle devient un motif.
+          ⌘K est le SEUL raccourci réellement implémenté (voir
+          components/layout/Header.tsx) — on n'en affiche aucun autre. Une
+          touche décorative promet une vitesse que le produit n'a pas, et
+          c'est la première chose qu'un visiteur essaie. */}
+      <Reveal variant="up">
+        <section className={styles.speed}>
+          <div className={styles.speedInner}>
+            <div className={styles.speedText}>
+              <h2 className={styles.speedTitle}>Une touche, et vous êtes dedans.</h2>
+              <p className={styles.speedDesc}>
+                La palette de recherche ouvre tout : un email, une tâche, un rendez-vous, une page.
+                Elle cherche dans les données déjà chargées — pas d’attente réseau, pas de rechargement.
+              </p>
+              <ul className={styles.speedList}>
+                <li>Emails, tâches et agenda dans un même résultat</li>
+                <li>Navigation au clavier, entrée pour ouvrir</li>
+                <li>Depuis n’importe quel écran de l’application</li>
+              </ul>
+            </div>
+
+            <div className={styles.speedKeys} aria-hidden="true">
+              <Kbd size="lg" onDark>⌘</Kbd>
+              <Kbd size="lg" onDark>K</Kbd>
+            </div>
           </div>
-          <ParallaxImage
-            src="https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8cyVDMyVBOWN1cml0JUMzJUE5fGVufDB8fDB8fHww"
-            alt="Cadenas symbolisant la protection des données sur un ordinateur portable"
-          />
+
+          <p className={styles.speedFoot}>
+            <span className={styles.speedFigure}>~{HOURS_GIVEN_BACK} h</span>
+            rendues par semaine sur {BASELINE_EMAIL_HOURS} h passées dans les emails.
+            L’hypothèse de calcul est détaillée dans le simulateur ci-dessous.
+          </p>
         </section>
       </Reveal>
 
+      <Reveal variant="scale">
+        <ImpactCalculator />
+      </Reveal>
+
       <Reveal variant="up">
-        <section className={styles.securityGridSection}>
+        <section id="securite" className={styles.securityGridSection}>
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionTitle}>Vos emails sont sensibles. Nous les traitons comme tels.</h2>
+            {/* La version précédente annonçait un « chiffrement de bout en
+                bout » que le produit n'implémente pas — les emails doivent
+                être lisibles côté serveur pour être analysés. Ne restent que
+                des affirmations vérifiables dans le dépôt. */}
+            <p className={styles.sectionDesc}>
+              Chaque point ci-dessous correspond à quelque chose d’implémenté, pas à une intention.
+              Ni certification affichée, ni promesse que le code ne tient pas.
+            </p>
+          </div>
           <div className={styles.securityGrid}>
             {SECURITY_POINTS.map((p, i) => (
               <Reveal key={p.title} variant="up" delay={i * 60}>
@@ -398,7 +431,6 @@ export default function LandingPage() {
                     {plan.id === 'pro' && (
                       <span className={styles.featuredBadge}>
                         Recommandé
-                        <SparkleDoodle size={13} rotate={8} color="white" />
                       </span>
                     )}
 
@@ -438,12 +470,26 @@ export default function LandingPage() {
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>Questions fréquentes</h2>
           </div>
-          <div className={styles.faqGrid}>
+          {/* <details> natif : ouverture au clavier, lisible sans JavaScript,
+              et trouvable par la recherche du navigateur même replié sur les
+              moteurs récents. Un accordéon fait à la main perd les trois. */}
+          <div className={styles.faqList}>
             {FAQ.map((item, i) => (
-              <div key={i} className={styles.faqCard}>
-                <h3 className={styles.faqQuestion}>{item.q}</h3>
+              <details key={i} className={styles.faqItem} open={i === 0}>
+                <summary className={styles.faqQuestion}>
+                  {/* Le libellé est enveloppé : certaines questions contiennent
+                      <Brand />, donc plusieurs nœuds. Posés directement dans un
+                      flex en space-between, ils s'écartaient aux quatre coins
+                      de la ligne. */}
+                  <span>{item.q}</span>
+                  <span className={styles.faqSign} aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
                 <p className={styles.faqAnswer}>{item.a}</p>
-              </div>
+              </details>
             ))}
           </div>
         </section>
@@ -451,18 +497,14 @@ export default function LandingPage() {
 
       <Reveal variant="scale">
         <section className={styles.ctaBanner}>
-          <ConfettiDoodle />
-          <h2 className={styles.ctaBannerTitle}>
-            <SparkleDoodle size={18} rotate={-12} className={styles.ctaSparkleLeft} />
-            Prêt à reprendre le contrôle ?
-            <SparkleDoodle size={14} rotate={16} className={styles.ctaSparkleRight} />
-          </h2>
+          <h2 className={styles.ctaBannerTitle}>Demain matin, votre boîte<br />aura déjà été triée.</h2>
           <p className={styles.ctaBannerDesc}>
-            <Brand /> vient d'être lancé — soyez parmi les premiers à l'essayer.
+            <Brand /> vient d’être lancé — vous faites partie des premiers à l’essayer.
           </p>
           <Link href="/auth/register" className={styles.ctaBannerBtn}>
             Créer un compte gratuitement
           </Link>
+          <p className={styles.ctaBannerNote}>Gratuit, sans limite de durée.</p>
         </section>
       </Reveal>
 
