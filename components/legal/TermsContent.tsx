@@ -2,6 +2,7 @@
 // components/legal/TermsContent.tsx — voir PrivacyContent.tsx pour
 // l'explication de cette séparation (évite de passer des éléments React
 // comme props à travers la frontière Server → Client Component).
+import Link from 'next/link'
 import LegalLayout from '@/components/legal/LegalLayout'
 import Brand from '@/components/ui/Brand'
 import { IconUser, IconCard, IconBan, IconCopyright, IconAlert, IconDoor, IconScale, IconMessage, IconCheck } from '@/components/legal/icons'
@@ -110,7 +111,7 @@ export default function TermsContent() {
               Le service <Brand />, sa marque, son interface et son code sont la propriété exclusive de son éditeur. Vous
               conservez l'intégralité des droits sur le contenu de vos emails ; <Brand /> n'en revendique aucun usage
               au-delà de ce qui est nécessaire au fonctionnement du service (voir notre{' '}
-              <a href="/legal/privacy">politique de confidentialité</a>).
+              <Link href="/legal/privacy">politique de confidentialité</Link>).
             </p>
           ),
         },

@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 // app/settings/page.tsx
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -827,7 +828,7 @@ function SettingsContent() {
                     <p className={styles.proLockText}>
                       La synchronisation Google Calendar (import et export automatiques des deux côtés) fait partie du forfait Pro.
                     </p>
-                    <a href="/settings?tab=billing" className={styles.proLockCta}>Passer à Pro</a>
+                    <Link href="/settings?tab=billing" className={styles.proLockCta}>Passer à Pro</Link>
                   </div>
                 ) : (
                   <>
@@ -953,7 +954,7 @@ function SettingsContent() {
                               </span>
                             </td>
                             <td data-label="Actions">
-                              <a href={invoice.url} target="_blank" rel="noreferrer" className={styles.linkBtn}>Voir</a>
+                              <a href={invoice.url} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>Voir</a>
                             </td>
                           </tr>
                         ))}

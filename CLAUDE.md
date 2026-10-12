@@ -337,20 +337,46 @@ en étaient deux copies, servies telles quelles par Next (le dossier `app/`
 n'est pas optimisé : ces fichiers doivent être physiquement petits).
 Poids total de la page d'accueil : **2 580 Ko → 394 Ko**.
 
-Scores mesurés ( + , Lighthouse mobile) :
+Scores mesurés (`npm run build` + `npm run start`, Lighthouse mobile) :
 
 | Page | Perf | A11y | Bonnes pratiques | SEO | LCP |
 |---|---|---|---|---|---|
-|  | 87 | 100 | 100 | 100 | 3,6 s |
-|  | 95 | 100 | 100 | 100 | 2,7 s |
-|  | 90 | 100 | 100 | 100 | 3,5 s |
-|  | 89 | 100 | 100 | 100 | 3,7 s |
+| `/` | 87 | 100 | 100 | 100 | 3,6 s |
+| `/produit` | 95 | 100 | 100 | 100 | 2,7 s |
+| `/faq` | 90 | 100 | 100 | 100 | 3,5 s |
+| `/tarifs` | 89 | 100 | 100 | 100 | 3,7 s |
 
-Trois corrections ont porté ces chiffres, toutes trouvées en mesurant :
+Trois corrections ont porté ces chiffres, toutes trouvées en mesurant plutôt
+qu'en devinant :
 
-1. **Police variable plutôt que graisses statiques.**  téléchargeait six fichiers, 113 Ko — deuxième poste de la page après le JavaScript. Sans , next/font prend la variable : un seul fichier, 62 Ko au total. L'italique a disparu avec elles ; le mot mis en avant dans le titre garde son dégradé, qui portait déjà l'emphase.
-2. **Space Grotesk en .** Elle ne sert qu'au mot « Sveltly » mais occupait 48 Ko du chemin critique, préchargée avant le texte que le visiteur vient lire.
-3. **La landing est un composant SERVEUR.** Un seul  — la bascule mensuel/annuel des tarifs — forçait toute la page côté client. Il vit dans  ; le reste est du HTML rendu par le serveur. Ne pas remettre  sur .
+1. **Police variable plutôt que graisses statiques.** Déclarer
+   `weight: ['400','500','600']` et `style: ['normal','italic']` faisait
+   télécharger six fichiers, **113 Ko** — deuxième poste de la page après le
+   JavaScript. Sans `weight`, `next/font` prend la police variable : un seul
+   fichier, 62 Ko au total. L'italique est partie avec ; le mot mis en avant
+   dans le titre du hero garde son dégradé, qui portait déjà l'emphase.
+2. **Space Grotesk en `preload: false`.** Elle ne sert qu'au mot « Sveltly »
+   (`Brand.tsx`, `Logo.tsx`) mais occupait 48 Ko du chemin critique,
+   préchargée avant le texte que le visiteur vient lire.
+3. **La landing est un composant SERVEUR.** Un seul `useState` — la bascule
+   mensuel/annuel des tarifs — suffisait à faire partir toute la page au
+   navigateur : hero, étapes, fonctionnalités, sécurité, FAQ, appel à
+   l'action. Il vit désormais dans `components/landing/PricingSection.tsx`.
+   **Ne pas remettre `'use client'` sur `app/LandingPage.tsx`.**
+
+### Vérifier une couleur sur UNE surface ne suffit pas
+
+Lighthouse est tombé à 89 en accessibilité sur un seul texte : la ligne de
+copyright du pied de page, à 4,39:1. `--text-muted` avait été vérifié sur le
+fond de page (`#FAFAF9`, 4,59:1) — mais pas sur `#F5F5F4`, la surface la plus
+sombre du système clair, qui porte le bandeau du pied et la barre latérale.
+Un token d'encre doit passer AA sur **toutes** les surfaces où il peut
+atterrir, pas sur celle qu'on avait en tête en l'écrivant.
+
+Même passe : un `<ol>` dont les enfants directs étaient des `<div>` (chaque
+carte était enveloppée dans un `Reveal`, qui insère un div) n'est plus une
+liste pour un lecteur d'écran. Une cascade d'entrée se fait en CSS sur les
+`:nth-child`, pas en enveloppant chaque `<li>`.
 
 Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 contre
 86 — plus de requêtes, aucun gain. Ne pas le réintroduire sans le remesurer.

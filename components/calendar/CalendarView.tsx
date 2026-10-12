@@ -143,10 +143,10 @@ export default function CalendarView({ events, selectedDate, onSelectDate, view,
         <div className={styles.toolbarLeft}>
           <button className={styles.todayBtn} onClick={goToday}>Aujourd'hui</button>
           <div className={styles.navBtns}>
-            <button className={styles.navBtn} onClick={goPrev}>
+            <button className={styles.navBtn} onClick={goPrev} aria-label="Mois précédent">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <button className={styles.navBtn} onClick={goNext}>
+            <button className={styles.navBtn} onClick={goNext} aria-label="Mois suivant">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>

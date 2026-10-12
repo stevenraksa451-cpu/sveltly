@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import StoryPage from '@/components/marketing/templates/StoryPage'
 import { TasksVisual, SummaryVisual } from '@/components/marketing/visuals/ProductVisuals'
 import { pageMeta } from '@/lib/content/meta'
@@ -42,7 +43,7 @@ export default function Page() {
               <p>
                 Une interruption coûte bien plus que la minute qu’elle prend. Les incidents remontent, les
                 questions de planning attendent la pause.
-                {' '}<a href="/solutions/developpeurs">Voir la journée type</a>.
+                {' '}<Link href="/solutions/developpeurs">Voir la journée type</Link>.
               </p>
             ),
             visual: <TasksVisual />,
@@ -54,7 +55,7 @@ export default function Page() {
               <p>
                 Six demandes dans un paragraphe deviennent six lignes, dont les corrections passent en
                 tâches datées.
-                {' '}<a href="/solutions/designers">Voir avant et après</a>.
+                {' '}<Link href="/solutions/designers">Voir avant et après</Link>.
               </p>
             ),
             flip: true,
@@ -66,7 +67,7 @@ export default function Page() {
               <p>
                 Un devis sans réponse, une facture en retard, un client qui s’agace : ce qui engage de
                 l’argent remonte.
-                {' '}<a href="/solutions/consultants">Lire comment</a>.
+                {' '}<Link href="/solutions/consultants">Lire comment</Link>.
               </p>
             ),
           },
@@ -77,7 +78,7 @@ export default function Page() {
               <p>
                 Les échéances formulées au jugé deviennent des dates réelles, calculées depuis la réception
                 du message.
-                {' '}<a href="/solutions/redacteurs-traducteurs">Voir le détail</a>.
+                {' '}<Link href="/solutions/redacteurs-traducteurs">Voir le détail</Link>.
               </p>
             ),
             flip: true,

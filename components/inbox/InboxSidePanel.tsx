@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Email } from '@/types'
 import { supabase } from '@/lib/supabase'
@@ -343,10 +344,10 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         {display.calendarEventDetected && !email.autoScheduled && (
           <div className={styles.scheduleBlock}>
             {email.schedulingStatus === 'plan_limit' && (
-              <a href="/settings?tab=billing" className={styles.planLimitBanner}>
+              <Link href="/settings?tab=billing" className={styles.planLimitBanner}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
                 Planifié automatiquement jusqu'à 7 jours en Gratuit — Pro n'a pas de limite
-              </a>
+              </Link>
             )}
             {schedulingState.step === 'idle' && (
               <button className={styles.scheduleBtn} onClick={() => handleScheduleEvent()}>

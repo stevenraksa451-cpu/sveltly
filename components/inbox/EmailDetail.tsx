@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 // components/inbox/EmailDetail.tsx
 import { useState, useRef, useEffect } from 'react'
 import DOMPurify from 'dompurify'
@@ -296,10 +297,10 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
         )}
 
         {email.schedulingStatus === 'plan_limit' && (
-          <a href="/settings?tab=billing" className={styles.planLimitBanner}>
+          <Link href="/settings?tab=billing" className={styles.planLimitBanner}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
             Le forfait Gratuit planifie automatiquement jusqu'à 7 jours à l'avance — passez à Pro pour une planification sans limite de délai
-          </a>
+          </Link>
         )}
       </div>
 
