@@ -16,14 +16,18 @@
   isolation: isolate;
 }
 
-/* Halo très diffus — 18 % d'opacité, deux fois plus large que la fenêtre :
-   il doit se sentir, pas se voir. */
+/* Aura du visuel — trois halos superposés plutôt qu'un seul indigo. C'est
+   ce qui fait qu'une capture posée sur du blanc cesse d'avoir l'air
+   découpée : la lumière qui l'entoure a une couleur. */
 .halo {
   position: absolute;
-  inset: -20% -14%;
+  inset: -22% -16%;
   z-index: -2;
   pointer-events: none;
-  background: radial-gradient(closest-side, rgba(79, 70, 229, 0.18), transparent 72%);
+  background:
+    radial-gradient(closest-side at 32% 26%, rgba(79, 70, 229, 0.22), transparent 70%),
+    radial-gradient(closest-side at 78% 70%, rgba(124, 58, 237, 0.18), transparent 72%),
+    radial-gradient(closest-side at 50% 100%, rgba(13, 148, 136, 0.12), transparent 70%);
 }
 
 /* Grille de points, masquée en dégradé radial pour qu'elle n'ait pas de bord. */
@@ -32,7 +36,7 @@
   inset: -10%;
   z-index: -1;
   pointer-events: none;
-  background-image: radial-gradient(rgba(28, 25, 23, 0.14) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(28, 25, 23, 0.13) 1px, transparent 1px);
   background-size: 22px 22px;
   mask-image: radial-gradient(closest-side, #000 20%, transparent 78%);
   -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 78%);
@@ -40,13 +44,18 @@
 
 /* --- Cadre de fenêtre ----------------------------------------------------- */
 
+/* Filet dégradé posé en background-image (padding-box + border-box) plutôt
+   qu'en border-image : ce dernier ignore border-radius, et le cadre
+   ressortirait à angles droits sur une fenêtre à 20 px de rayon. */
 .window {
   position: relative;
   width: 100%;
   max-width: 560px;
-  border: 1px solid var(--mk-line);
+  border: 1px solid transparent;
   border-radius: var(--mk-radius-xl);
-  background: var(--mk-surface);
+  background:
+    linear-gradient(var(--mk-surface), var(--mk-surface)) padding-box,
+    var(--grad-line) border-box;
   box-shadow: var(--mk-shadow-lift);
   overflow: hidden;
 }

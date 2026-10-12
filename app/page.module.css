@@ -21,17 +21,24 @@
    moins dense, et il montrait une carte flottante plutôt que le produit.
    ========================================================================== */
 
-/* Nappe indigo unique et très douce. L'ancienne version empilait deux
-   dégradés radiaux et une grille en perspective qui dérivait en boucle — le
-   fond portait plus d'effets que le contenu. Le halo qui compte est
-   maintenant celui du visuel lui-même (ProductPreview.module.css). */
+/* Nappes colorées du hero — quatre halos très doux posés sur le blanc
+   chaud. C'est le principal levier « premium » de la page : une page qui
+   n'a qu'un bouton coloré sur du blanc est juste, mais froide et plate.
+
+   Quatre arrêts et pas un de plus, tous sous 10 % d'opacité : au-delà, les
+   nappes se mettent à se voir comme des taches et le texte perd son fond.
+   Elles ne bougent pas — un fond qui dérive en boucle derrière un titre
+   fatigue avant d'impressionner. */
 .bgGlow {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(900px 560px at 18% 0%, rgba(79, 70, 229, 0.06), transparent 62%),
+    radial-gradient(760px 520px at 8% -8%, rgba(79, 70, 229, 0.10), transparent 62%),
+    radial-gradient(620px 480px at 62% 0%, rgba(124, 58, 237, 0.08), transparent 60%),
+    radial-gradient(680px 520px at 100% 42%, rgba(13, 148, 136, 0.07), transparent 62%),
+    radial-gradient(520px 420px at 26% 100%, rgba(217, 119, 6, 0.05), transparent 66%),
     var(--mk-bg);
 }
 
@@ -82,22 +89,34 @@
   gap: 20px;
 }
 
-/* Pastille discrète : surface blanche et filet, pas un aplat indigo. Elle
-   porte une information réelle (calculée depuis SAVINGS_RATIO), elle n'a pas
-   besoin d'être criarde pour être lue. */
+/* Pastille du hero. Le filet est un dégradé posé en fond sous un fond
+   blanc rogné — un border-image empêcherait le rayon de 999 px de
+   s'appliquer au filet, qui ressortirait carré. */
 .badge {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  gap: 7px;
   margin: 0;
-  padding: 5px 11px;
-  background: var(--mk-surface);
-  color: var(--mk-ink-2);
-  border: 1px solid var(--mk-line);
+  padding: 6px 13px;
   border-radius: 999px;
+  background:
+    linear-gradient(var(--mk-surface), var(--mk-surface)) padding-box,
+    var(--grad-line) border-box;
+  border: 1px solid transparent;
   box-shadow: var(--shadow-sm);
+  color: var(--mk-ink-2);
   font-size: var(--text-sm);
   font-weight: var(--weight-ui);
   letter-spacing: -0.004em;
+}
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--grad-brand);
+  flex-shrink: 0;
 }
 
 .heroTitle {
@@ -135,23 +154,28 @@
   margin-top: 4px;
 }
 
-/* Bouton principal du site public — même forme et même accent que
-   PageChrome .ctaButton et que le bouton de la barre. */
+/* Bouton principal du site public — même forme que PageChrome .ctaButton et
+   que le bouton de la barre. Dégradé et ombre teintée : c'est le seul
+   élément saturé de l'écran, il peut se le permettre. Une ombre grise sous
+   un bouton indigo le fait paraître sale. */
 .heroCta {
   display: inline-flex;
   align-items: center;
   height: 44px;
   padding: 0 22px;
-  background: var(--mk-accent);
+  background: var(--grad-brand);
   color: #fff;
   border-radius: var(--mk-radius);
   font-size: var(--text-md);
   font-weight: var(--weight-ui);
   letter-spacing: -0.008em;
-  box-shadow: var(--shadow-sm);
-  transition: background var(--mk-interaction) var(--mk-ease);
+  box-shadow: var(--glow-accent);
+  transition: box-shadow var(--mk-interaction) var(--mk-ease), filter var(--mk-interaction) var(--mk-ease);
 }
-.heroCta:hover { background: var(--mk-accent-hover); }
+.heroCta:hover {
+  filter: saturate(1.08) brightness(1.04);
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.28), 0 12px 28px -8px rgba(79, 70, 229, 0.55);
+}
 
 /* Action secondaire en texte seul : elle ne doit pas rivaliser avec le
    bouton. Deux boutons côte à côte posent une question au visiteur ; un
@@ -234,13 +258,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: var(--accent-light);
-  color: var(--accent);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--mk-radius);
+  background: var(--tint-indigo-bg);
+  color: var(--tint-indigo-fg);
   margin-bottom: 14px;
 }
+/* Une teinte par carte, en rotation : la grille garde une lecture calme
+   mais cesse d'etre une colonne de pastilles identiques. */
+.solutionsGrid > *:nth-child(4n+2) .solutionIcon { background: var(--tint-violet-bg); color: var(--tint-violet-fg); }
+.solutionsGrid > *:nth-child(4n+3) .solutionIcon { background: var(--tint-teal-bg); color: var(--tint-teal-fg); }
+.solutionsGrid > *:nth-child(4n+4) .solutionIcon { background: var(--tint-amber-bg); color: var(--tint-amber-fg); }
 
 .solutionTitle {
   font-size: 1rem;
@@ -286,11 +315,14 @@
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: 11px;
-  background: var(--purple-light);
-  color: var(--purple);
+  border-radius: var(--mk-radius);
+  background: var(--tint-teal-bg);
+  color: var(--tint-teal-fg);
   margin-bottom: 13px;
 }
+.securityGrid > *:nth-child(5n+2) .securityIcon { background: var(--tint-indigo-bg); color: var(--tint-indigo-fg); }
+.securityGrid > *:nth-child(5n+3) .securityIcon { background: var(--tint-violet-bg); color: var(--tint-violet-fg); }
+.securityGrid > *:nth-child(5n+4) .securityIcon { background: var(--tint-amber-bg); color: var(--tint-amber-fg); }
 
 .securityTitle {
   font-size: 0.92rem;
@@ -353,15 +385,18 @@
    boucle derrière chacune a sauté : six anneaux en rotation permanente sur
    une même page, c'est du mouvement qui n'annonce rien. */
 .featureIconWrap {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--mk-radius-sm);
-  background: var(--mk-surface-2);
-  color: var(--mk-ink-2);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--mk-radius);
+  background: var(--tint-indigo-bg);
+  color: var(--tint-indigo-fg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.bentoGrid > *:nth-child(4n) .featureIconWrap { background: var(--tint-violet-bg); color: var(--tint-violet-fg); }
+.bentoGrid > *:nth-child(4n+1) .featureIconWrap { background: var(--tint-teal-bg); color: var(--tint-teal-fg); }
+.bentoGrid > *:nth-child(4n+2) .featureIconWrap { background: var(--tint-amber-bg); color: var(--tint-amber-fg); }
 .featureIconWrap svg { width: 20px; height: 20px; }
 
 /* ==========================================================================
@@ -407,15 +442,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--mk-radius-sm);
-  background: var(--mk-accent-soft);
-  color: var(--mk-accent-hover);
+  background: var(--tint-indigo-bg);
+  color: var(--tint-indigo-fg);
   font-size: var(--text-xs);
   font-weight: var(--weight-strong);
   font-variant-numeric: tabular-nums;
 }
+.stepsGrid > *:nth-child(2) .stepNumber { background: var(--tint-violet-bg); color: var(--tint-violet-fg); }
+.stepsGrid > *:nth-child(3) .stepNumber { background: var(--tint-teal-bg); color: var(--tint-teal-fg); }
+/* Les boutons des fragments d'interface reprennent le degrade de marque. */
+.stepConnectBtn, .stepSend { background: var(--grad-brand); }
 .stepTitle {
   margin: 0;
   font-size: var(--text-md);
@@ -531,12 +570,28 @@
    devient un motif.
    ========================================================================== */
 .speed {
+  position: relative;
+  overflow: hidden;
   width: min(calc(var(--mk-max) - 2 * var(--mk-gutter)), calc(100% - 2 * var(--mk-gutter)));
   margin: 0 auto clamp(72px, 9vw, 128px);
   padding: clamp(40px, 5vw, 64px);
   border-radius: var(--mk-radius-xl);
-  background: var(--color-ink);
+  /* Fond encre, mais pas noir plat : deux nappes dessous, a peine visibles,
+     evitent l'aplat de bitume qui mange toute la couleur de la page. */
+  background:
+    radial-gradient(760px 420px at 88% 18%, rgba(124, 58, 237, 0.32), transparent 64%),
+    radial-gradient(640px 400px at 6% 96%, rgba(13, 148, 136, 0.24), transparent 62%),
+    #1C1917;
   color: #FAFAF9;
+}
+
+/* Le chiffre tient sur le degrade de marque, eclairci pour rester lisible
+   sur l'encre. C'est le seul texte degrade du site. */
+.speedFigure {
+  background: linear-gradient(135deg, #A5B4FC, #C4B5FD 55%, #5EEAD4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .speedInner {
@@ -545,6 +600,10 @@
   align-items: center;
   gap: clamp(32px, 5vw, 64px);
 }
+
+/* Colonne de texte de la section vitesse. La règle manquait : le
+   className était posé dans le JSX sans rien derrière. */
+.speedText { min-width: 0; }
 
 .speedTitle {
   margin: 0 0 14px;
@@ -601,6 +660,9 @@
   font-size: 1.5rem;
   border-radius: var(--mk-radius-lg);
   border-bottom-width: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(165, 180, 252, 0.34);
+  box-shadow: 0 10px 30px -12px rgba(129, 140, 248, 0.6);
 }
 
 .speedFoot {
@@ -881,6 +943,7 @@
    ========================================================================== */
 .ctaBanner {
   position: relative;
+  isolation: isolate;
   padding: clamp(96px, 12vw, 160px) var(--mk-gutter);
   text-align: center;
   display: flex;
@@ -890,6 +953,20 @@
   width: min(var(--mk-max), 100%);
   margin: 0 auto;
   border-top: 1px solid var(--mk-line);
+}
+
+/* Nappe de fermeture — reprend les teintes du hero pour que la page boucle
+   sur la lumiere qu'elle a ouverte. */
+.ctaBanner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(620px 340px at 50% 8%, rgba(79, 70, 229, 0.11), transparent 66%),
+    radial-gradient(520px 320px at 16% 100%, rgba(124, 58, 237, 0.08), transparent 66%),
+    radial-gradient(520px 320px at 86% 92%, rgba(13, 148, 136, 0.07), transparent 66%);
 }
 
 .ctaBannerTitle {
@@ -915,16 +992,16 @@
   height: 44px;
   padding: 0 22px;
   margin-top: 10px;
-  background: var(--mk-accent);
+  background: var(--grad-brand);
   color: #fff;
   border-radius: var(--mk-radius);
   font-size: var(--text-md);
   font-weight: var(--weight-ui);
   letter-spacing: -0.008em;
-  box-shadow: var(--shadow-sm);
-  transition: background var(--mk-interaction) var(--mk-ease);
+  box-shadow: var(--glow-accent);
+  transition: box-shadow var(--mk-interaction) var(--mk-ease), filter var(--mk-interaction) var(--mk-ease);
 }
-.ctaBannerBtn:hover { background: var(--mk-accent-hover); }
+.ctaBannerBtn:hover { filter: saturate(1.08) brightness(1.04); }
 
 .ctaBannerNote {
   margin: 0;
@@ -1064,9 +1141,14 @@
   box-shadow: var(--shadow);
 }
 
+/* Filet degrade en padding-box/border-box : border-image ignorerait le
+   rayon de la carte et sortirait un cadre a angles droits. */
 .planCardFeatured {
-  border-color: var(--accent);
-  box-shadow: 0 8px 28px rgba(79, 70, 229, 0.18);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--mk-surface), var(--mk-surface)) padding-box,
+    var(--grad-line) border-box;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.10), 0 16px 40px -16px rgba(79, 70, 229, 0.40);
 }
 
 .featuredBadge {
@@ -1076,13 +1158,14 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--accent);
-  color: white;
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 3px 12px;
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-strong);
+  padding: 4px 12px;
   border-radius: 99px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  box-shadow: var(--glow-accent);
 }
 
 .planName {
@@ -1121,15 +1204,24 @@
   border-radius: 10px;
   font-size: 0.86rem;
   font-weight: 500;
-  background: var(--mk-accent);
-  color: white;
-  transition: background var(--mk-interaction) var(--mk-ease), transform var(--mk-interaction) var(--mk-ease);
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--glow-accent);
+  transition: box-shadow var(--mk-interaction) var(--mk-ease), filter var(--mk-interaction) var(--mk-ease);
   margin-bottom: 24px;
 }
-.planBtn:hover {
-  background: var(--mk-accent-hover);
-  transform: translateY(-1px);
+.planBtn:hover { filter: saturate(1.08) brightness(1.04); }
+
+/* Forfait gratuit : bouton secondaire. Deux boutons dégradés côte à côte
+   ne désignent plus rien — la carte Pro est justement celle qu'on met en
+   avant, elle doit rester la seule saturée. */
+.planBtnQuiet {
+  background: var(--mk-surface);
+  color: var(--mk-ink);
+  border: 1px solid var(--mk-line-strong);
+  box-shadow: var(--shadow-sm);
 }
+.planBtnQuiet:hover { filter: none; background: var(--mk-surface-2); }
 
 .planFeatures {
   display: flex;

@@ -68,6 +68,11 @@
   border-top: 1px solid var(--mk-line);
 }
 
+/* La classe était posée dans le JSX sans aucune règle derrière : les deux
+   colonnes de la grille marchaient par défaut, mais rien ne garantissait que
+   leur contenu ne déborde pas. */
+.column { min-width: 0; }
+
 .columnTitle { font-size: 0.78rem; font-weight: 600; color: var(--mk-ink); margin-bottom: 11px; }
 
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }

@@ -153,14 +153,41 @@ Tokens `--mk-*` scopés sous `.mk` et `.mkc` pour **ne pas repeindre le
 dashboard**. `.mkc` ne pose que les variables (aucun fond, aucune encre) : il
 sert au chrome, qui vit hors de `.mk` sur la landing.
 
-Un seul bouton principal pour tout le site public — `--mk-accent`, rayon
-10 px, pas d’ombre colorée. La barre de navigation, les boutons de la landing
-(`heroCta`, `planBtn`, `ctaBannerBtn`) et `PageChrome .ctaButton` partagent
-cette forme : le même libellé s’affichait en pilule `#3730A3` dans la barre et
-en rectangle `#3F4A8A` dans la page, souvent à l’écran en même temps.
-Neutres chauds, **un seul accent désaturé** (`#3F4A8A`), teinte de famille très
-basse saturation (Produit ardoise, Solutions argile, Sécurité vert-gris).
-Aucun dégradé. Contrastes AA vérifiés.
+Un seul bouton principal pour tout le site public — rayon 10 px, même forme
+partout. La barre de navigation, les boutons de la landing (`heroCta`,
+`planBtn`, `ctaBannerBtn`) et `PageChrome .ctaButton` la partagent : le même
+libellé s’affichait en pilule `#3730A3` dans la barre et en rectangle
+`#3F4A8A` dans la page, souvent à l’écran en même temps.
+
+**La palette est définie dans `styles/globals.css` et nulle part ailleurs.**
+`styles/marketing.css` ne porte plus de valeur propre : les ~100 noms `--mk-*`
+sont des alias. Voir la section « Espace connecté » plus bas pour les tokens.
+
+### Couleur : indigo + trois compagnons
+
+La version « un seul accent indigo sur du blanc » était juste, mais froide et
+plate. Trois teintes l’accompagnent — `--hue-violet`, `--hue-teal`,
+`--hue-amber` — avec une règle stricte :
+
+- Elles ne servent QUE dans des **dégradés**, des **halos** et des
+  **pastilles très pâles** (`--tint-*-bg` / `--tint-*-fg`).
+- **Jamais en aplat plein** à côté du bouton principal : celui-ci reste le
+  seul élément saturé cliquable de l’écran.
+- Un seul dégradé de marque, `--grad-brand`, réutilisé partout (boutons,
+  pastilles « Recommandé », points). Trois arrêts : à deux, le milieu d’un
+  indigo→violet vire au mauve sale.
+- Un seul texte en dégradé sur tout le site, le chiffre de la section vitesse.
+
+Les nappes de fond (hero, appel à l’action final) restent **sous 11 %
+d’opacité** et **ne bougent pas** : au-delà elles se voient comme des taches,
+et un fond qui dérive en boucle derrière un titre fatigue avant d’impressionner.
+
+⚠️ **Filet dégradé** : toujours en `background` (`padding-box` +
+`border-box`), jamais en `border-image` — ce dernier ignore `border-radius` et
+ressort un cadre à angles droits sur une carte arrondie.
+
+Les quatorze paires couleur/fond introduites sont vérifiées AA
+(4,81:1 au minimum) — le script est dans la section Vérification.
 
 ---
 
@@ -374,3 +401,37 @@ Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 con
 npx tsc --noEmit -p tsconfig.json   # types
 npm run build                       # build complet (21 pages marketing en statique)
 ```
+
+**Ne jamais construire pendant que le serveur tourne** : `.next` est corrompu
+et le serveur sert l’ancien build en silence. Pire, `npm run start` échoue sur
+`EADDRINUSE` sans que rien ne le dise, et on mesure alors la version
+précédente en croyant mesurer la nouvelle. L’ordre qui marche : tuer node,
+supprimer `.next`, construire, démarrer, **vérifier un HTTP 200 avant de
+regarder quoi que ce soit**.
+
+### Éditer du CSS par script : compter les accolades, pas faire confiance à une regex
+
+Un script de nettoyage utilisait
+`(?:^/\*[\s\S]*?\*/\n)?^<sélecteur>\s*\{[^}]*\}` avec le drapeau multiligne
+pour retirer une règle et son commentaire. Le `[\s\S]*?` pouvait démarrer sur
+un commentaire situé des centaines de lignes plus haut : **supprimer une règle
+emportait tout le bloc intermédiaire**. Le hero entier a disparu de
+`app/page.module.css` sans la moindre erreur de build — les noms de classes
+continuaient d’être générés par CSS Modules, seules les règles manquaient, et
+ça ne s’est vu qu’à la capture d’écran.
+
+Pour supprimer ou remplacer une règle : repérer le sélecteur en littéral,
+compter les accolades jusqu’à la fermeture, ne remonter chercher un
+commentaire que sur les lignes **contiguës**, et refuser d’écrire si le
+fichier n’est plus équilibré.
+
+### Vérifications utiles
+
+- **Contraste** : un petit script WCAG sur les paires couleur/fond vaut mieux
+  qu’un avis. C’est lui qui a montré que le `#A8A29E` de la maquette donnait
+  2,41:1 sur le fond de page, très en dessous du minimum AA de 4,5:1.
+- **Classes orphelines** : comparer les `styles.X` d’un `.tsx` aux règles de
+  son `.module.css` trouve les deux sens — un `className` sans règle (effet
+  silencieusement absent) et une règle sans `className` (CSS mort). Attention
+  aux faux positifs : `composes` tire des classes côté CSS, et `styles[x]`
+  dynamique rend l’analyse statique inopérante.

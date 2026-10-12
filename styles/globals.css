@@ -39,6 +39,38 @@
   --color-premium: var(--color-primary);
   --color-premium-light: var(--color-primary-soft);
 
+  /* --- Famille chromatique -----------------------------------------------
+     L'indigo seul donnait une page juste mais froide et un peu plate. Trois
+     compagnons l'accompagnent désormais, et ils ne servent QUE dans des
+     dégradés, des halos et des pastilles très pâles — jamais en aplat plein
+     à côté du bouton principal, qui reste le seul élément saturé cliquable.
+
+     Les trois teintes sont volontairement proches en luminosité : un dégradé
+     entre deux couleurs de clartés différentes montre une bande terne au
+     milieu. Prises dans cet ordre, elles tournent sur le cercle sans passer
+     par le gris. */
+  --hue-violet: #7C3AED;
+  --hue-teal: #0D9488;
+  --hue-amber: #D97706;
+
+  /* Le dégradé de marque — un seul, réutilisé partout. Trois arrêts : à deux,
+     le milieu d'un indigo→violet vire au mauve sale. */
+  --grad-brand: linear-gradient(135deg, #4F46E5 0%, #6D47E8 45%, #7C3AED 100%);
+  /* Pour un filet : même dégradé, mais qui part et revient sur l'indigo, afin
+     qu'un bord de carte ne change pas de couleur d'un coin à l'autre. */
+  --grad-line: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #14B8A6 100%);
+
+  /* Ombre colorée du bouton principal. Teintée de l'accent, pas noire : une
+     ombre grise sous un bouton indigo le fait paraître sale. */
+  --glow-accent: 0 1px 2px rgba(79, 70, 229, 0.24), 0 8px 20px -8px rgba(79, 70, 229, 0.48);
+
+  /* Pastilles teintées — fond très pâle, encre foncée. Les quatre passent AA
+     sur leur propre fond ; elles portent des icônes et des libellés courts. */
+  --tint-indigo-bg: #EEF2FF;  --tint-indigo-fg: #4338CA;
+  --tint-violet-bg: #F5F3FF;  --tint-violet-fg: #6D28D9;
+  --tint-teal-bg: #ECFDF5;    --tint-teal-fg: #0F766E;
+  --tint-amber-bg: #FFFBEB;   --tint-amber-fg: #B45309;
+
   /* --- États -------------------------------------------------------------
      Fond très pâle + texte foncé. Jamais d'aplat de couleur vive : une
      pastille rouge pleine attire plus l'œil que le bouton principal, ce qui
@@ -192,6 +224,19 @@
   --color-accent-light: #0C2E22;
   --color-premium: var(--color-primary);
   --color-premium-light: var(--color-primary-soft);
+
+  /* Les compagnons s'éclaircissent sur fond sombre, sinon le dégradé devient
+     une tache noire. */
+  --hue-violet: #A78BFA;
+  --hue-teal: #2DD4BF;
+  --hue-amber: #FBBF24;
+  --grad-brand: linear-gradient(135deg, #818CF8 0%, #9B8AFB 45%, #A78BFA 100%);
+  --grad-line: linear-gradient(135deg, #818CF8 0%, #A78BFA 50%, #2DD4BF 100%);
+  --glow-accent: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px -8px rgba(129, 140, 248, 0.5);
+  --tint-indigo-bg: #272150;  --tint-indigo-fg: #A5B4FC;
+  --tint-violet-bg: #2B2152;  --tint-violet-fg: #C4B5FD;
+  --tint-teal-bg: #0C2E29;    --tint-teal-fg: #5EEAD4;
+  --tint-amber-bg: #2E220C;   --tint-amber-fg: #FCD34D;
 
   --tag-urgent: #FCA5A5;
   --tag-urgent-light: #2E1616;

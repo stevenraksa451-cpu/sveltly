@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import '@/styles/marketing.css'
-import Logo from '@/components/ui/Logo'
 import Brand from '@/components/ui/Brand'
 import ImpactCalculator from '@/components/landing/ImpactCalculator'
 import Reveal from '@/components/landing/Reveal'
@@ -14,7 +13,7 @@ import ProviderMarks from '@/components/landing/ProviderMarks'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
 import PriorityBadge from '@/components/ui/PriorityBadge'
-import { IconCalendar, IconFocus, IconLock, IconLink, IconBrain, IconShield, IconSync, IconCheckSquare, IconCode, IconPalette, IconBriefcase, IconPen, IconUsers, IconKey, IconDatabase, IconTrash } from '@/components/landing/icons'
+import { IconCalendar, IconFocus, IconLock, IconShield, IconSync, IconCheckSquare, IconCode, IconPalette, IconBriefcase, IconPen, IconUsers, IconKey, IconDatabase, IconTrash } from '@/components/landing/icons'
 import { PLANS, formatPrice } from '@/lib/plans'
 import { SAVINGS_RATIO } from '@/lib/time-saved'
 import styles from './page.module.css'
@@ -441,7 +440,10 @@ export default function LandingPage() {
                       {price}<span className={styles.planPeriod}>{period}</span>
                     </p>
 
-                    <Link href="/auth/register" className={styles.planBtn}>
+                    {/* Le forfait gratuit porte un bouton secondaire : deux
+                        boutons dégradés côte à côte ne désignent plus rien, et
+                        la carte Pro est justement celle qu'on recommande. */}
+                    <Link href="/auth/register" className={`${styles.planBtn} ${plan.id === 'free' ? styles.planBtnQuiet : ''}`}>
                       {plan.id === 'free' ? 'Commencer gratuitement' : <>Essayer <Brand color="white" /> Pro</>}
                     </Link>
 
