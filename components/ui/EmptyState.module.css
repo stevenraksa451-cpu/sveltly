@@ -1,0 +1,55 @@
+/* État vide — compact, et jamais une grande carte vide.
+   Un bloc de 300 px de haut avec une icône géante au milieu occupe toute la
+   place d'un contenu qui n'existe pas : ça souligne le vide au lieu de le
+   traiter. Une phrase, une action, on passe à autre chose. */
+.empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px var(--card-pad);
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
+.texte {
+  flex: 1;
+  min-width: 0;
+}
+
+.titre {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-ui);
+  color: var(--text-primary);
+  letter-spacing: -0.008em;
+}
+
+.sous {
+  margin: 2px 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.action { flex-shrink: 0; }
+
+/* Variante centrée — pour une page entière vide (boîte de réception traitée),
+   pas pour une carte dans une grille. */
+.centre {
+  flex-direction: column;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 24px;
+}
+.centre .texte { flex: none; }

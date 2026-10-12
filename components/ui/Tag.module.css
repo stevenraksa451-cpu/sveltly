@@ -1,0 +1,38 @@
+/* Étiquette — petite, désaturée, rayon 6 px.
+   Fond très pâle + texte foncé, jamais d'aplat de couleur vive : une pastille
+   pleine pèse plus que le bouton principal et inverse la hiérarchie. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-ui);
+  line-height: 1.5;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.neutral  { background: var(--tag-normal-light);    color: var(--tag-normal); }
+.urgent   { background: var(--urgent-light);        color: var(--urgent); }
+.important{ background: var(--important-light);     color: var(--important); }
+.success  { background: var(--tag-success-light);   color: var(--tag-success); }
+.accent   { background: var(--accent-light);        color: var(--accent-hover); }
+
+/* Contour seul — pour une étiquette qui ne doit pas peser du tout
+   (provenance, compteur, catégorie de tâche). */
+.outline {
+  background: transparent;
+  color: var(--text-muted);
+  box-shadow: inset 0 0 0 1px var(--border);
+}

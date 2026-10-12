@@ -52,9 +52,9 @@
   white-space: nowrap;
 }
 .badge.urgent { background: var(--urgent-light); color: var(--urgent); }
-.badge.soon { background: rgba(37, 99, 235, 0.14); color: #2563EB; }
+.badge.soon { background: var(--accent-light); color: var(--accent-hover); }
 .badge.later { background: var(--normal-light); color: var(--normal); }
-.badge.planned { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+.badge.planned { background: var(--bg-subtle); color: var(--text-secondary); }
 
 .itemDesc { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
 

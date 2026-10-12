@@ -116,7 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(155deg, var(--purple) 0%, var(--color-secondary) 100%);
+  background: var(--accent);
   clip-path: polygon(9% 0, 100% 0, 100% 100%, 0% 100%);
   filter: drop-shadow(-18px 0 36px rgba(109, 40, 217, 0.28));
 }
@@ -188,13 +188,10 @@
 }
 
 .heroAccent {
-  /* Indigo -> violet : les deux teintes signature de l'identité, aux repos
-     (plus de besoin de la version hover plus claire — c'était pour rester
-     lisible sur fond sombre, le fond du hero est blanc désormais). */
-  background: linear-gradient(120deg, var(--color-primary), var(--color-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* Le titre tient sur UNE couleur. Le dégradé indigo→violet qui remplissait
+     « Avancez. » faisait du titre le seul élément bariolé de la page, et il
+     volait l'accent au bouton principal. */
+  color: var(--mk-ink);
 }
 
 .heroDesc {
@@ -676,7 +673,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 100%);
+  background: var(--accent);
   color: white;
   font-size: 0.6rem;
   font-weight: 600;
@@ -1034,7 +1031,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+  background: var(--accent);
   color: white;
   font-size: 0.68rem;
   font-weight: 600;

@@ -38,12 +38,12 @@ export default function AnnouncementBar() {
       <a href={ANNOUNCEMENT_HREF} className={styles.link}>
         <span className={styles.dot} aria-hidden="true" />
         {ANNOUNCEMENT_TEXT}
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M5 12h14M13 6l6 6-6 6" />
         </svg>
       </a>
       <button type="button" className={styles.close} onClick={dismiss} aria-label="Masquer cette annonce">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
           <path d="M18 6 6 18M6 6l12 12" />
         </svg>
       </button>

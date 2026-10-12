@@ -1,7 +1,7 @@
 .avatar {
   position: relative;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 100%);
+  background: var(--accent);
   color: white;
   display: flex;
   align-items: center;

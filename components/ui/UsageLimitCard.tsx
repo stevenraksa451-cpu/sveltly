@@ -35,7 +35,7 @@ export default function UsageLimitCard({
     <div className={`${styles.card} ${compact ? styles.compact : ''}`}>
       <div className={styles.headRow}>
         <div className={`${styles.iconWrap} ${tone === 'neutral' ? styles.neutral : ''}`}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
           </svg>
         </div>

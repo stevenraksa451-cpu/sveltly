@@ -273,20 +273,20 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
       {email.attachments && email.attachments.length > 0 && (
         <div className={styles.card}>
           <div className={styles.cardTitle}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
             Pièces jointes ({email.attachments.length})
           </div>
           <div className={styles.attachmentsList}>
             {email.attachments.map(att => (
               <button key={att.attachmentId} className={styles.attachmentItem} onClick={() => downloadAttachment(att.attachmentId, att.filename)}>
                 <span className={styles.attachmentIcon}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
                 </span>
                 <div className={styles.attachmentInfo}>
                   <p className={styles.attachmentName}>{att.filename}</p>
                   <p className={styles.attachmentSize}>{formatFileSize(att.size)}</p>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               </button>
             ))}
           </div>
@@ -308,7 +308,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
       {/* Résumé de l'email par l'IA */}
       <div className={styles.card}>
         <div className={styles.cardTitle}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
           Résumé de l'email
         </div>
 
@@ -335,7 +335,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         </div>
 
         <button className={styles.taskBtn} onClick={handleAddTask} disabled={taskAdded}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           {taskAdded ? 'Ajouté aux tâches' : 'Ajouter à mes tâches'}
         </button>
 
@@ -344,13 +344,13 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
           <div className={styles.scheduleBlock}>
             {email.schedulingStatus === 'plan_limit' && (
               <a href="/settings?tab=billing" className={styles.planLimitBanner}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
                 Planifié automatiquement jusqu'à 7 jours en Gratuit — Pro n'a pas de limite
               </a>
             )}
             {schedulingState.step === 'idle' && (
               <button className={styles.scheduleBtn} onClick={() => handleScheduleEvent()}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                 Ajouter à l'agenda
               </button>
             )}
@@ -361,7 +361,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
 
             {schedulingState.step === 'created' && (
               <p className={styles.scheduleSuccess}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12"/></svg>
                 Ajouté à votre agenda
               </p>
             )}
@@ -390,11 +390,11 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
       <div className={styles.card}>
         <div className={styles.cardTitle}>Actions rapides</div>
         <button className={styles.actionRow} onClick={onToggleRead} disabled={loading}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
           {email.isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
         </button>
         <button className={styles.actionRow} onClick={onArchive} disabled={loading}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
           {isArchived ? 'Désarchiver' : 'Archiver'}
         </button>
       </div>

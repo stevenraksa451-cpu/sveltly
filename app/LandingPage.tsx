@@ -286,7 +286,7 @@ export default function LandingPage() {
                 <p className={styles.mockQuoted}>« Pouvez-vous valider le devis avant vendredi ? »</p>
                 <p className={styles.mockReplyText}>Bonjour Marine, le devis est validé de mon côté. Je vous transmets la version signée d'ici vendredi.</p>
                 <span className={styles.mockReadyChip}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12" /></svg>
                   Prêt à envoyer
                 </span>
               </div>
@@ -416,7 +416,7 @@ export default function LandingPage() {
                     <ul className={styles.planFeatures}>
                       {plan.features.map(f => (
                         <li key={f} className={styles.planFeatureItem}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12"/></svg>
                           {f}
                         </li>
                       ))}

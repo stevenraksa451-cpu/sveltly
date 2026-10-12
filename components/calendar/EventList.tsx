@@ -172,7 +172,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
           </div>
         </div>
         <button className={styles.addTrigger} onClick={() => setAdding(true)}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -316,7 +316,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
                       onClick={() => onDeleteEvent(event.id)}
                       title="Supprimer"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>

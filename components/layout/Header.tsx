@@ -48,7 +48,7 @@ export default function Header({ title, subtitle, hideTitle }: HeaderProps) {
         {/* Visible uniquement sous 768px (voir .menuBtn) — ouvre le tiroir
             de Sidebar, montée séparément par app/(app)/layout.tsx. */}
         <button className={`${styles.iconBtn} ${styles.menuBtn}`} onClick={toggleMobileSidebar} title="Menu" aria-label="Ouvrir le menu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
@@ -73,7 +73,7 @@ export default function Header({ title, subtitle, hideTitle }: HeaderProps) {
             avait un raccourci. Le vrai champ est dans SearchPalette — ce
             bouton l'ouvre. Sous 900 px, il se réduit à l'icône (voir CSS). */}
         <button className={styles.search} onClick={openSearch} aria-label="Rechercher">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/>
             <path d="M21 21l-4.35-4.35"/>
           </svg>
@@ -83,7 +83,7 @@ export default function Header({ title, subtitle, hideTitle }: HeaderProps) {
 
         {/* Paramètres */}
         <a href="/settings" className={styles.iconBtn} title="Paramètres">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>

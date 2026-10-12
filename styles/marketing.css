@@ -18,28 +18,30 @@
    L'espace connecté ne porte ni l'une ni l'autre : il reste intact. */
 .mk,
 .mkc {
-  /* --- Neutres chauds ---------------------------------------------------- */
-  --mk-bg: #FBFAF9;
-  --mk-surface: #FFFFFF;
-  --mk-surface-2: #F4F2EF;
-  --mk-line: #E6E3DE;
-  --mk-line-strong: #D6D2CB;
+  /* --- Neutres chauds ----------------------------------------------------
+     Alias vers le système commun défini dans styles/globals.css. La vitrine
+     et l'espace connecté avaient chacun leur palette — deux indigos, deux
+     familles de neutres — et la bascule de l'un à l'autre se voyait. Les
+     noms --mk-* restent (une centaine de références) mais ne portent plus de
+     valeur propre : il n'y a plus qu'une seule vérité, dans globals.css. */
+  --mk-bg: var(--bg);
+  --mk-surface: var(--bg-card);
+  --mk-surface-2: var(--bg-subtle);
+  --mk-line: var(--border);
+  --mk-line-strong: var(--border-strong);
 
-  /* Encre chaude plutôt qu'un gris ardoise froid.
-     #1A1B1F sur #FBFAF9 = 15,8:1 — très au-delà du minimum AA. */
-  --mk-ink: #1A1B1F;
-  /* #55524D sur #FBFAF9 = 7,4:1 */
-  --mk-ink-2: #55524D;
-  /* #6F6B64 sur #FBFAF9 = 4,9:1 — reste conforme AA pour du texte courant. */
-  --mk-ink-3: #6F6B64;
+  --mk-ink: var(--text-primary);
+  --mk-ink-2: var(--text-secondary);
+  /* AA sur le fond de page (4,59:1). Le gris plus pâle de la maquette
+     (#A8A29E) tombe à 2,41:1 : il vit sous --text-faint et ne porte jamais
+     de texte. Voir la note dans globals.css. */
+  --mk-ink-3: var(--text-muted);
 
   /* --- Accent unique ----------------------------------------------------- */
-  /* Indigo désaturé : #3F4A8A au lieu du #3730A3 de l'application, plus
-     franc. Sur fond clair = 8,9:1, et le blanc dessus = 8,5:1. */
-  --mk-accent: #3F4A8A;
-  --mk-accent-hover: #4C5899;
-  --mk-accent-soft: #EEEFF6;
-  --mk-accent-line: #C9CDE4;
+  --mk-accent: var(--accent);
+  --mk-accent-hover: var(--accent-hover);
+  --mk-accent-soft: var(--accent-light);
+  --mk-accent-line: var(--accent-line);
 
   /* --- Teinte de famille ------------------------------------------------- */
   /* Neutre par défaut : une page sans famille n'affiche aucune seconde
@@ -48,9 +50,10 @@
   --mk-tint-soft: var(--mk-surface-2);
 
   /* --- Élévation --------------------------------------------------------- */
-  /* Deux niveaux seulement, très doux. Une ombre marquée fait daté. */
-  --mk-shadow: 0 1px 2px rgba(26, 27, 31, 0.04), 0 8px 24px -12px rgba(26, 27, 31, 0.10);
-  --mk-shadow-lift: 0 2px 4px rgba(26, 27, 31, 0.05), 0 16px 36px -16px rgba(26, 27, 31, 0.16);
+  /* Une carte porte un filet 1 px ET une ombre douce. Jamais une grosse
+     ombre seule : l'élément flotte sans avoir de bord. */
+  --mk-shadow: var(--shadow);
+  --mk-shadow-lift: var(--shadow-lg);
 
   /* --- Largeurs ----------------------------------------------------------- */
   /* Deux largeurs distinctes, et c'est le point important : le CONTENEUR est
@@ -68,13 +71,38 @@
   --mk-measure: 64ch;
 
   /* --- Mouvement --------------------------------------------------------- */
-  --mk-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --mk-reveal-duration: 560ms;
-  --mk-interaction: 180ms;
+  --mk-ease: var(--ease);
+  /* 400 ms : l'entrée au défilement doit accompagner le regard, pas se faire
+     attendre. 560 ms se remarquait comme un effet. */
+  --mk-reveal-duration: 400ms;
+  --mk-interaction: 150ms;
 
-  /* Rayon commun aux petits contrôles du chrome (liens de la barre,
-     boutons). Repris du jeu de l'application pour que rien ne bouge. */
-  --mk-radius-sm: 8px;
+  /* Rayons — mêmes quatre valeurs que l'application. */
+  --mk-radius-sm: var(--radius-sm);
+  --mk-radius: var(--radius);
+  --mk-radius-lg: var(--radius-lg);
+  --mk-radius-xl: var(--radius-xl);
+}
+
+/* Garde-fou : la vitrine reste en clair même si un thème sombre choisi dans
+   l'espace connecté n'a pas encore été réinitialisé (resetTheme ne s'exécute
+   qu'au démontage du layout (app), ce qui laisse une image de battement lors
+   d'une navigation client). Tant que le CSS de la landing contient des
+   couleurs en dur, une vitrine sombre est une vitrine cassée — voir CLAUDE.md. */
+[data-theme='dark'] .mk,
+[data-theme='dark'] .mkc {
+  --mk-bg: #FAFAF9;
+  --mk-surface: #FFFFFF;
+  --mk-surface-2: #F5F5F4;
+  --mk-line: rgba(0, 0, 0, 0.08);
+  --mk-line-strong: rgba(0, 0, 0, 0.12);
+  --mk-ink: #1C1917;
+  --mk-ink-2: #57534E;
+  --mk-ink-3: #78716C;
+  --mk-accent: #4F46E5;
+  --mk-accent-hover: #4338CA;
+  --mk-accent-soft: #EEF2FF;
+  --mk-accent-line: #C7D2FE;
 }
 
 /* Seul le corps de page prend le fond et l'encre : le chrome porte les
@@ -87,16 +115,16 @@
 /* Teintes de famille — saturation volontairement basse : elles doivent se
    deviner, pas se remarquer. Chacune reste lisible sur fond clair. */
 .mk[data-family='produit'] {
-  --mk-tint: #44546A;        /* ardoise */
-  --mk-tint-soft: #EEF1F5;
+  --mk-tint: #44403C;        /* pierre */
+  --mk-tint-soft: #F5F5F4;
 }
 .mk[data-family='solutions'] {
-  --mk-tint: #7A5C48;        /* argile */
-  --mk-tint-soft: #F5EFEA;
+  --mk-tint: #78543F;        /* argile */
+  --mk-tint-soft: #F7F1EC;
 }
 .mk[data-family='securite'] {
-  --mk-tint: #3E5A50;        /* vert-gris */
-  --mk-tint-soft: #EBF1EE;
+  --mk-tint: #3F5B51;        /* vert-gris */
+  --mk-tint-soft: #ECF2EF;
 }
 
 /* ==========================================================================

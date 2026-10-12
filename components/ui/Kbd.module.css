@@ -1,0 +1,47 @@
+/* Touche de clavier.
+   Bordure basse de 2 px : c'est elle qui donne le relief d'une touche. Une
+   bordure uniforme fait une étiquette, pas une touche. */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--weight-ui);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Sur fond sombre (section « vitesse » de la landing) : la touche s'inverse
+   au lieu de disparaître. */
+.onDark {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lg {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: var(--text-base);
+  border-radius: var(--radius);
+}
+
+/* Séquence « G I » : deux touches lues comme un geste, pas comme deux. */
+.sequence {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}

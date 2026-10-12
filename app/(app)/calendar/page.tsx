@@ -252,7 +252,7 @@ function CalendarContent() {
                 {syncMessage || `Google Calendar — synchronisation ${autoSync ? 'automatique' : 'manuelle'}`}
               </span>
               <button className={styles.syncBtn} onClick={() => syncFromGoogle(true)} disabled={syncing}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={syncing ? styles.syncSpin : ''}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={syncing ? styles.syncSpin : ''}>
                   <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
                 </svg>
                 {syncing ? 'Synchronisation...' : 'Synchroniser'}
@@ -261,7 +261,7 @@ function CalendarContent() {
           )}
 
           <button className={styles.syncBtn} onClick={handleOpenReorganize} disabled={reorganizing}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
             {reorganizing ? 'Analyse...' : 'Réorganiser ma journée'}

@@ -1,0 +1,88 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-ui);
+  letter-spacing: -0.006em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Tailles : trois hauteurs, pas une de plus ---------------------------
+   La gouttière horizontale suit la hauteur ; le texte reste à 13/14 px. */
+.sm { height: 32px; padding: 0 12px; font-size: var(--text-sm); }
+.md { height: 36px; padding: 0 14px; font-size: var(--text-base); }
+.lg { height: 40px; padding: 0 18px; font-size: var(--text-base); }
+
+.block { width: 100%; }
+
+/* --- Principal : le seul élément indigo plein de l'écran ----------------- */
+.primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.primary:hover:not(:disabled) { background: var(--accent-hover); }
+.primary:active:not(:disabled) { box-shadow: none; }
+
+/* --- Secondaire : blanc + filet ----------------------------------------- */
+.secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.secondary:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--bg-subtle);
+}
+
+/* --- Fantôme : texte seul ------------------------------------------------ */
+.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+/* --- Destructif : rouge désaturé, jamais un aplat vif -------------------- */
+.danger {
+  background: var(--urgent-light);
+  color: var(--urgent);
+  border-color: color-mix(in srgb, var(--urgent) 18%, transparent);
+}
+.danger:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--urgent) 32%, transparent);
+}
+
+/* Anneau de focus posé ici aussi : un <a> stylé en bouton n'hérite pas
+   toujours de la règle globale selon le contexte de rendu. */
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* L'icône prend la couleur du texte et ne grossit jamais avec lui. */
+.btn svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}

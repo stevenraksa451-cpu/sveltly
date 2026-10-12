@@ -1,5 +1,5 @@
 .banner {
-  background: linear-gradient(160deg, #2563EB 0%, #7C3AED 55%, #1E293B 100%);
+  background: var(--bg-card);
   border-radius: var(--radius-card);
   padding: 22px 24px;
   color: white;
@@ -40,7 +40,7 @@
   margin-top: 8px;
   padding: 8px 16px;
   background: white;
-  color: #2563EB;
+  color: var(--accent-hover);
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
   font-weight: 600;

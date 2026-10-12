@@ -249,7 +249,7 @@
 }
 .priorityPill.urgent { background: var(--urgent-light); color: var(--urgent); }
 .priorityPill.high { background: var(--important-light); color: var(--important); }
-.priorityPill.medium { background: rgba(37, 99, 235, 0.12); color: #2563EB; }
+.priorityPill.medium { background: var(--accent-light); color: var(--accent-hover); }
 .priorityPill.low { background: var(--normal-light); color: var(--normal); }
 
 .dueLabel { flex-shrink: 0; font-size: 0.74rem; color: var(--text-muted); width: 56px; text-align: right; }
@@ -290,13 +290,13 @@
 .completionRate { font-size: 1.8rem; font-weight: 700; color: var(--accent); letter-spacing: -0.03em; }
 .completionLabel { font-size: 0.76rem; color: var(--text-muted); margin: 2px 0 12px; }
 .progressTrack { height: 6px; background: var(--bg-subtle); border-radius: 99px; overflow: hidden; }
-.progressFill { height: 100%; background: linear-gradient(90deg, #2563EB, #7C3AED); border-radius: 99px; transition: width 0.4s ease; }
+.progressFill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s ease; }
 
 .priorityRow { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.8rem; color: var(--text-secondary); }
 .priorityDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .priorityDot.urgent { background: var(--urgent); }
 .priorityDot.high { background: var(--important); }
-.priorityDot.medium { background: #2563EB; }
+.priorityDot.medium { background: var(--accent); }
 .priorityDot.low { background: var(--normal); }
 .priorityCount { margin-left: auto; font-weight: 600; color: var(--text-primary); }
 

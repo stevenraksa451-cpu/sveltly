@@ -287,7 +287,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
         {email.calendarEventDetected && (
           <div className={styles.eventBanner}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
               <path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
@@ -297,7 +297,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
         {email.schedulingStatus === 'plan_limit' && (
           <a href="/settings?tab=billing" className={styles.planLimitBanner}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
             Le forfait Gratuit planifie automatiquement jusqu'à 7 jours à l'avance — passez à Pro pour une planification sans limite de délai
           </a>
         )}
@@ -345,7 +345,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
           className={`${styles.actionBtn} ${showReply ? styles.actionBtnActive : ''}`}
           onClick={() => setShowReply(!showReply)}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           {showReply ? 'Masquer la réponse' : 'Réponse IA'}
@@ -356,7 +356,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
           onClick={() => { if (!email.autoScheduled) { setShowEventForm(!showEventForm); setEventConflict(null); setEventError('') } }}
           disabled={email.autoScheduled}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="3" y="4" width="18" height="18" rx="2"/>
             <path d="M16 2v4M8 2v4M3 10h18"/>
           </svg>
@@ -364,7 +364,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
         </button>
 
         <button className={styles.actionBtn} onClick={onArchive} disabled={!onArchive}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <polyline points="21 8 21 21 3 21 3 8"/>
             <rect x="1" y="3" width="22" height="5"/>
             <line x1="10" y1="12" x2="14" y2="12"/>

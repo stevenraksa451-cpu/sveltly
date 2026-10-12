@@ -96,7 +96,7 @@ export default function ProductPreview() {
 
             <div className={styles.summary}>
               <span className={styles.summaryIcon}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" />
                 </svg>
               </span>
@@ -120,7 +120,7 @@ export default function ProductPreview() {
             </div>
 
             <div className={styles.toast}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               Tâche créée
@@ -153,7 +153,7 @@ export default function ProductPreview() {
 
             <div className={styles.sendRow}>
               <span className={styles.sendReady}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Prêt à envoyer
@@ -168,7 +168,7 @@ export default function ProductPreview() {
             <div className={styles.header}>
               <p className={styles.title}>Rendez-vous détecté</p>
               <span className={styles.detectedBadge}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" />
                 </svg>
                 Détecté par l'IA
@@ -196,7 +196,7 @@ export default function ProductPreview() {
             <p className={styles.agendaNote}>Aucun conflit avec vos rendez-vous existants</p>
 
             <div className={styles.toast}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               Ajouté à l'agenda

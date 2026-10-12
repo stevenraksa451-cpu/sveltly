@@ -38,7 +38,7 @@
 /* Carte unique, premium — un seul résultat qui domine, la personnalisation
    (temps perdu, tarif) reléguée en contrôles discrets en dessous. */
 .premiumCard {
-  background: linear-gradient(160deg, #4F46E5 0%, #8B5CF6 55%, #16181D 100%);
+  background: var(--color-ink);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   padding: 48px 40px;
@@ -182,7 +182,7 @@
   flex-shrink: 0;
 }
 .currencySelect:focus { outline: none; border-color: white; }
-.currencySelect option { color: #16181D; }
+.currencySelect option { color: var(--mk-ink); }
 
 .tarifInput {
   width: 90px;

@@ -42,7 +42,7 @@ export default function UpcomingEvents({ events }: { events: CalendarEvent[] }) 
             return (
               <div key={event.id} className={styles.item} style={{ borderLeftColor: color }}>
                 <div className={styles.itemIcon} style={{ background: `${color}1A`, color }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                   </svg>
                 </div>
@@ -53,7 +53,7 @@ export default function UpcomingEvents({ events }: { events: CalendarEvent[] }) 
                   </div>
                   {event.description && <p className={styles.itemDesc}>{event.description}</p>}
                   <p className={styles.itemTime}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     {event.startTime} – {event.endTime}
                   </p>
                 </div>

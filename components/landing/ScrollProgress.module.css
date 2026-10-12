@@ -11,6 +11,6 @@
   transform: scaleX(0);
   transform-origin: 0 50%;
   will-change: transform;
-  background: linear-gradient(90deg, #4F46E5, #8B5CF6, #16181D);
+  background: var(--accent);
   z-index: 1000;
 }

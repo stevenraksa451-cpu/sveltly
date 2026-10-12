@@ -454,27 +454,27 @@ function TasksContent() {
         <div className={styles.sideCol}>
           <nav className={styles.sideNav}>
             <button className={`${styles.sideItem} ${sideFilter === 'all' && !categoryFilter ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('all'); setCategoryFilter(null) }}>
-              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
               Toutes les tâches
               <span className={styles.sideCount}>{counts.all}</span>
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'today' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('today'); setCategoryFilter(null) }}>
-              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></span>
+              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></span>
               Aujourd'hui
               <span className={styles.sideCount}>{counts.today}</span>
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'upcoming' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('upcoming'); setCategoryFilter(null) }}>
-              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
               Prochainement
               <span className={styles.sideCount}>{counts.upcoming}</span>
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'overdue' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('overdue'); setCategoryFilter(null) }}>
-              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
               En retard
               <span className={`${styles.sideCount} ${counts.overdue > 0 ? styles.sideCountUrgent : ''}`}>{counts.overdue}</span>
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'done' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('done'); setCategoryFilter(null) }}>
-              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12"/></svg></span>
               Terminées
               <span className={styles.sideCount}>{counts.done}</span>
             </button>
@@ -508,13 +508,13 @@ function TasksContent() {
               <p className={styles.mainSub}>{filtered.length} tâche{filtered.length !== 1 ? 's' : ''}</p>
             </div>
             <button className={styles.addBtn} onClick={() => setAdding(!adding)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Nouvelle tâche
             </button>
           </div>
 
           <div className={styles.searchWrap}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
               className={styles.searchInput}
               placeholder="Rechercher une tâche..."
@@ -523,7 +523,7 @@ function TasksContent() {
             />
             {search && (
               <button className={styles.searchClear} onClick={() => setSearch('')} title="Effacer">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             )}
           </div>
@@ -632,17 +632,17 @@ function TasksContent() {
                         </div>
                         {task.from_email_id && (
                           <span className={styles.emailBadge} title="Créée automatiquement depuis un email">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
                           </span>
                         )}
                         {displayCategory(task) && <span className={styles.categoryPill}>{displayCategory(task)}</span>}
                         <span className={`${styles.priorityPill} ${styles[task.priority]}`}>{PRIORITY_LABEL[task.priority]}</span>
                         {task.due_date && !task.completed && <span className={styles.dueLabel}>{dueLabel(task.due_date)}</span>}
                         <button className={styles.editBtn} onClick={() => startEdit(task)} title="Modifier">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                         </button>
                         <button className={styles.deleteBtn} onClick={() => deleteTask(task.id)} title="Supprimer">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                       </div>
                     )
@@ -727,7 +727,7 @@ function TasksContent() {
           {counts.overdue > 0 && (
             <div className={styles.adviceCard}>
               <div className={styles.adviceIcon}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
               </div>
               <p className={styles.adviceText}>
                 Vous avez {counts.overdue} tâche{counts.overdue > 1 ? 's' : ''} en retard.
@@ -735,7 +735,7 @@ function TasksContent() {
               <div className={styles.adviceActions}>
                 <button className={styles.adviceBtn} onClick={() => { setSideFilter('overdue'); setCategoryFilter(null) }}>
                   Voir les tâches en retard
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
                 <button className={styles.adviceBtnSecondary} onClick={rescheduleOverdueToToday}>
                   Tout replanifier à aujourd'hui

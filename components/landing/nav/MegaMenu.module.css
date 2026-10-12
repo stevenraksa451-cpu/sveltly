@@ -154,8 +154,8 @@
 }
 .mockRow { display: flex; align-items: center; gap: 7px; }
 .mockDot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); flex-shrink: 0; }
-.mockUrgent .mockDot { background: #FCA5A5; }
-.mockImportant .mockDot { background: #FCD34D; }
+.mockUrgent .mockDot { background: var(--urgent); }
+.mockImportant .mockDot { background: var(--important); }
 .mockBarWide, .mockBarMid, .mockBarNarrow {
   height: 5px;
   border-radius: 99px;

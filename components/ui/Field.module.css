@@ -1,0 +1,71 @@
+/* Champ de saisie et recherche. */
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-family: var(--font-body);
+  letter-spacing: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input::placeholder { color: var(--text-muted); }
+
+.input:hover { border-color: var(--border-strong); }
+
+/* Focus : filet indigo + halo très léger. L'anneau de focus global
+   (outline) est remplacé ici par ce traitement, plus juste sur un champ —
+   un outline de 2 px avec retrait double le cadre visible. */
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.input:disabled {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Avec icône à gauche (recherche) */
+.hasIcon .input { padding-left: 34px; }
+.icon {
+  position: absolute;
+  left: 11px;
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Raccourci affiché à droite du champ de recherche */
+.hasSuffix .input { padding-right: 44px; }
+.suffix {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.sm { height: 32px; font-size: var(--text-sm); }
+.lg { height: 40px; }
+
+.textarea {
+  height: auto;
+  min-height: 96px;
+  padding: 10px 12px;
+  line-height: 1.6;
+  resize: vertical;
+}

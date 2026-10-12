@@ -1,0 +1,27 @@
+/* Carte — surface blanche, filet 1 px ET ombre douce.
+   Les deux ensemble, toujours : le filet donne le bord, l'ombre donne le
+   décollement. Une grosse ombre sans filet fait flotter l'élément. */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
+}
+
+/* Carte secondaire (imbriquée, ou de second rang) : filet plus clair, pas
+   d'ombre. Deux ombres emboîtées se lisent comme un accident. */
+.inset {
+  background: var(--bg-subtle);
+  border-color: var(--border-light);
+  border-radius: var(--radius-card-sm);
+  box-shadow: none;
+}
+
+.pad { padding: var(--card-pad); }
+
+/* Survol : le filet fonce légèrement. Pas de zoom, pas de levée d'ombre —
+   une grille de cartes qui gonflent au passage de la souris est fatigante. */
+.hover {
+  transition: border-color var(--transition), background var(--transition);
+}
+.hover:hover { border-color: var(--border-strong); }
