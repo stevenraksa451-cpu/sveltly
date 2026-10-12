@@ -548,6 +548,12 @@ interface AnalyzeBatchOutcome {
   // Résultat Groq brut par id d'email — uniquement ceux réellement analysés
   // PENDANT cet appel (jamais ceux qui reviennent du cache déjà 'done').
   analysisById: Map<string, any>
+  // Emails dont le résultat vient du repli par mots-clés, pas de l'IA. Ils
+  // sont affichés (mieux qu'un email non classé), mais ni enregistrés ni
+  // marqués 'done' : ils doivent repasser à l'IA dès qu'elle est à nouveau
+  // disponible. Sans cette distinction, un quota atteint pendant une synchro
+  // figeait définitivement des analyses sans résumé.
+  degradedIds: Set<string>
   // true si on a arrêté d'envoyer de nouveaux lots à cause d'une limite
   // Groq PAR JOUR — les emails restants gardent analysisStatus 'pending' et
   // seront proposés à l'analyse à la prochaine synchro (voir GET plus bas).
@@ -567,7 +573,8 @@ async function analyzeEmailsInBatches(
   toAnalyze: any[]
 ): Promise<AnalyzeBatchOutcome> {
   const analysisById = new Map<string, any>()
-  if (toAnalyze.length === 0) return { analysisById, stoppedForDailyLimit: false }
+  const degradedIds = new Set<string>()
+  if (toAnalyze.length === 0) return { analysisById, degradedIds, stoppedForDailyLimit: false }
 
   const batches: any[][] = Array.from(
     { length: Math.ceil(toAnalyze.length / GROQ_BATCH_SIZE) },
@@ -622,7 +629,7 @@ async function analyzeEmailsInBatches(
     if (parsed.groqError?.type === 'tokens_per_day') {
       const remaining = batches.slice(i).reduce((sum, b) => sum + b.length, 0)
       console.log(`🛑 Limite Groq quotidienne atteinte — arrêt de l'envoi de nouveaux lots (${remaining} email(s) restent en attente pour la prochaine synchro).`)
-      return { analysisById, stoppedForDailyLimit: true }
+      return { analysisById, degradedIds, stoppedForDailyLimit: true }
     }
 
     if (parsed.groqError?.type === 'rate_limit_per_minute') {
@@ -644,7 +651,7 @@ async function analyzeEmailsInBatches(
     })
   }
 
-  return { analysisById, stoppedForDailyLimit: false }
+  return { analysisById, degradedIds, stoppedForDailyLimit: false }
 }
 
 export async function GET(req: NextRequest) {
@@ -765,7 +772,7 @@ export async function GET(req: NextRequest) {
       // réanalysé — exactement le genre de perte silencieuse à éviter.
       const toAnalyze = emails.filter((e: any) => e.analysisStatus !== 'done')
 
-      const { analysisById, stoppedForDailyLimit } = await analyzeEmailsInBatches(req.nextUrl.origin, accessToken, toAnalyze)
+      const { analysisById, degradedIds, stoppedForDailyLimit } = await analyzeEmailsInBatches(req.nextUrl.origin, accessToken, toAnalyze)
 
     console.log(`🤖 ${toAnalyze.length} email(s) à analyser sur ${emails.length}, ${analysisById.size} analysé(s) avec succès${stoppedForDailyLimit ? ' (arrêt anticipé : limite Groq quotidienne)' : ''}`)
 
@@ -773,7 +780,9 @@ export async function GET(req: NextRequest) {
     // étapes peuvent échouer ou être coupées par le budget de temps de la
     // requête, et ce serait absurde de perdre une analyse déjà payée à Groq
     // à cause d'une écriture d'agenda ratée. Best-effort, jamais bloquant.
-    const saved = await saveAnalyses(supabase, user.id, analysisById, storedTone, storedLanguage)
+    const toPersist = new Map(Array.from(analysisById).filter(([id]) => !degradedIds.has(id)))
+    const saved = await saveAnalyses(supabase, user.id, toPersist, storedTone, storedLanguage)
+    if (degradedIds.size > 0) console.log(degradedIds.size + " résultat(s) dégradé(s) non enregistré(s) — seront réanalysés plus tard")
     if (saved > 0) console.log(`💾 ${saved} analyse(s) enregistrée(s) — ne seront plus jamais refaites`)
 
     const enrichedEmails = emails.map((email: any) => {
@@ -781,7 +790,10 @@ export async function GET(req: NextRequest) {
       if (!analysis) return email
       return {
         ...email,
-        analysisStatus: 'done',
+        // Un résultat dégradé (repli par mots-clés) reste 'pending' : il
+        // s'affiche, mais l'email repassera à l'IA dès qu'elle sera à nouveau
+        // disponible, au lieu d'être figé sans résumé.
+        analysisStatus: degradedIds.has(email.id) ? 'pending' : 'done',
         priority: analysis.priority || 'normal',
         emailType: analysis.type || 'info',
         dailySummary: analysis.dailySummary || '',

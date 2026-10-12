@@ -82,6 +82,7 @@ Le PREMIER cas qui s'applique gagne ; ne redescends jamais. Type et priorité so
 13 "info" tout le reste
 
 Départages : facture envoyée par un client → 5 avant 9 · client demandant un rdv → 6 avant 9 · réunion annulée ou décalée → 7, jamais 6 · "votre commande est expédiée" → 4 avant 12 · même demande, d'un collègue → 11, d'un client → 9.
+REÇU DE PAIEMENT DÉJÀ ENCAISSÉ (abonnement prélevé, "votre reçu", "paiement confirmé") → 4, JAMAIS 5 : l'argent est déjà parti, il n'y a rien à régler. Le 5 ne vaut que pour une somme RESTANT DUE.
 
 ## ÉVÉNEMENT
 type "meeting" ou "change" → hasEvent OBLIGATOIREMENT true, avec eventTitle, eventDate et eventStartTime remplis (eventEndTime si déductible).
@@ -130,15 +131,27 @@ ${toneSection}
 }
 
 // --- Budget de tokens par requête ------------------------------------------
-// Groq compte les max_tokens RÉSERVÉS dans la limite par minute, pas les
-// tokens réellement produits. Un forfait de 2200 pour un lot de 3 emails
-// réservait donc en pure perte environ le double du nécessaire : une sortie
-// réelle pèse ~300 tokens par email (dailySummary 25, keyPoints 25, aiReply
-// 150-220, champs 50). On calcule désormais selon la taille du lot, avec une
-// marge de sécurité d'environ 1,6x — descendre plus bas tronquerait le JSON,
-// ce qui coûte un appel entier pour rien.
+// Groq compte les max_tokens RÉSERVÉS dans ses limites, pas les tokens
+// réellement produits — d'où l'intérêt de dimensionner selon la taille du lot
+// plutôt que de réserver un forfait.
+//
+// ⚠️ PIÈGE : max_tokens ne borne PAS que le JSON visible. Sur gpt-oss, les
+// tokens de RAISONNEMENT (reasoning_effort ci-dessous) sont comptés dedans,
+// et ils sont invisibles dans la réponse. Une première version de ce calcul
+// avait estimé la sortie à ~300 tokens par email en ne regardant que le JSON
+// produit : le modèle épuisait alors son budget à raisonner avant d'avoir
+// terminé le document, et Groq renvoyait
+//   json_validate_failed — "max completion tokens reached before generating
+//   a valid document"
+// soit un appel entier perdu, prompt compris. Une réservation trop large ne
+// coûte que de la marge ; une réservation trop courte coûte tout l'appel.
+//
+// Les valeurs ci-dessous reproduisent exactement le calibrage d'origine
+// (2200 pour 3 emails, 1200 pour 1 — soit 700 + 500n), avec 100 tokens de
+// marge en plus. Ne pas les baisser sans vérifier sur de vrais emails que le
+// JSON reste complet.
 const MAX_TOKENS_PER_EMAIL = 500
-const MAX_TOKENS_BASE = 300
+const MAX_TOKENS_BASE = 800
 function maxTokensFor(emailCount: number): number {
   return MAX_TOKENS_BASE + MAX_TOKENS_PER_EMAIL * Math.max(1, emailCount)
 }
@@ -447,7 +460,11 @@ export async function POST(req: NextRequest) {
   if (monthlyLimit !== null && currentCount >= monthlyLimit) {
     // Limite atteinte : on garde un classement basique par mots-clés (gratuit,
     // pas d'appel Groq) plutôt que de bloquer complètement l'utilisateur.
-    return NextResponse.json({ results: buildFallback(filtered), limitReached: true })
+    // degraded : ces résultats viennent du repli par mots-clés, pas de l'IA.
+    // Sans ce marqueur, /api/emails les enregistrait comme une vraie analyse
+    // et les emails concernés n'étaient PLUS JAMAIS réanalysés — figés avec
+    // un résumé vide, même une fois le quota revenu.
+    return NextResponse.json({ results: buildFallback(filtered), limitReached: true, degraded: true })
   }
 
   // Incrément atomique côté base (fonction increment_ai_usage) plutôt qu'un
@@ -602,6 +619,6 @@ export async function POST(req: NextRequest) {
     // Erreur non liée au rate limit (réseau, parsing, panne ponctuelle...) :
     // on garde le filet de sécurité par mots-clés existant, toujours
     // préférable à rien pour ce cas rare et non systématique.
-    return NextResponse.json({ results: buildFallback(filtered) })
+    return NextResponse.json({ results: buildFallback(filtered), degraded: true })
   }
 }
