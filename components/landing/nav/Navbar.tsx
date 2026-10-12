@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import Logo from '@/components/ui/Logo'
 import MegaMenu from './MegaMenu'
 import MobileMenu from './MobileMenu'
+import SocialLinks from './SocialLinks'
 import AnnouncementBar from './AnnouncementBar'
 import { NAV_SECTIONS, NAV_DIRECT_LINK } from '@/lib/navigation'
 import { CTA_PRIMARY, CTA_PRIMARY_HREF, CTA_SECONDARY, CTA_SECONDARY_HREF } from '@/lib/brand'
@@ -181,6 +182,10 @@ export default function Navbar() {
           </ul>
 
           <div className={styles.actions}>
+            {/* Avant les deux appels à l'action, et en gris : l'ordre de
+                lecture va du secondaire au principal, le bouton d'inscription
+                reste le dernier élément et le seul coloré. */}
+            <SocialLinks />
             <Link href={CTA_SECONDARY_HREF} className={styles.login}>{CTA_SECONDARY}</Link>
             <Link href={CTA_PRIMARY_HREF} className={styles.cta}>{CTA_PRIMARY}</Link>
           </div>

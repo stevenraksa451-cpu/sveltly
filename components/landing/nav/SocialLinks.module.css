@@ -1,0 +1,46 @@
+.list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link,
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 30 px : assez pour une cible confortable sans faire grossir la barre,
+     qui est déjà à 940 px de contenu incompressible (voir Navbar.module.css). */
+  width: 30px;
+  height: 30px;
+  border-radius: var(--mk-radius-sm);
+  color: var(--mk-ink-3);
+  transition: color var(--mk-interaction) var(--mk-ease), background var(--mk-interaction) var(--mk-ease);
+}
+
+.link:hover {
+  color: var(--mk-ink);
+  background: var(--mk-surface-2);
+}
+.link:focus-visible {
+  outline: 2px solid var(--mk-accent);
+  outline-offset: 2px;
+}
+
+/* Compte pas encore créé : même présence visuelle, mais plus pâle et sans
+   curseur de lien — rien ne laisse croire qu'il y a quelque chose à ouvrir. */
+.placeholder {
+  color: var(--mk-line-strong);
+}
+
+/* Masquées sous 1180 px, et c'est délibéré : la barre bascule au menu burger
+   à 1040 px parce que son contenu est incompressible (898 px mesurés sans ces
+   icônes, 1024 avec). Les garder plus bas aurait repoussé ce seuil, donc
+   affiché le burger sur des écrans d'ordinateur portable où la navigation
+   tient encore. Des liens de réseaux sociaux ne valent pas ce prix-là. */
+@media (max-width: 1180px) {
+  .list { display: none; }
+}

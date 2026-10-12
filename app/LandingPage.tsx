@@ -11,6 +11,7 @@ import SiteFooter from '@/components/marketing/SiteFooter'
 import ScrollProgress from '@/components/landing/ScrollProgress'
 import HeroSpotlight from '@/components/landing/HeroSpotlight'
 import ParallaxImage from '@/components/landing/ParallaxImage'
+import ProviderMarks from '@/components/landing/ProviderMarks'
 import ProductPreview from '@/components/landing/ProductPreview'
 import PaperPlaneDoodle from '@/components/landing/PaperPlaneDoodle'
 import SparkleDoodle from '@/components/landing/SparkleDoodle'
@@ -78,7 +79,7 @@ const STEPS = [
 const FAQ = [
   { q: <>Est-ce que <Brand /> lit vraiment mes emails ?</>, a: 'Oui, c\'est nécessaire pour l\'analyse et la classification. Vos données ne sont jamais partagées ni utilisées à d\'autres fins.' },
   { q: 'Les réponses sont-elles envoyées automatiquement ?', a: <>Non, jamais. <Brand /> rédige des brouillons que vous devez relire et valider vous-même avant tout envoi.</> },
-  { q: 'Est-ce gratuit ?', a: 'Oui, la création de compte et l\'utilisation de base sont gratuites, sans carte bancaire requise.' },
+  { q: 'Est-ce gratuit ?', a: 'Oui. La création de compte et l\'utilisation de base sont gratuites.' },
   { q: <><Brand /> est-il un produit récent ?</>, a: <>Oui, <Brand /> vient d'être lancé. Vous faites partie des premiers utilisateurs à le tester.</> },
 ]
 
@@ -120,7 +121,9 @@ export default function LandingPage() {
               <div className={styles.heroCtas}>
                 <Link href="/auth/register" className={styles.heroCta}>Commencer gratuitement</Link>
               </div>
-              <p className={styles.heroNote}>Gratuit · Aucune carte requise · Gmail & Outlook</p>
+              <p className={styles.heroNote}>
+                Gratuit · <ProviderMarks /> Gmail & Outlook
+              </p>
             </div>
           </Reveal>
         </div>
@@ -421,7 +424,7 @@ export default function LandingPage() {
           </div>
 
           <p className={styles.pricingFootnote}>
-            Aucune carte requise pour démarrer. Changez de forfait ou annulez à tout moment.
+            Changez de forfait ou annulez à tout moment.
           </p>
         </section>
       </Reveal>

@@ -42,12 +42,39 @@ function TodayEssentials({ emails, events, loading }: {
     })),
   ].slice(0, 5)
 
+  // Rien d'essentiel : plutôt qu'un message de vide, on montre ce que l'IA a
+  // classé et écarté. Ça répond à la vraie question d'un utilisateur devant
+  // une boîte calme — « a-t-il vraiment regardé ? » — et ça met sous les yeux
+  // le seul livrable du produit : ses résumés, qui sinon n'apparaissent nulle
+  // part sur cette page.
+  const dejaTrie = items.length === 0
+    ? emails
+        .filter(e => e.dailySummary)
+        .slice(0, 4)
+        .map(e => ({
+          key: `trie-${e.id}`,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+          ),
+          color: 'done' as const,
+          title: e.dailySummary as string,
+          sub: e.sender,
+          tag: 'Classé',
+        }))
+    : []
+
+  const affichés = items.length > 0 ? items : dejaTrie
+  // L'en-tête ne bascule sur « Déjà trié » que s'il y a RÉELLEMENT des
+  // lignes triées à montrer. Avec une boîte vide, il annonçait un tri qui
+  // n'avait pas eu lieu.
+  const enMode = items.length > 0 || dejaTrie.length === 0 ? 'essentiels' : 'tries'
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <div className={styles.headerTitle}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          <h3>Les essentiels du jour</h3>
+          <h3>{enMode === 'essentiels' ? 'Les essentiels du jour' : 'Déjà trié pour vous'}</h3>
         </div>
       </div>
 
@@ -55,23 +82,27 @@ function TodayEssentials({ emails, events, loading }: {
         <div className={styles.list}>
           {[...Array(3)].map((_, i) => <div key={i} className={`${styles.skeletonItem} skeleton`} />)}
         </div>
-      ) : items.length === 0 ? (
+      ) : affichés.length === 0 ? (
         <div className={styles.empty}>
           <span className={styles.emptyIcon} aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
             </svg>
           </span>
-          <p>Rien d'urgent pour l'instant — profitez-en.</p>
+          <p>Votre boîte est vide. Les prochains emails seront triés à leur arrivée.</p>
         </div>
       ) : (
         <div className={styles.list}>
-          {items.map(item => (
+          {affichés.map(item => (
             <div key={item.key} className={styles.item}>
               <span className={`${styles.itemIcon} ${styles[item.color]}`}>{item.icon}</span>
               <div className={styles.itemContent}>
-                <p className={styles.itemTitle}>{item.title}</p>
+                {/* L'expéditeur passe au-dessus et en petit ; le résumé rédigé
+                    par l'IA devient le corps de la ligne. Dans l'autre sens,
+                    la phrase était coupée à 40 caractères derrière des points
+                    de suspension : le produit écrivait, l'interface masquait. */}
                 <p className={styles.itemSub}>{item.sub}</p>
+                <p className={styles.itemTitle}>{item.title}</p>
               </div>
               <span className={`${styles.itemTag} ${styles[item.color]}`}>{item.tag}</span>
             </div>

@@ -29,4 +29,16 @@ export const CTA_PRIMARY = 'Essayer gratuitement'
 export const CTA_PRIMARY_HREF = '/auth/register'
 export const CTA_SECONDARY = 'Se connecter'
 export const CTA_SECONDARY_HREF = '/auth/login'
-export const CTA_NOTE = 'Gratuit · Sans carte bancaire · Gmail'
+export const CTA_NOTE = 'Gratuit · Gmail'
+
+// Comptes de la marque sur les réseaux. URL vides tant que les comptes
+// n'existent pas : une icône sans URL s'affiche mais ne crée AUCUN lien
+// (voir components/landing/nav/SocialLinks.tsx). On évite ainsi de livrer
+// quatre liens morts en attendant — il suffira de remplir ces quatre
+// chaînes, ici et nulle part ailleurs, pour qu'elles deviennent cliquables.
+export const SOCIAL_LINKS: { name: string; url: string }[] = [
+  { name: 'X', url: '' },
+  { name: 'Instagram', url: '' },
+  { name: 'TikTok', url: '' },
+  { name: 'Facebook', url: '' },
+]

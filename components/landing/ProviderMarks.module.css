@@ -1,0 +1,15 @@
+/* Les deux marques, alignées sur la ligne de texte qui les précède. */
+.marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* Compense l'écart entre la ligne de base du texte et le centre optique
+     des pictogrammes : sans ça, ils flottent un pixel trop haut. */
+  vertical-align: -3px;
+  margin-right: 2px;
+}
+
+.mark {
+  display: block;
+  flex-shrink: 0;
+}

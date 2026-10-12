@@ -17,11 +17,13 @@
   overflow-y: auto;
 }
 
+/* flex-start : la ligne fait désormais deux hauteurs de texte. Centrer
+   verticalement décollerait l'icône et l'étiquette du début de la phrase. */
 .item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border-radius: var(--radius);
   transition: background var(--transition);
 }
@@ -40,15 +42,28 @@
 .itemIcon.important { background: var(--important-light); color: var(--important); }
 
 .itemContent { flex: 1; min-width: 0; }
+/* Deux lignes, pas une : c'est le résumé rédigé par l'IA, la seule chose que
+   cette page apporte vraiment. Le couper à une ligne revenait à afficher le
+   début d'une phrase en masquant son objet. */
 .itemTitle {
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.84rem;
+  font-weight: 450;
+  line-height: 1.45;
   color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.itemSub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.itemSub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
 
 .itemTag {
   font-size: 0.66rem;
@@ -94,3 +109,8 @@
 .skeletonItem { height: 54px; }
 
 .viewAll { composes: foot from './card.module.css'; }
+/* Pastille « Classé » — mode « déjà trié pour vous ». Volontairement le plus
+   discret des trois états : ces lignes informent que le travail a eu lieu,
+   elles n'appellent aucune action. */
+.itemIcon.done { background: var(--bg-subtle); color: var(--text-muted); }
+.itemTag.done { background: var(--bg-subtle); color: var(--text-muted); }
