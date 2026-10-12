@@ -441,3 +441,24 @@
 .rowContent {
   cursor: pointer;
 }
+
+/* En-tête du groupe « Terminées » — cliquable pour déplier.
+   Les tâches terminées s'affichaient en pleine liste sous celles à faire :
+   sur un compte actif, la moitié de l'écran montrait du travail déjà fait. */
+.groupToggle {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.groupToggle:hover { background: var(--bg-subtle); filter: brightness(0.985); }
+
+.groupChevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform var(--transition-panel);
+}
+.groupChevronOpen { transform: rotate(90deg); }

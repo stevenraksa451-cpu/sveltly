@@ -1,6 +1,6 @@
 // lib/time-saved.tsx
-// Calcul du "temps économisé aujourd'hui" affiché sur le tableau de bord.
-// Toutes les hypothèses de durée vivent dans CE fichier, et nulle part
+// Calcul du « temps économisé » affiché sur le tableau de bord — un CUMUL,
+// pas un total du jour. Toutes les hypothèses de durée vivent ici et nulle part
 // ailleurs, pour pouvoir les ajuster sans toucher au reste du code — et pour
 // que la méthode reste vérifiable plutôt qu'un chiffre marketing gonflé.
 // Extension .tsx (pas .ts) uniquement à cause de TIME_SAVED_METHOD_NOTE
@@ -35,6 +35,11 @@ export const TIME_MANUAL_TASK_NOTE_SECONDS = 45 // repérer une action à faire 
 // l'archivage automatique le supprime entièrement (voir auto_archive dans
 // app/api/emails/route.ts).
 export const TIME_MANUAL_ARCHIVE_SECONDS = 8
+// Action a faire REPEREE dans un email sans qu'une tache ait pu etre creee
+// (type exclu, doublon, ecriture refusee) : l'IA a quand meme sorti la
+// consigne du paragraphe, il reste a la noter soi-meme. Pendant exact de
+// TIME_MANUAL_EVENT_REVIEW_SECONDS pour les rendez-vous.
+export const TIME_MANUAL_ACTION_REVIEW_SECONDS = 20
 
 // --- Temps résiduel AVEC Sveltly ----------------------------------------------
 // L'utilisateur relit/valide au lieu de rédiger/chercher lui-même.
@@ -56,18 +61,20 @@ export const TIME_WITH_SVELTLY_TASK_SECONDS = 5 // la tâche est déjà créée,
 // Zéro, et c'est assumé : un email archivé automatiquement ne demande AUCUN
 // geste. C'est le seul gain du produit qui soit total.
 export const TIME_WITH_SVELTLY_ARCHIVE_SECONDS = 0
+export const TIME_WITH_SVELTLY_ACTION_REVIEW_SECONDS = 5
 
 // --- INVENTAIRE DES ACTIONS ---------------------------------------------
 // Toutes les actions possibles dans le produit, et ce qu'elles pèsent dans
 // le compteur. Les lignes « non comptée » sont là exprès : un inventaire qui
 // ne listerait que ce qui rapporte serait un argumentaire, pas une mesure.
 //
-//  COMPTÉES (par email, dans calculateTimeSavedForTodayEmails)
+//  COMPTÉES (par email, dans calculateTimeSavedForEmails)
 //   · tri d'un email                     60 s → 15 s   (12 s → 3 s si pub/notif)
 //   · brouillon de réponse rédigé       150 s → 45 s   (jamais sur pub/notif)
 //   · rendez-vous planifié automatiquement 120 s → 15 s
 //   · rendez-vous détecté sans planification 40 s → 5 s
 //   · tâche créée automatiquement        45 s → 5 s
+//   · action repérée sans tâche créée     20 s → 5 s
 //   · email archivé automatiquement       8 s → 0 s
 //
 //  NON COMPTÉES, et pourquoi
@@ -103,7 +110,7 @@ function isLowEffort(email: Email): boolean {
 // avec les constantes ci-dessus si vous les modifiez.
 export const TIME_SAVED_METHOD_NOTE = (
   <>
-    Temps de traitement manuel estimé (lecture, rédaction, planification, création de tâches) moins le temps de relecture avec <Brand />. Seuls les emails réellement analysés comptent, et les newsletters, pubs et notifications ne comptent qu'un coup d'œil — sans gain de rédaction, puisqu'on n'y répond pas. Référence : étude McKinsey Global Institute sur le temps consacré aux emails en entreprise.
+    Total depuis que <Brand /> suit votre boîte. Temps de traitement manuel estimé (lecture, rédaction, planification, création de tâches) moins le temps de relecture avec <Brand />. Seuls les emails réellement analysés comptent, et les newsletters, pubs et notifications ne comptent qu'un coup d'œil — sans gain de rédaction, puisqu'on n'y répond pas. Référence : étude McKinsey Global Institute sur le temps consacré aux emails en entreprise.
   </>
 )
 
@@ -180,9 +187,9 @@ export function getEmailsReceivedToday<T extends { receivedAt: string }>(
 // déjà filtré ses emails du jour (voir app/(app)/dashboard/page.tsx, qui a
 // aussi besoin de ce sous-ensemble pour todayEmailsCount) ne fasse pas deux
 // fois le même passage sur la liste complète des emails.
-export function calculateTimeSavedForTodayEmails(todayEmails: Email[]): number {
+export function calculateTimeSavedForEmails(emails: Email[]): number {
   let totalSeconds = 0
-  for (const email of todayEmails) {
+  for (const email of emails) {
     // Un email encore en attente d'analyse n'a, par définition, fait gagner
     // aucune seconde : l'IA ne l'a pas encore trié, résumé, ni répondu. Le
     // compter quand même faisait démarrer le compteur à un total déjà gonflé
@@ -208,6 +215,12 @@ export function calculateTimeSavedForTodayEmails(todayEmails: Email[]): number {
 
     if (email.autoTaskCreated) {
       totalSeconds += TIME_MANUAL_TASK_NOTE_SECONDS - TIME_WITH_SVELTLY_TASK_SECONDS
+    } else if (email.actionItemDetected) {
+      // Deux paliers, comme pour les rendez-vous : une action reperee mais non
+      // transformee en tache fait quand meme gagner la relecture du
+      // paragraphe. Elle etait comptee pour zero, alors que le travail de
+      // lecture, lui, avait bien ete fait par l'IA.
+      totalSeconds += TIME_MANUAL_ACTION_REVIEW_SECONDS - TIME_WITH_SVELTLY_ACTION_REVIEW_SECONDS
     }
 
     // L'archivage automatique épargne un geste entier. Petit à l'unité, mais
@@ -220,16 +233,49 @@ export function calculateTimeSavedForTodayEmails(todayEmails: Email[]): number {
 }
 
 export function calculateTimeSavedSeconds(emails: Email[], now: Date = new Date()): number {
-  return calculateTimeSavedForTodayEmails(getEmailsReceivedToday(emails, now))
+  return calculateTimeSavedForEmails(getEmailsReceivedToday(emails, now))
 }
 
-// "1h 12min" ou "45min". N'encode pas d'état de chargement — un total à 0
-// (aucun email traité aujourd'hui) affiche légitimement "0min" ; c'est à
-// l'appelant de gérer séparément un éventuel fallback "—" pendant le
-// chargement (voir app/(app)/dashboard/page.tsx).
+/**
+ * Total CUMULE sur tous les emails connus de Sveltly.
+ *
+ * C'est ce chiffre que le tableau de bord affiche, et non le total du jour.
+ * Le total du jour retombait a « 0 min » a chaque minuit, puis restait a zero
+ * tant qu'aucun email n'etait arrive — un compteur qui annonce zero a
+ * quelqu'un dont il a trie des centaines de messages ne mesure pas le
+ * produit, il le dement. Le cumul ne peut valoir zero que dans deux cas, tous
+ * deux justes : aucun email, ou aucun email encore analyse (et le tableau de
+ * bord affiche alors « — », pas « 0 min »).
+ *
+ * La portee est « tous les emails que Sveltly connait », c'est-a-dire la
+ * fenetre de synchronisation (voir INITIAL_SYNC_MAX_AGE_DAYS dans
+ * app/api/emails/route.ts). Pas « depuis toujours » : on n'affirme que ce
+ * qu'on a reellement traite.
+ */
+export function calculateTimeSavedTotal(emails: Email[]): number {
+  return calculateTimeSavedForEmails(emails)
+}
+
+/**
+ * « 1 h 12 min », « 45 min », « < 1 min ».
+ *
+ * L'arrondi a la minute transformait tout total inferieur a 30 s en
+ * « 0 min » — un email trie fait gagner 45 s, donc le tout premier affichage
+ * d'un nouveau compte annoncait zero alors que le travail avait eu lieu.
+ * « 0 min » n'est desormais rendu que pour un total reellement nul.
+ *
+ * Espaces insecables avant les unites : c'est la regle typographique
+ * francaise, et ca evite qu'un retour a la ligne separe « 12 » de « min ».
+ * N'encode aucun etat de chargement — l'appelant gere « — ».
+ */
 export function formatTimeSaved(totalSeconds: number): string {
-  const totalMinutes = Math.max(0, Math.round(totalSeconds / 60))
+  const secondes = Math.max(0, Math.round(totalSeconds))
+  if (secondes === 0) return '0\u00a0min'
+  if (secondes < 60) return '<\u00a01\u00a0min'
+  const totalMinutes = Math.round(secondes / 60)
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-  return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`
+  if (hours === 0) return `${minutes}\u00a0min`
+  // \u00ab 2 h \u00bb et non \u00ab 2 h 0 min \u00bb : le z\u00e9ro n'apporte rien et allonge la ligne.
+  return minutes === 0 ? `${hours}\u00a0h` : `${hours}\u00a0h\u00a0${minutes}\u00a0min`
 }

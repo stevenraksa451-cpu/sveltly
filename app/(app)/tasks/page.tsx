@@ -360,6 +360,13 @@ function TasksContent() {
     return Array.from(map.entries())
   }, [tasks])
 
+  // Les tâches terminées sont repliées par défaut. Elles s'affichaient en
+  // pleine liste sous les tâches à faire : sur un compte actif, la moitié de
+  // la page montrait du travail déjà fait, et le premier plan — ce qu'on voit
+  // sans défiler — ne répondait plus à la seule question qui compte,
+  // « qu'est-ce qu'il me reste ? ».
+  const [doneOpen, setDoneOpen] = useState(false)
+
   const filtered = useMemo(() => {
     let list = tasks as Task[]
     if (sideFilter === 'today') list = list.filter(t => !t.completed && t.due_date === today)
@@ -394,7 +401,7 @@ function TasksContent() {
 
   // Groupement par échéance pour l'affichage central
   const grouped = useMemo(() => {
-    const groups: { key: string; label: string; items: Task[] }[] = [
+    const groups: { key: string; label: string; items: Task[]; repliable?: boolean }[] = [
       { key: 'overdue', label: 'En retard', items: [] },
       { key: 'today', label: "Aujourd'hui", items: [] },
       { key: 'upcoming', label: 'Prochainement', items: [] },
@@ -424,8 +431,15 @@ function TasksContent() {
     // sur ce filtre (et que l'archive n'a pas encore été chargée) — sinon le
     // bouton pour charger les tâches terminées plus anciennes que 30 jours
     // devient injoignable pour un compte sans complétion récente.
+    // Repliable partout SAUF sur le filtre « Terminées », où c'est
+    // précisément ce que l'utilisateur est venu voir.
+    doneGroup.repliable = sideFilter !== 'done'
+
     return groups.filter(g => g.items.length > 0 || (g.key === 'done' && sideFilter === 'done' && archivedTasks === null))
   }, [filtered, today, filteredArchived, sideFilter, archivedTasks])
+
+  // Ce qu'il reste à faire dans la vue courante, terminées exclues.
+  const restantes = useMemo(() => filtered.filter(t => !t.completed).length, [filtered])
 
   const completionRate = tasks.length > 0 ? Math.round((counts.done / tasks.length) * 100) : 0
 
@@ -505,7 +519,14 @@ function TasksContent() {
               <h2 className={styles.mainTitle}>
                 {sideFilter === 'all' ? 'Toutes les tâches' : sideFilter === 'today' ? "Aujourd'hui" : sideFilter === 'upcoming' ? 'Prochainement' : sideFilter === 'overdue' ? 'En retard' : 'Terminées'}
               </h2>
-              <p className={styles.mainSub}>{filtered.length} tâche{filtered.length !== 1 ? 's' : ''}</p>
+              {/* Le sous-titre compte ce qu'il RESTE, pas le contenu de la
+                  liste : annoncer « 24 tâches » quand 20 sont terminées
+                  décrivait le volume de la page, pas la charge de travail. */}
+              <p className={styles.mainSub}>
+                {sideFilter === 'done'
+                  ? `${filtered.length} terminée${filtered.length !== 1 ? 's' : ''}`
+                  : `${restantes} tâche${restantes !== 1 ? 's' : ''} à faire`}
+              </p>
             </div>
             <button className={styles.addBtn} onClick={() => setAdding(!adding)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -565,13 +586,35 @@ function TasksContent() {
                 <p className={styles.emptyDesc}>{search ? 'Essayez un autre terme de recherche.' : 'Cliquez sur "Nouvelle tâche" pour en ajouter une.'}</p>
               </div>
             ) : (
-              grouped.map(group => (
+              grouped.map(group => {
+                const replie = group.repliable && !doneOpen
+                return (
                 <div key={group.key} className={styles.group}>
-                  <div className={styles.groupHead}>
-                    <span className={styles.groupLabel}>{group.label}</span>
-                    <span className={styles.groupCount}>{group.items.length}</span>
-                  </div>
-                  {group.items.map(task => {
+                  {group.repliable ? (
+                    <button
+                      type="button"
+                      className={`${styles.groupHead} ${styles.groupToggle}`}
+                      onClick={() => setDoneOpen(v => !v)}
+                      aria-expanded={doneOpen}
+                    >
+                      <svg
+                        className={`${styles.groupChevron} ${doneOpen ? styles.groupChevronOpen : ''}`}
+                        width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 6 6 6-6 6" />
+                      </svg>
+                      <span className={styles.groupLabel}>{group.label}</span>
+                      <span className={styles.groupCount}>{group.items.length}</span>
+                    </button>
+                  ) : (
+                    <div className={styles.groupHead}>
+                      <span className={styles.groupLabel}>{group.label}</span>
+                      <span className={styles.groupCount}>{group.items.length}</span>
+                    </div>
+                  )}
+                  {!replie && group.items.map(task => {
                     if (editingId === task.id) {
                       return (
                         <div key={task.id} className={styles.editCard}>
@@ -647,7 +690,7 @@ function TasksContent() {
                       </div>
                     )
                   })}
-                  {group.key === 'done' && archivedTasks === null && (
+                  {!replie && group.key === 'done' && archivedTasks === null && (
                     <button
                       className={styles.loadArchiveBtn}
                       onClick={loadArchivedTasks}
@@ -657,7 +700,8 @@ function TasksContent() {
                     </button>
                   )}
                 </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>

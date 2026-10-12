@@ -9,7 +9,7 @@ import TasksCard from '@/components/dashboard/TasksCard'
 import { supabase } from '@/lib/supabase'
 import { useEmails } from '@/hooks/useEmails'
 import { useCalendarEvents } from '@/hooks/useCalendarEvents'
-import { calculateTimeSavedForTodayEmails, formatTimeSaved, getEmailsReceivedToday, TIME_SAVED_METHOD_NOTE } from '@/lib/time-saved'
+import { calculateTimeSavedTotal, formatTimeSaved, getEmailsReceivedToday, TIME_SAVED_METHOD_NOTE } from '@/lib/time-saved'
 import styles from './dashboard.module.css'
 
 export default function DashboardPage() {
@@ -59,14 +59,15 @@ export default function DashboardPage() {
     () => emails.filter((e: any) => e.priority === 'urgent' || e.priority === 'important').length,
     [emails]
   )
-  // Un seul passage sur `emails` pour dériver à la fois le compte et le temps
-  // économisé (calculateTimeSavedForTodayEmails prend directement ce
-  // sous-ensemble) — l'ancien code filtrait deux fois la même liste
-  // (getEmailsReceivedToday ici, puis à nouveau à l'intérieur de
-  // calculateTimeSavedSeconds).
+  // Les emails du jour servent encore au compteur « reçus aujourd'hui »
+  // affiché plus bas — ils ne servent plus au temps économisé.
   const todayEmails = useMemo(() => getEmailsReceivedToday(emails), [emails])
   const todayEmailsCount = todayEmails.length
-  const timeSavedSeconds = useMemo(() => calculateTimeSavedForTodayEmails(todayEmails), [todayEmails])
+  // Cumul sur tous les emails connus, et non le total du jour : ce dernier
+  // retombait à zéro à chaque minuit et y restait tant qu'aucun email
+  // n'arrivait, affichant « 0 min » à quelqu'un dont le produit avait trié
+  // des centaines de messages. Voir calculateTimeSavedTotal.
+  const timeSavedSeconds = useMemo(() => calculateTimeSavedTotal(emails), [emails])
 
   return (
     <AppLayout title="Tableau de bord" subtitle="" hideTitle>
@@ -106,7 +107,7 @@ export default function DashboardPage() {
                     <path d="M12 7v5l3.5 2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <p className={styles.statLabel}>Temps économisé aujourd'hui</p>
+                <p className={styles.statLabel}>Temps économisé</p>
                 <button
                   type="button"
                   className={styles.infoBtn}
