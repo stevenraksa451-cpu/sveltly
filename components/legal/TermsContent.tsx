@@ -7,6 +7,10 @@ import Brand from '@/components/ui/Brand'
 import { IconUser, IconCard, IconBan, IconCopyright, IconAlert, IconDoor, IconScale, IconMessage, IconCheck } from '@/components/legal/icons'
 import { IconBrain } from '@/components/landing/icons'
 import styles from '@/components/legal/LegalLayout.module.css'
+// Source unique : ces conditions annonçaient « Gmail ou Outlook » alors
+// qu'Outlook n'est pas branché. Décrire un service inexistant dans un contrat
+// qu'on fait accepter est le pire endroit du site pour se tromper.
+import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 
 export default function TermsContent() {
   return (
@@ -50,7 +54,7 @@ export default function TermsContent() {
           title: 'Description du service',
           content: (
             <p>
-              <Brand /> se connecte à votre boîte mail (Gmail ou Outlook) pour trier automatiquement vos emails par priorité,
+              <Brand /> se connecte à votre boîte mail ({PROVIDERS_LIVE_LABEL}) pour trier automatiquement vos emails par priorité,
               générer des résumés et des brouillons de réponse, et détecter les rendez-vous mentionnés afin de les
               proposer à votre agenda. Aucune réponse n'est jamais envoyée automatiquement : chaque brouillon généré
               par l'IA doit être relu et validé par vous avant tout envoi.

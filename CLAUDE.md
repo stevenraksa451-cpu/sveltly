@@ -35,6 +35,32 @@ code. Interdits, sans exception :
 Ce qui manque est signalé là où ça devrait se trouver (paiement Stripe, export
 de données, Outlook).
 
+#### Boîtes mail : `lib/providers.ts` est la source unique
+
+Le site s'est contredit pendant plusieurs versions. Le hero annonçait
+« Gmail & Outlook », les CGU et la politique de confidentialité parlaient d'un
+« compte Gmail ou Outlook connecté », pendant que `/faq` et `/produit`
+disaient qu'Outlook n'était pas supporté — les deux affirmations visibles sur
+le même site, à deux clics d'écart.
+
+`lib/providers.ts` tranche désormais pour tout le monde. Chaque fournisseur y
+porte un `status` qui décrit le CODE, pas l'intention :
+
+| `status` | sens | affichage |
+|---|---|---|
+| `live` | une route OAuth existe et fonctionne | nom en encre pleine |
+| `planned` | décidé et spécifié, pas branché | nom pâli + pastille « Bientôt » |
+
+Les pages lisent `PROVIDERS` (logos du hero), `PROVIDERS_LIVE_LABEL` (toute
+phrase qui décrit le fonctionnement réel : étapes, CGU, confidentialité) ou
+`PROVIDERS_ANSWER` (« quelles boîtes puis-je connecter ? »). Le jour où
+Outlook est branché, un seul `status` à basculer et les sept endroits suivent
+ensemble. **Ne jamais réécrire « Gmail » ou « Outlook » en dur** dans une page
+publique : c'est précisément comme ça que la contradiction est née.
+
+Et jamais de date. « Bientôt » sans échéance est une intention ; « en mars »
+est une promesse, et on n'en fait pas.
+
 ### Prix
 
 **Pro = 12 €/mois** (9,60 € en annuel). Source unique : `lib/plans.tsx`, qui
@@ -300,8 +326,9 @@ Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 con
 ## Pièges connus
 
 - **Seuils adaptatifs** : 880 px partout (gabarits, pied de page) sauf la
-  barre de navigation, à **1040 px** — son contenu fait 940 px
-  incompressibles. `MegaMenu` et `MobileMenu` doivent suivre ce même 1040,
+  barre de navigation, à **1040 px** — son contenu est incompressible (898 px
+  mesurés, 1024 avec les icônes de réseaux sociaux, qui disparaissent donc
+  sous 1180 px). `MegaMenu` et `MobileMenu` doivent suivre ce même 1040,
   sinon le burger s’affiche sans rien ouvrir.
 - **`npm run build` pendant que `npm run dev` tourne** corrompt le cache du
   serveur de dev (`Cannot find module './XXXX.js'`). Remède : tuer node,
@@ -325,7 +352,12 @@ Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 con
   d'implémenter.
 - **Export de données** : absent, signalé sur
   `/securite/controle-de-vos-donnees`.
-- **Outlook** : non supporté, dit explicitement dans la FAQ.
+- **Outlook** : pas branché. Déclaré `planned` dans `lib/providers.ts`, ce qui
+  l'affiche avec une pastille « Bientôt » sur la landing et le dit dans la FAQ,
+  sur `/produit` et dans les pages légales. Reste à faire : une app Azure
+  (`MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET`, URI de redirection
+  `/api/mailboxes/callback`) et la route Microsoft Graph. Basculer `status`
+  à `'live'` **après** avoir connecté une vraie boîte, pas avant.
 - **`SITE_URL`** dans `lib/brand.ts` vaut `https://sveltly.fr` — à ajuster si le
   domaine final diffère, sinon sitemap et balises canoniques pointent à côté.
 - **Renommage de marque** : `lib/brand.ts` ne gouverne que les pages marketing

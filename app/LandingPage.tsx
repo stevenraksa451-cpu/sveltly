@@ -12,6 +12,7 @@ import ScrollProgress from '@/components/landing/ScrollProgress'
 import HeroSpotlight from '@/components/landing/HeroSpotlight'
 import ParallaxImage from '@/components/landing/ParallaxImage'
 import ProviderMarks from '@/components/landing/ProviderMarks'
+import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
 import PaperPlaneDoodle from '@/components/landing/PaperPlaneDoodle'
 import SparkleDoodle from '@/components/landing/SparkleDoodle'
@@ -71,7 +72,9 @@ const SECURITY_POINTS = [
 ]
 
 const STEPS = [
-  { number: '1', icon: <IconLink />, title: 'Connectez votre boîte mail', desc: <>Gmail ou Outlook, en toute sécurité via OAuth. <Brand /> ne stocke jamais votre mot de passe.</> },
+  // PROVIDERS_LIVE_LABEL, pas « Gmail ou Outlook » en dur : cette étape décrit
+  // ce qu'on peut faire maintenant, et Outlook n'est pas encore branché.
+  { number: '1', icon: <IconLink />, title: 'Connectez votre boîte mail', desc: <>{PROVIDERS_LIVE_LABEL}, en toute sécurité via OAuth. <Brand /> ne stocke jamais votre mot de passe.</> },
   { number: '2', icon: <IconBrain />, title: 'L\'IA analyse vos emails', desc: 'Chaque message est classé par priorité et une réponse est proposée automatiquement, prête à relire.' },
   { number: '3', icon: <IconShield />, title: 'Vous gardez le contrôle', desc: 'Vous validez, modifiez ou ignorez chaque suggestion. Rien n\'est envoyé sans votre accord.' },
 ]
@@ -121,9 +124,10 @@ export default function LandingPage() {
               <div className={styles.heroCtas}>
                 <Link href="/auth/register" className={styles.heroCta}>Commencer gratuitement</Link>
               </div>
-              <p className={styles.heroNote}>
-                Gratuit · <ProviderMarks /> Gmail & Outlook
-              </p>
+              {/* La note « Gratuit · … » a sauté : le bouton juste au-dessus
+                  dit déjà « Commencer gratuitement ». La ligne sert mieux à
+                  répondre à la question suivante — avec quelle boîte ? */}
+              <ProviderMarks />
             </div>
           </Reveal>
         </div>

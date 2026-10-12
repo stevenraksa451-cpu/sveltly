@@ -10,6 +10,7 @@
 import LegalLayout from '@/components/legal/LegalLayout'
 import Brand from '@/components/ui/Brand'
 import styles from '@/components/legal/LegalLayout.module.css'
+import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import { IconUser, IconMail, IconTrash, IconInfo, IconCheck } from '@/components/legal/icons'
 import { IconBrain, IconLock, IconLink, IconShield } from '@/components/landing/icons'
 
@@ -58,7 +59,7 @@ export default function PrivacyContent() {
               <p>Pour fonctionner, <Brand /> traite les données suivantes :</p>
               <ul>
                 <li><strong>Informations de compte</strong> — nom, adresse email, mot de passe (jamais stocké en clair, géré par notre fournisseur d'authentification).</li>
-                <li><strong>Contenu de votre boîte mail</strong> — une fois votre compte Gmail ou Outlook connecté, nous lisons vos emails (objet, expéditeur, corps du message, pièces jointes) afin de les trier, les résumer, en proposer des réponses et détecter les rendez-vous qu'ils contiennent. C'est strictement nécessaire au fonctionnement du produit.</li>
+                <li><strong>Contenu de votre boîte mail</strong> — une fois votre compte {PROVIDERS_LIVE_LABEL} connecté, nous lisons vos emails (objet, expéditeur, corps du message, pièces jointes) afin de les trier, les résumer, en proposer des réponses et détecter les rendez-vous qu'ils contiennent. C'est strictement nécessaire au fonctionnement du produit.</li>
                 <li><strong>Jetons de connexion OAuth</strong> — chiffrés au repos (AES-256-GCM) avant stockage, jamais transmis en clair ni accessibles depuis votre navigateur.</li>
                 <li><strong>Données d'usage du produit</strong> — tâches, événements d'agenda, préférences de notification, compteur d'utilisation de l'IA pour l'application du forfait choisi.</li>
               </ul>

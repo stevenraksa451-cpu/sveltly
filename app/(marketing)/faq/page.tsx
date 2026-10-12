@@ -1,6 +1,7 @@
 ﻿import EditorialPage from '@/components/marketing/templates/EditorialPage'
 import { pageMeta } from '@/lib/content/meta'
 import { SpotSummary, SpotSecurity, SpotGauge } from '@/components/marketing/visuals/Spots'
+import { PROVIDERS_ANSWER, PROVIDERS_PLANNED_LABEL } from '@/lib/providers'
 
 export const metadata = pageMeta({
   title: 'Questions fréquentes',
@@ -23,7 +24,7 @@ export default function Page() {
               <>
                 <p>
                   <strong>Quelles boîtes puis-je connecter ?</strong><br />
-                  Gmail uniquement. Outlook n’est pas supporté, et aucune date n’est annoncée.
+                  {PROVIDERS_ANSWER}
                 </p>
                 <p>
                   <strong>Faut-il changer d’adresse ?</strong><br />
@@ -103,8 +104,8 @@ export default function Page() {
             body: (
               <p>
                 Non. Sveltly vient d’être lancé. Le paiement en ligne manque, l’export de données aussi,
-                Outlook n’est pas là. Ces manques sont signalés là où ils devraient se trouver, plutôt que
-                passés sous silence.
+                {' '}{PROVIDERS_PLANNED_LABEL} n’est pas branché. Ces manques sont signalés là où ils devraient
+                se trouver, plutôt que passés sous silence.
               </p>
             ),
           },

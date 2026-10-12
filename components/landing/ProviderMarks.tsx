@@ -1,20 +1,24 @@
+import { PROVIDERS, PLANNED_BADGE } from '@/lib/providers'
 import styles from './ProviderMarks.module.css'
 
-// Marques Gmail et Outlook, à côté de la mention des services pris en charge.
+// Boîtes mail prises en charge, sous le bouton du hero.
 //
-// SVG en ligne et non des images : quatre chemins pèsent moins qu'une requête
-// réseau, restent nets à toute densité d'écran, et évitent d'embarquer des
-// fichiers de marque dans public/. C'est aussi la règle du projet — ni
-// bibliothèque d'icônes, ni dépendance ajoutée (voir CLAUDE.md).
+// SVG en ligne et non des images : deux marques pèsent moins que deux requêtes
+// réseau, restent nettes à toute densité, et évitent d'embarquer des fichiers
+// de marque dans public/. C'est aussi la règle du projet — ni bibliothèque
+// d'icônes, ni dépendance ajoutée (voir CLAUDE.md).
 //
-// En couleur, contrairement aux icônes de réseaux sociaux de la barre du
-// haut : ici elles identifient un service que l'utilisateur doit reconnaître
-// d'un coup d'œil pour savoir si le produit marche avec sa boîte. Une version
-// grise les rendrait indistinctes l'une de l'autre.
+// En couleur, contrairement aux icônes de réseaux sociaux de la barre du haut :
+// ici elles répondent à la première question d'un visiteur — « est-ce que ça
+// marche avec MA boîte ? ». Une version grise les rendrait indistinctes.
+//
+// Ce que la liste affiche vient de lib/providers.ts, y compris l'étiquette
+// « Bientôt ». Montrer la marque Outlook sans dire qu'elle n'est pas encore
+// connectable serait une fausse promesse, et le reste du site dit l'inverse.
 
 function GmailMark() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" className={styles.mark}>
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" className={styles.mark}>
       <path fill="#4285F4" d="M22 7.4v10.4c0 .7-.6 1.2-1.2 1.2h-2.5V9.9L12 14.3 5.7 9.9V19H3.2c-.7 0-1.2-.5-1.2-1.2V7.4l10 7 10-7z" />
       <path fill="#34A853" d="M2 17.8c0 .7.5 1.2 1.2 1.2h2.5V9.9L2 7.4z" />
       <path fill="#FBBC04" d="M18.3 19h2.5c.6 0 1.2-.5 1.2-1.2V7.4l-3.7 2.5z" />
@@ -25,7 +29,7 @@ function GmailMark() {
 
 function OutlookMark() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" className={styles.mark}>
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" className={styles.mark}>
       <rect x="2" y="4.6" width="10.6" height="14.8" rx="1.6" fill="#0F6CBD" />
       <path
         fill="#fff"
@@ -37,11 +41,21 @@ function OutlookMark() {
   )
 }
 
-export default function ProviderMarks({ outlook = true }: { outlook?: boolean }) {
+const MARQUES = {
+  gmail: <GmailMark />,
+  outlook: <OutlookMark />,
+}
+
+export default function ProviderMarks() {
   return (
-    <span className={styles.marks}>
-      <GmailMark />
-      {outlook && <OutlookMark />}
-    </span>
+    <ul className={styles.row}>
+      {PROVIDERS.map(({ id, name, status }) => (
+        <li key={id} className={`${styles.item} ${status === 'planned' ? styles.planned : ''}`}>
+          {MARQUES[id]}
+          <span className={styles.name}>{name}</span>
+          {status === 'planned' && <span className={styles.badge}>{PLANNED_BADGE}</span>}
+        </li>
+      ))}
+    </ul>
   )
 }

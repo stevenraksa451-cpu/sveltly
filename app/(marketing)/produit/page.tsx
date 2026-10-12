@@ -4,6 +4,7 @@ import SortingVisual from '@/components/marketing/visuals/SortingVisual'
 import { pageMeta } from '@/lib/content/meta'
 import { PRODUCT_LINKS } from '@/lib/navigation'
 import { SpotMailboxes } from '@/components/marketing/visuals/Spots'
+import { PROVIDERS_LIVE_LABEL, PROVIDERS_ANSWER } from '@/lib/providers'
 
 export const metadata = pageMeta({
   title: 'Le produit',
@@ -37,7 +38,7 @@ export default function Page() {
                 </p>
               </>
             ),
-            aside: 'Outlook n’est pas encore supporté. Seul Gmail est connectable aujourd’hui.',
+            aside: `Boîtes connectables : ${PROVIDERS_ANSWER}`,
           },
           {
             heading: 'Ce qui ne changera pas',
@@ -57,9 +58,9 @@ export default function Page() {
         ],
         pullQuote: 'Le but n’est pas de lire vos emails plus vite. C’est d’en ouvrir moins.',
         faq: [
-          { q: 'Faut-il changer d’adresse ?', a: 'Non. Sveltly se connecte à votre boîte Gmail existante. Vos emails continuent d’arriver et de partir depuis votre adresse habituelle.' },
+          { q: 'Faut-il changer d’adresse ?', a: `Non. Sveltly se connecte à votre boîte ${PROVIDERS_LIVE_LABEL} existante. Vos emails continuent d’arriver et de partir depuis votre adresse habituelle.` },
           { q: 'Combien de temps avant de voir quelque chose ?', a: 'Quelques minutes après la connexion. Les messages récents sont analysés en premier, les plus anciens suivent.' },
-          { q: 'Outlook est-il prévu ?', a: 'Pas de date annoncée. Nous préférons ne rien promettre tant que ce n’est pas en cours.' },
+          { q: 'Outlook est-il prévu ?', a: 'Oui, c’est décidé et spécifié, mais ce n’est pas encore branché. Aucune date n’est annoncée : nous préférons ne rien promettre avant que ce soit en ligne.' },
         ],
         cta: {
           title: 'Connectez une boîte, laissez passer une nuit',

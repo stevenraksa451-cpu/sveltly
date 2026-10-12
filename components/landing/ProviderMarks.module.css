@@ -1,15 +1,49 @@
-/* Les deux marques, alignées sur la ligne de texte qui les précède. */
-.marks {
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  /* Compense l'écart entre la ligne de base du texte et le centre optique
-     des pictogrammes : sans ça, ils flottent un pixel trop haut. */
-  vertical-align: -3px;
-  margin-right: 2px;
+  gap: 9px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--mk-ink);
+}
+
+/* Pas encore branché : l'écart se joue sur l'encre du nom, pas sur la marque.
+   Pâlir le logo le rendrait illisible à 22 px, et c'est justement lui que le
+   visiteur cherche du regard. */
+.planned .name {
+  color: var(--mk-ink-3);
+  font-weight: 500;
 }
 
 .mark {
   display: block;
   flex-shrink: 0;
+}
+
+.badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--mk-line);
+  border-radius: 999px;
+  background: var(--mk-surface-2);
+  color: var(--mk-ink-3);
+  /* Pastille, pas bouton : aucun accent coloré. Le seul élément coloré du
+     hero reste « Commencer gratuitement », juste au-dessus. */
+}
+
+@media (max-width: 560px) {
+  .row { gap: 8px 18px; }
+  .item { font-size: 0.875rem; }
 }
