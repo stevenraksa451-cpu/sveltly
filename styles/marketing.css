@@ -104,6 +104,46 @@
   --mk-accent-hover: #4338CA;
   --mk-accent-soft: #EEF2FF;
   --mk-accent-line: #C7D2FE;
+  /* --- Tokens de BASE lus directement par le CSS de la vitrine -----------
+     Les alias --mk-* ci-dessus ne suffisent pas : app/page.module.css et les
+     visuels marketing consomment aussi une trentaine de tokens de base. Sans
+     eux dans ce garde-fou, le simulateur de la page d'accueil virait au blanc
+     et les pastilles teintées s'inversaient le temps d'une image.
+
+     Pour revérifier la liste après une modification du CSS vitrine : relever
+     tous les tokens de COULEUR utilisés par app/page.module.css, par
+     components/landing/ et par components/marketing/, et vérifier que chacun
+     figure ci-dessous. Les tokens de TAILLE et de FORME — --text-xs,
+     --radius, --space-4 — ne changent pas avec le thème et n'ont rien à
+     faire ici. */
+  --color-ink: #1C1917;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-muted: #736D68;
+  --bg: #FAFAF9;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F5F5F4;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.05);
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-light: #EEF2FF;
+  --accent-muted: #A5B4FC;
+  --on-accent: #ffffff;
+  --grad-brand: linear-gradient(135deg, #4F46E5 0%, #6D47E8 45%, #7C3AED 100%);
+  --grad-line: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #14B8A6 100%);
+  --glow-accent: 0 1px 2px rgba(79, 70, 229, 0.24), 0 8px 20px -8px rgba(79, 70, 229, 0.48);
+  --tint-indigo-bg: #EEF2FF;  --tint-indigo-fg: #4338CA;
+  --tint-violet-bg: #F5F3FF;  --tint-violet-fg: #6D28D9;
+  --tint-teal-bg: #ECFDF5;    --tint-teal-fg: #0F766E;
+  --tint-amber-bg: #FFFBEB;   --tint-amber-fg: #B45309;
+  --urgent: #B91C1C;
+  --important: #B45309;
+  --important-light: #FFFBEB;
+  --tag-normal: #57534E;
+  --tag-normal-light: #F5F5F4;
+  --tag-success: #047857;
+  --tag-success-light: #ECFDF5;
 }
 
 /* Seul le corps de page prend le fond et l'encre : le chrome porte les

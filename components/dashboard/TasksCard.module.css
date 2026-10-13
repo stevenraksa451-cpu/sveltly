@@ -15,7 +15,7 @@
   justify-content: center;
   transition: all var(--transition);
 }
-.addBtn:hover { background: var(--accent); color: white; }
+.addBtn:hover { background: var(--accent); color: var(--on-accent); }
 
 .addRow {
   display: flex;
@@ -36,7 +36,7 @@
 .addConfirm {
   padding: 7px 14px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 500;

@@ -110,15 +110,17 @@
 .today .dayNumber {
   width: 24px; height: 24px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 600; font-size: var(--text-xs);
   margin-top: -2px;
 }
-.selected { background: var(--accent); color: white; }
+.selected { background: var(--accent); color: var(--on-accent); }
 .selected:hover { background: var(--accent-hover); }
-.selected .dayNumber { color: white; font-weight: 600; }
+/* .selected pose déjà --on-accent ; ce rappel en blanc dur l'écrasait, et
+   le blanc sur l'indigo clair du thème sombre tombe à 2,98:1. */
+.selected .dayNumber { color: var(--on-accent); font-weight: 600; }
 .today.selected .dayNumber { background: white; color: var(--accent); }
 .eventPills { display: flex; gap: 2px; align-items: center; flex-wrap: wrap; justify-content: center; padding: 0 2px; }
 .eventPill { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
@@ -152,7 +154,7 @@
 .weekDayNumber { font-size: var(--text-base); font-weight: 500; color: var(--text-primary); }
 .weekDayNumberToday {
   width: 22px; height: 22px; border-radius: 50%;
-  background: var(--accent); color: white;
+  background: var(--accent); color: var(--on-accent);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--text-xs);
 }

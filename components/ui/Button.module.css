@@ -35,7 +35,7 @@
 /* --- Principal : le seul élément indigo plein de l'écran ----------------- */
 .primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   box-shadow: var(--shadow-sm);
 }
 .primary:hover:not(:disabled) { background: var(--accent-hover); }

@@ -207,7 +207,7 @@
   margin-top: 4px;
   padding: 8px 18px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -277,13 +277,13 @@
 
 .toggle {
   width: 40px; height: 22px; border-radius: 99px;
-  background: var(--border); position: relative; flex-shrink: 0;
+  background: var(--border-strong); position: relative; flex-shrink: 0;
   transition: background var(--transition);
 }
 .toggleOn { background: var(--accent); }
 .toggleThumb {
   position: absolute; top: 2px; left: 2px;
-  width: 18px; height: 18px; border-radius: 50%; background: white;
+  width: 18px; height: 18px; border-radius: 50%; background: var(--bg-card);
   box-shadow: var(--shadow-sm); transition: transform var(--transition);
 }
 .toggleOn .toggleThumb { transform: translateX(18px); }
@@ -317,7 +317,7 @@
   border-top: 1px solid var(--border-light);
 }
 .saveBtn {
-  padding: 10px 22px; background: var(--accent); color: white;
+  padding: 10px 22px; background: var(--accent); color: var(--on-accent);
   border-radius: var(--radius-sm); font-size: var(--text-base); font-weight: 500;
   transition: all var(--transition);
 }
@@ -378,7 +378,7 @@
   height: 20px;
   border-radius: 50%;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -290,7 +290,7 @@
   font-size: 0.62rem;
   font-weight: 700;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   padding: 3px 7px;
   letter-spacing: 0.06em;
@@ -435,7 +435,7 @@
   overflow: hidden;
   padding: 9px 24px;
   background: var(--color-primary);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 600;

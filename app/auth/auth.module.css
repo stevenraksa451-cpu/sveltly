@@ -141,7 +141,7 @@
   width: 100%;
   padding: 11px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-weight: 600;

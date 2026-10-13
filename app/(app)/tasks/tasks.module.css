@@ -79,7 +79,7 @@
   gap: 6px;
   padding: 9px 16px;
   background: var(--color-primary);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -121,7 +121,7 @@
   transition: all var(--transition);
 }
 .dateChip:hover { border-color: var(--accent); color: var(--accent); }
-.dateChipActive { background: var(--accent); border-color: var(--accent); color: white; }
+.dateChipActive { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
 .addRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .addSelect, .addDate {
@@ -141,7 +141,7 @@
   color: var(--text-secondary);
 }
 .cancelBtn:hover { background: var(--bg-subtle); }
-.saveBtn { padding: 7px 16px; background: var(--accent); color: white; border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 600; }
+.saveBtn { padding: 7px 16px; background: var(--accent); color: var(--on-accent); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 600; }
 .saveBtn:disabled { opacity: 0.5; }
 
 .groups { display: flex; flex-direction: column; gap: 18px; }

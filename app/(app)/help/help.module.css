@@ -9,17 +9,36 @@
   gap: var(--card-gap);
 }
 
+/* ⚠️ Ce bandeau utilisait `background: var(--color-ink)` — l'encre, qui
+   s'INVERSE avec le thème. En sombre, --color-ink vaut #FAFAFA : le bandeau
+   devenait un bloc blanc portant du texte blanc, totalement illisible, et
+   rien ne le signalait.
+
+   Il reprend maintenant la recette commune des cartes : surface, filet,
+   ombre, plus un halo d'accent dans l'angle. Elle tient dans les deux
+   thèmes parce qu'elle ne repose que sur des tokens de SURFACE. */
 .banner {
-  background: var(--color-ink);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
   padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.28);
 }
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(520px 240px at 100% 0%, var(--accent-light), transparent 72%);
+}
+.banner > * { position: relative; }
 
 .bannerContent {
   display: flex;
@@ -54,8 +73,8 @@
 
 .bannerBtn {
   padding: 8px 20px;
-  background: white;
-  color: var(--accent-hover);
+  background: var(--grad-brand);
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-base);
   font-weight: 600;
@@ -63,10 +82,7 @@
   font-family: var(--font-sans);
   white-space: nowrap;
 }
-.bannerBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+.bannerBtn:hover { filter: saturate(1.08) brightness(1.04); }
 
 .cols {
   display: grid;

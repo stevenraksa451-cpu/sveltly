@@ -25,7 +25,7 @@
   font-size: 0.65rem;
   font-weight: 600;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   padding: 1px 7px;
   width: fit-content;
@@ -250,7 +250,7 @@
 .saveBtn {
   padding: 6px 16px;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
   font-weight: 600;

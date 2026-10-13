@@ -119,6 +119,10 @@
   --accent-light: var(--color-primary-soft);
   --accent-line: #C7D2FE;
   --accent-muted: #A5B4FC;
+  /* Encre à poser sur un aplat d'accent. Blanc en clair, encre profonde en
+     sombre — voir le bloc [data-theme="dark"]. Ne jamais écrire « white » en
+     dur à côté d'un `background: var(--accent)`. */
+  --on-accent: #ffffff;
 
   --urgent: var(--tag-urgent);
   --urgent-light: var(--tag-urgent-light);
@@ -220,57 +224,92 @@
 }
 
 [data-theme="dark"] {
-  --color-ink: #FAFAF9;
-  /* Indigo éclairci : #4F46E5 sur fond sombre tombe à 2,4:1. */
+  /* ============================================================
+     THÈME SOMBRE — vraiment sombre.
+
+     La version précédente était un gris CHAUD à #1C1917, avec des cartes à
+     #262220 : sur un écran lumineux ça ne passe pas pour du sombre, ça passe
+     pour du marron. Le fond descend à #0A0A0A et les surfaces se posent par
+     petits paliers (#141414, #1C1C1C), comme sur les interfaces sombres de
+     référence.
+
+     Et NEUTRE, là où le thème clair est chaud. Ce n'est pas une
+     incohérence : une teinte chaude se voit sur un fond clair et donne de
+     la chaleur, mais la même teinte sur du quasi-noir donne du brun sale.
+     Les neutres sombres se tiennent en gris pur.
+
+     Le fond n'est pas #000000 pur, et c'est délibéré : du blanc sur du noir
+     absolu produit un halo (irradiation) qui fatigue à la lecture, et sur
+     dalle OLED les transitions de #000 vers un gris laissent une traînée.
+     #0A0A0A coûte un point de contraste et supprime les deux.
+     ============================================================ */
+
+  --color-ink: #FAFAFA;
+  /* Indigo éclairci : #4F46E5 tombe à 1,6:1 sur ce fond. */
   --color-primary: #818CF8;
   --color-primary-hover: #A5B4FC;
-  --color-primary-soft: #272150;
+  --color-primary-soft: #1E1B38;
   --color-secondary: var(--color-primary);
   --color-secondary-hover: var(--color-primary-hover);
   --color-accent: #34D399;
-  --color-accent-light: #0C2E22;
+  --color-accent-light: #082019;
   --color-premium: var(--color-primary);
   --color-premium-light: var(--color-primary-soft);
 
-  /* Les compagnons s'éclaircissent sur fond sombre, sinon le dégradé devient
-     une tache noire. */
+  /* Les compagnons s'éclaircissent, sinon le dégradé devient une tache
+     noire sur un fond déjà noir. */
   --hue-violet: #A78BFA;
   --hue-teal: #2DD4BF;
   --hue-amber: #FBBF24;
   --grad-brand: linear-gradient(135deg, #818CF8 0%, #9B8AFB 45%, #A78BFA 100%);
   --grad-line: linear-gradient(135deg, #818CF8 0%, #A78BFA 50%, #2DD4BF 100%);
-  --glow-accent: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 20px -8px rgba(129, 140, 248, 0.5);
-  --tint-indigo-bg: #272150;  --tint-indigo-fg: #A5B4FC;
-  --tint-violet-bg: #2B2152;  --tint-violet-fg: #C4B5FD;
-  --tint-teal-bg: #0C2E29;    --tint-teal-fg: #5EEAD4;
-  --tint-amber-bg: #2E220C;   --tint-amber-fg: #FCD34D;
+  --glow-accent: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 20px -8px rgba(129, 140, 248, 0.45);
+
+  /* Fonds de pastilles redescendus avec le reste : posés sur #0A0A0A, les
+     anciens (#272150 et consorts) ressortaient comme des blocs colorés. */
+  --tint-indigo-bg: #16142E;  --tint-indigo-fg: #A5B4FC;
+  --tint-violet-bg: #1A1430;  --tint-violet-fg: #C4B5FD;
+  --tint-teal-bg: #08201C;    --tint-teal-fg: #5EEAD4;
+  --tint-amber-bg: #1F1708;   --tint-amber-fg: #FCD34D;
 
   --tag-urgent: #FCA5A5;
-  --tag-urgent-light: #2E1616;
+  --tag-urgent-light: #210F0F;
   --tag-important: #FCD34D;
-  --tag-important-light: #2E220C;
-  --tag-normal: #D6D3D1;
-  --tag-normal-light: #2A2624;
+  --tag-important-light: #1F1708;
+  --tag-normal: #D4D4D8;
+  --tag-normal-light: #1C1C1C;
   --tag-success: #6EE7B7;
-  --tag-success-light: #0C2E22;
+  --tag-success-light: #082019;
 
-  --bg: #1C1917;
-  --bg-card: #262220;
-  --bg-subtle: #2A2624;
-  --border: rgba(255, 255, 255, 0.10);
-  --border-light: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  /* --- Surfaces ----------------------------------------------------------
+     Trois paliers seulement, espacés d'environ 5 % de clarté : assez pour
+     qu'une carte se détache du fond, trop peu pour qu'elle paraisse grise.
+     Au-delà de trois, les niveaux cessent d'être lisibles les uns par
+     rapport aux autres. */
+  --bg: #0A0A0A;
+  --bg-card: #141414;
+  --bg-subtle: #1C1C1C;
+
+  /* Filets plus marqués que sur fond clair : sur du quasi-noir, un trait à
+     8 % de blanc disparaît. C'est le filet qui porte le bord d'une carte,
+     puisque l'ombre, elle, ne se voit plus. */
+  --border: rgba(255, 255, 255, 0.11);
+  --border-light: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.18);
 
   --text-primary: var(--color-ink);
-  --text-secondary: #D6D3D1;
-  --text-muted: #A8A29E;
-  --text-faint: #78716C;
+  --text-secondary: #D4D4D8;
+  --text-muted: #A1A1AA;
+  --text-faint: #71717A;
 
   --accent: var(--color-primary);
   --accent-hover: var(--color-primary-hover);
   --accent-light: var(--color-primary-soft);
-  --accent-line: #3F3A78;
+  --accent-line: #312C66;
   --accent-muted: #5B54A8;
+  /* L'accent est clair ici : c'est l'encre qui devient foncée. Blanc sur
+     #818CF8 donnerait 2,98:1 ; l'encre profonde donne 6,64:1. */
+  --on-accent: #0A0A0A;
 
   --urgent: var(--tag-urgent);
   --urgent-light: var(--tag-urgent-light);
@@ -281,12 +320,15 @@
   --purple: var(--color-primary);
   --purple-light: var(--color-primary-soft);
 
-  /* Sur fond sombre une ombre ne se voit pas : c'est le filet qui porte le
-     bord. On garde des ombres, mais plus denses et sans prétendre éclairer. */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.24);
-  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.24), 0 24px 48px -12px rgba(0, 0, 0, 0.44);
+  /* Une ombre ne se voit pas sur du noir — elle ne peut rien assombrir de
+     plus. On la garde très dense pour détacher les éléments FLOTTANTS
+     (menus, modales, info-bulles) du fond, et c'est le filet qui fait le
+     bord des cartes posées. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.55), 0 24px 56px -12px rgba(0, 0, 0, 0.7);
 }
+
 
 * {
   margin: 0;

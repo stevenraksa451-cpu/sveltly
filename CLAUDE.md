@@ -225,6 +225,36 @@ Règles qui vont avec :
 - **Pas de sélecteur de thème dans la barre du haut** : il vit dans
   Réglages → Apparence et sur `/settings/personalization`.
 
+### Thème sombre : vraiment sombre, et neutre
+
+Fond , cartes , surfaces secondaires  — trois
+paliers espacés d'environ 5 % de clarté. La version précédente était un gris
+CHAUD à  : sur un écran lumineux ça ne passait pas pour du sombre,
+ça passait pour du marron.
+
+Neutre, là où le thème clair est chaud, et ce n'est pas une incohérence : une
+teinte chaude donne de la chaleur sur un fond clair, mais du brun sale sur du
+quasi-noir. Le fond n'est pas  pur non plus — du blanc sur du noir
+absolu produit un halo qui fatigue à la lecture, et sur dalle OLED les
+transitions depuis  laissent une traînée.
+
+⚠️ **, jamais  en dur.** L'accent est un indigo profond
+en clair (, blanc dessus = 6,3:1) mais ÉCLAIRCI en sombre
+() pour rester lisible comme couleur de lien — et le blanc dessus y
+tombe à 2,98:1. C'est l'encre qui s'inverse, pas l'accent : rabaisser l'accent
+rendrait tous les liens illisibles. 34 règles ont été corrigées.
+
+⚠️ **Ne jamais utiliser un token d'ENCRE comme fond.** Le bandeau de
+ posait  : en sombre, vaut , donc le bandeau devenait un bloc blanc portant du texte
+blanc. Un fond se prend dans ,  ou , qui
+suivent le thème dans le bon sens.
+
+La vitrine, elle, reste claire en toutes circonstances : le garde-fou
+ de  redonne les
+valeurs claires, alias  ET tokens de base lus directement par le CSS
+vitrine. Ajouter un token de couleur au CSS de la landing demande de l'ajouter
+à cette liste.
+
 ---
 
 ## Tâches — taxonomie et provenance
