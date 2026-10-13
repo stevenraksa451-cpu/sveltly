@@ -284,8 +284,27 @@
 }
 
 /* ==========================================================================
-   SÉQUENCE — 9 s, cinq temps.
-   Les pourcentages valent : 0,6 s = 7 %, 1 s = 11 %, etc.
+   SÉQUENCE — 9 s, cinq temps, en boucle.
+
+   DEUX RÈGLES, et la scène sautait à chaque tour parce qu'aucune des deux
+   n'était tenue.
+
+   1 · LE KEYFRAME 100 % DOIT ÊTRE IDENTIQUE AU 0 %.
+   Une animation infinie repasse de 100 % à 0 % en UNE image, sans
+   transition. Les cinq séquences se terminaient sur l'état « visible » et
+   repartaient de « caché » : tout disparaissait d'un coup à chaque bouclage.
+   Elles se terminent maintenant sur l'état de départ, après un fondu de
+   sortie de 12 % (≈ 1,1 s) — le raccord ne se voit plus.
+
+   2 · NE JAMAIS ANIMER UNE PROPRIÉTÉ DE MISE EN PAGE.
+   L'arrivée de l'email animait « max-height » de 0 à 92 px. Au bouclage, la
+   ligne retombait à zéro en une image et TOUT ce qui se trouvait dessous
+   remontait de 92 px d'un coup — c'était ça, le saut de la page. La ligne
+   occupe désormais sa place en permanence ; seules l'opacité et la
+   translation bougent, et ni l'une ni l'autre ne déclenche de recalcul de
+   mise en page.
+
+   Les pourcentages valent : 0,9 s = 10 %, 1 s = 11 %, etc.
    ========================================================================== */
 
 /* 1 · l'email arrive en haut de la liste (0 → 0,9 s) */
@@ -294,13 +313,18 @@
   animation: arriveeEmail 9s var(--ease) infinite both;
 }
 @keyframes arriveeEmail {
-  0%   { opacity: 0; transform: translateY(-14px); max-height: 0; }
-  4%   { opacity: 0; transform: translateY(-14px); max-height: 92px; }
-  10%  { opacity: 1; transform: none; max-height: 92px; }
-  /* Le surlignage d'arrivée retombe une fois le message lu. */
-  34%  { background: var(--accent-light); }
-  44%  { background: transparent; }
-  100% { opacity: 1; transform: none; max-height: 92px; background: transparent; }
+  0%        { opacity: 0; transform: translateY(-14px); background: var(--accent-light); }
+  10%       { opacity: 1; transform: none;              background: var(--accent-light); }
+  /* Le surlignage d'arrivée retombe AVANT que le résumé n'arrive (30 %).
+     Les deux se chevauchaient : le résumé s'écrivait par-dessus l'indigo, où
+     il tombe à 6,8:1 au lieu de 7,6:1 sur la ligne nue — et pendant son
+     propre fondu, bien plus bas encore. Décaler la retombée de dix points
+     règle le fond du problème plutôt que la couleur. */
+  20%       { opacity: 1; transform: none;              background: var(--accent-light); }
+  30%, 88%  { opacity: 1; transform: none;              background: transparent; }
+  /* Le fond redevient celui de l'arrivée pendant que la ligne est déjà
+     invisible : au tour suivant, elle réapparaît déjà surlignée. */
+  100%      { opacity: 0; transform: translateY(-14px); background: var(--accent-light); }
 }
 
 /* 2 · l'IA pose l'étiquette (1,6 → 2,2 s) */
@@ -308,9 +332,9 @@
   animation: poseEtiquette 9s var(--ease) infinite both;
 }
 @keyframes poseEtiquette {
-  0%, 16%  { opacity: 0; transform: scale(0.8); }
-  25%      { opacity: 1; transform: none; }
-  100%     { opacity: 1; transform: none; }
+  0%, 16%   { opacity: 0; transform: scale(0.8); }
+  25%, 88%  { opacity: 1; transform: none; }
+  100%      { opacity: 0; transform: scale(0.8); }
 }
 
 /* 3 · le résumé d'une ligne (2,8 → 3,6 s) */
@@ -327,17 +351,21 @@
   animation: apparitionResume 9s var(--ease) infinite both;
 }
 @keyframes apparitionResume {
-  0%, 30%  { opacity: 0; transform: translateY(-4px); }
-  40%      { opacity: 1; transform: none; }
-  100%     { opacity: 1; transform: none; }
+  0%, 30%   { opacity: 0; transform: translateY(-4px); }
+  40%, 88%  { opacity: 1; transform: none; }
+  100%      { opacity: 0; transform: translateY(-4px); }
 }
 
+/* Indigo plus profond que --accent-hover : 8,9:1 contre 7,1: la pastille
+   traverse un fondu, et pendant celui-ci son encre se rapproche du fond.
+   Plus la valeur stabilisée a de marge, moins l'état transitoire descend.
+   Voir la note sur la mesure dans CLAUDE.md. */
 .summaryTag {
   flex-shrink: 0;
   padding: 1px 5px;
   border-radius: 4px;
   background: var(--accent-light);
-  color: var(--accent-hover);
+  color: #3730A3;
   font-size: 9px;
   font-weight: var(--weight-strong);
   letter-spacing: 0.01em;
@@ -345,12 +373,15 @@
 
 /* 4 · le créneau glisse dans l'agenda (4,4 → 5,4 s) */
 .event {
+  /* transform-origin sur la règle, pas dans le keyframe : déclaré à
+     l'intérieur, il ne s'applique qu'à l'image où il est posé. */
+  transform-origin: left center;
   animation: glisseCreneau 9s var(--ease) infinite both;
 }
 @keyframes glisseCreneau {
-  0%, 48%  { opacity: 0; transform: translateX(10px) scaleX(0.94); transform-origin: left center; }
-  60%      { opacity: 1; transform: none; }
-  100%     { opacity: 1; transform: none; }
+  0%, 48%   { opacity: 0; transform: translateX(10px) scaleX(0.94); }
+  60%, 88%  { opacity: 1; transform: none; }
+  100%      { opacity: 0; transform: translateX(10px) scaleX(0.94); }
 }
 
 /* 5 · la confirmation (5,8 → 6,6 s), puis elle reste */
@@ -358,9 +389,37 @@
   animation: apparitionToast 9s var(--ease) infinite both;
 }
 @keyframes apparitionToast {
-  0%, 64%  { opacity: 0; transform: translateY(8px); }
-  73%      { opacity: 1; transform: none; }
-  100%     { opacity: 1; transform: none; }
+  0%, 64%   { opacity: 0; transform: translateY(8px); }
+  73%, 88%  { opacity: 1; transform: none; }
+  100%      { opacity: 0; transform: translateY(8px); }
+}
+
+/* --- Mouvement réduit ------------------------------------------------------
+   La scène ne comptait plus sur un effet de bord pour s'afficher en entier :
+   avant, elle s'appuyait sur le fait que le keyframe 100 % était l'état
+   visible et que la règle globale ramenait la durée à ~0. C'est cette
+   contrainte qui interdisait de boucler proprement.
+
+   On coupe donc les animations ici, explicitement, et on pose l'état final à
+   la main. Les deux besoins sont séparés : la boucle peut se fermer, et la
+   scène reste complète pour qui demande moins de mouvement.
+
+   « animation: none » suffit à neutraliser la règle globale — elle ne force
+   que la durée et le nombre d'itérations, jamais le NOM de l'animation. Sans
+   nom, il n'y a pas d'animation, donc rien pour écraser les valeurs
+   ci-dessous (une valeur animée l'emporterait sur une déclaration normale). */
+@media (prefers-reduced-motion: reduce) {
+  .rowNew,
+  .rowNew .label,
+  .summary,
+  .event,
+  .toast {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  /* L'état de repos de la ligne, une fois le message « lu ». */
+  .rowNew { background: transparent; }
 }
 
 /* --- Adaptatif ------------------------------------------------------------ */

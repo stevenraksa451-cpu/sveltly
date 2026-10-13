@@ -419,6 +419,50 @@ liste pour un lecteur d'écran. Une cascade d'entrée se fait en CSS sur les
 Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 contre
 86 — plus de requêtes, aucun gain. Ne pas le réintroduire sans le remesurer.
 
+### Deux règles pour une animation qui boucle
+
+Tirées d'un vrai défaut : la page « sautait » à chaque tour de l'aperçu
+produit du hero (`ProductPreview`, boucle de 9 s).
+
+**1. Le keyframe 100 % doit être identique au 0 %.** Une animation infinie
+repasse de 100 % à 0 % en UNE image, sans transition. Les cinq séquences se
+terminaient sur l'état « visible » et repartaient de « caché » : tout
+disparaissait d'un coup à chaque bouclage. Elles finissent maintenant sur
+l'état de départ, après un fondu de sortie de 12 % de la boucle.
+
+**2. Ne jamais animer une propriété de mise en page.** L'arrivée de l'email
+animait `max-height` de 0 à 92 px. Au bouclage, la ligne retombait à zéro en
+une image et tout ce qui se trouvait dessous remontait de 92 px — c'était ça,
+le saut. Seuls `opacity` et `transform` sont composés par la carte graphique
+et ne déclenchent aucun recalcul. Mesuré après correction : **CLS 0**, aucun
+élément décalant la page.
+
+Corollaire : ces deux règles s'opposaient à la façon dont `prefers-reduced-motion`
+était géré ici — on comptait sur le fait que le dernier keyframe était l'état
+visible et que la règle globale ramenait la durée à ~0. Les deux besoins sont
+désormais **séparés** : `ProductPreview.module.css` porte son propre bloc
+`@media (prefers-reduced-motion: reduce)` qui coupe les animations et pose
+l'état final à la main. La boucle est alors libre de se refermer proprement.
+
+### ⚠️ Le score d'accessibilité oscille, et c'est une limite de la mesure
+
+Lighthouse échantillonne **une seule image**. L'aperçu du hero contient des
+fondus : pendant un fondu, l'opacité partielle rapproche l'encre du fond, et
+axe relève un contraste faible sur un état purement transitoire. Mesuré sur
+quatre passes consécutives, sans aucune modification entre elles : 100, 96,
+100, 100.
+
+Ce n'est pas un échec WCAG — les états transitoires d'une animation n'en
+relèvent pas, et le bloc entier est `aria-hidden` parce qu'il est décoratif.
+Les valeurs **stabilisées** sont confortables : 7,6:1 pour le résumé, 8,9:1
+pour sa pastille. Et c'est inhérent : tout fondu sur une zone contenant du
+texte rend une mesure sur une seule image non fiable, quelle que soit la
+couleur choisie.
+
+Avant de chasser un `color-contrast` signalé sur `ProductPreview`, **relancer
+la mesure** : s'il n'apparaît pas à tous les coups, c'est l'artefact. S'il
+apparaît systématiquement, c'est un vrai défaut.
+
 ---
 
 ## Pièges connus
