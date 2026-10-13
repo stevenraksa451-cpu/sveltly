@@ -7,14 +7,34 @@
    d'accord : si vous changez la durée ou le nombre de mots, changez les deux.
 
    Les pourcentages des quatre temps ne dépendent PAS de la durée (25 % par
-   mot quoi qu'il arrive) ; seules les largeurs de fondu ont été resserrées
-   pour que le fondu dure toujours ~360 ms en secondes réelles.
+   mot quoi qu'il arrive) ; seules les largeurs de fondu sont exprimées en
+   pourcentage de la boucle.
 
       mot 1   0 → 25 %     mot 3   50 → 75 %
       mot 2  25 → 50 %     mot 4   75 → 100 %
 
-   Le fondu dure 1,5 % (≈ 360 ms) et se joue en croisé : le mot sortant et le
-   mot entrant se chevauchent, sinon la ligne clignote à vide entre les deux.
+   Le changement occupe 5 % (1,2 s) et se joue en RELAIS, pas en fondu
+   croisé : le mot sortant va jusqu'à l'opacité 0 avant que le suivant
+   commence à apparaître.
+
+   C'est le point qui s'est vérifié à l'écran. Un fondu croisé marche entre
+   deux images, parce que l'oeil accepte un mélange ; entre deux MOTS, il
+   donne deux textes différents superposés au même endroit, chacun à moitié
+   lisible. À 360 ms, l'ancien réglage, ça passait presque inaperçu ; allongé
+   pour faire plus doux, ça ne faisait que montrer la bouillie plus
+   longtemps. Capture à l'appui : « Avancez » et « Progressez » lisibles
+   ensemble, l'un sur l'autre.
+
+      sortie   B−5   → B−2,3    (≈ 650 ms)
+      entrée   B−2,7 → B        (≈ 650 ms)
+
+   Les deux se recouvrent de 0,4 % (≈ 96 ms), et seulement par leurs queues :
+   avec une courbe sinusoïdale, les deux mots y sont sous 3 % d'opacité. La
+   ligne n'est donc jamais vraiment vide — pas de clignotement — et jamais
+   vraiment double non plus.
+
+   Cette fenêtre de 5 % est exactement celle du fond (HeroAmbience) : la
+   lumière et le mot changent d'un seul geste, et non l'un après l'autre.
 
    ⚠️ Quatre jeux de keyframes explicites plutôt qu'un seul avec des
    animation-delay, et c'est voulu : sous `prefers-reduced-motion`, la règle
@@ -60,7 +80,18 @@
   padding-bottom: 0.18em;
   margin-bottom: -0.18em;
 
-  animation: 24s var(--mk-ease, ease) infinite both;
+  /* PAS var(--mk-ease) ici. Ce jeton vaut cubic-bezier(0.2, 0, 0, 1), une
+     sortie très sèche : taillée pour une entrée d'élément, qui doit partir
+     vite et se poser doucement. Appliquée à un fondu croisé, elle fait faire
+     à l'opacité presque tout son chemin dans les cent premières
+     millisecondes — le mot semblait changer d'un coup, quelle que soit la
+     durée annoncée.
+
+     Une sinusoïdale symétrique (easeInOutSine) démarre et finit lentement :
+     c'est la courbe la plus douce pour une transformation qui n'a ni début
+     ni fin marqués, et c'est exactement le cas d'un mot qui en remplace un
+     autre. */
+  animation: 24s cubic-bezier(0.37, 0, 0.63, 1) infinite both;
 }
 
 /* --- Les quatre teintes ---------------------------------------------------
@@ -78,26 +109,39 @@
 .azur   { animation-name: mot4; }
 
 /* Le mot sort vers le haut et le suivant entre par le bas : le mouvement dit
-   « la suite », là où un simple fondu dirait « autre chose ». 6 px suffisent
-   à cette taille — au-delà, le titre a l'air de sauter. */
+   « la suite », là où un simple fondu dirait « autre chose ». 10 px sur
+   650 ms, c'est une dérive ; les 6 px d'avant, parcourus en 360 ms, se
+   lisaient comme un à-coup.
+
+   Le flou accompagne le fondu plutôt que de le remplacer. Un mot qui perd
+   seulement son opacité reste net jusqu'à la dernière image et se détache du
+   fond jusqu'au bout ; flouté en partant, il se dissout. C'est la différence
+   entre « le mot a disparu » et « le mot s'en va » — et, avec le relais,
+   c'est aussi ce qui empêche le court instant à vide de se voir.
+
+   Chaque mot cache un aller-retour instantané — de −10 px à +10 px — joué
+   pendant qu'il est à opacité 0 : il sort par le haut et doit se retrouver
+   en bas pour sa prochaine entrée. Sur mot1 il est écrit dans le keyframe
+   (22,7 → 22,8 %) ; sur les trois autres il tombe sur le raccord
+   100 % → 0 %, où l'opacité est nulle des deux côtés. */
 @keyframes mot1 {
-  0%, 23.5% { opacity: 1; transform: none; }
-  25%, 98.5% { opacity: 0; transform: translateY(-6px); }
-  98.6% { opacity: 0; transform: translateY(6px); }
-  100% { opacity: 1; transform: none; }
+  0%, 20%      { opacity: 1; transform: none;              filter: blur(0); }
+  22.7%        { opacity: 0; transform: translateY(-10px); filter: blur(5px); }
+  22.8%, 97.3% { opacity: 0; transform: translateY(10px);  filter: blur(5px); }
+  100%         { opacity: 1; transform: none;              filter: blur(0); }
 }
 @keyframes mot2 {
-  0%, 23.4% { opacity: 0; transform: translateY(6px); }
-  25%, 48.5% { opacity: 1; transform: none; }
-  50%, 100% { opacity: 0; transform: translateY(-6px); }
+  0%, 22.3%    { opacity: 0; transform: translateY(10px);  filter: blur(5px); }
+  25%, 45%     { opacity: 1; transform: none;              filter: blur(0); }
+  47.7%, 100%  { opacity: 0; transform: translateY(-10px); filter: blur(5px); }
 }
 @keyframes mot3 {
-  0%, 48.4% { opacity: 0; transform: translateY(6px); }
-  50%, 73.5% { opacity: 1; transform: none; }
-  75%, 100% { opacity: 0; transform: translateY(-6px); }
+  0%, 47.3%    { opacity: 0; transform: translateY(10px);  filter: blur(5px); }
+  50%, 70%     { opacity: 1; transform: none;              filter: blur(0); }
+  72.7%, 100%  { opacity: 0; transform: translateY(-10px); filter: blur(5px); }
 }
 @keyframes mot4 {
-  0%, 73.4% { opacity: 0; transform: translateY(6px); }
-  75%, 98.5% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateY(-6px); }
+  0%, 72.3%    { opacity: 0; transform: translateY(10px);  filter: blur(5px); }
+  75%, 95%     { opacity: 1; transform: none;              filter: blur(0); }
+  97.7%, 100%  { opacity: 0; transform: translateY(-10px); filter: blur(5px); }
 }

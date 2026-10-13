@@ -6,10 +6,15 @@
    par le fond. Les changer d'un seul côté désynchronise la couleur du titre
    et celle de l'écran derrière lui, ce qui se voit immédiatement.
 
-   Le fondu du fond est volontairement plus LONG que celui du mot (5 % contre
-   1,5 %, soit 1,2 s contre 0,36 s) : un mot change net, une lumière change
-   lentement. Croisés à la même vitesse, le fond donnait un à-coup de
-   projecteur à chaque tour.
+   Le fond occupe la MÊME fenêtre de 5 % (1,2 s) que le mot, et la remplit
+   autrement : un seul fondu croisé continu, là où le mot fait un relais
+   (sortie puis entrée). C'est la bonne répartition des rôles — deux nappes
+   de lumière se mélangent très bien, deux mots non. Vu du visiteur, la
+   lumière et le titre changent d'un seul geste de 1,2 s.
+
+   Croisé plus VITE que le mot, le fond donnait un à-coup de projecteur à
+   chaque tour ; croisé plus lentement, il traînait derrière un titre déjà
+   changé. Les deux fenêtres doivent rester alignées.
    ========================================================================== */
 
 .ambiance {
