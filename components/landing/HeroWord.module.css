@@ -1,15 +1,19 @@
 /* ==========================================================================
    Mot tournant du titre — et SOURCE DES TEMPS pour tout le hero.
 
-   Boucle de 14 s, quatre mots de 3,5 s. Les pourcentages ci-dessous sont
+   Boucle de 24 s, quatre mots de 6 s. Les pourcentages ci-dessous sont
    rejoués à l'identique par HeroAmbience.module.css, qui fait changer les
    nappes du fond en même temps que le mot. Les deux fichiers doivent rester
    d'accord : si vous changez la durée ou le nombre de mots, changez les deux.
 
+   Les pourcentages des quatre temps ne dépendent PAS de la durée (25 % par
+   mot quoi qu'il arrive) ; seules les largeurs de fondu ont été resserrées
+   pour que le fondu dure toujours ~360 ms en secondes réelles.
+
       mot 1   0 → 25 %     mot 3   50 → 75 %
       mot 2  25 → 50 %     mot 4   75 → 100 %
 
-   Le fondu dure 2,5 % (≈ 350 ms) et se joue en croisé : le mot sortant et le
+   Le fondu dure 1,5 % (≈ 360 ms) et se joue en croisé : le mot sortant et le
    mot entrant se chevauchent, sinon la ligne clignote à vide entre les deux.
 
    ⚠️ Quatre jeux de keyframes explicites plutôt qu'un seul avec des
@@ -41,7 +45,7 @@
      couleurs sautent d'un mot à l'autre. */
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  animation: 14s var(--mk-ease, ease) infinite both;
+  animation: 24s var(--mk-ease, ease) infinite both;
 }
 
 /* --- Les quatre teintes ---------------------------------------------------
@@ -62,23 +66,23 @@
    « la suite », là où un simple fondu dirait « autre chose ». 6 px suffisent
    à cette taille — au-delà, le titre a l'air de sauter. */
 @keyframes mot1 {
-  0%, 22.5% { opacity: 1; transform: none; }
-  25%, 97.5% { opacity: 0; transform: translateY(-6px); }
-  97.6% { opacity: 0; transform: translateY(6px); }
+  0%, 23.5% { opacity: 1; transform: none; }
+  25%, 98.5% { opacity: 0; transform: translateY(-6px); }
+  98.6% { opacity: 0; transform: translateY(6px); }
   100% { opacity: 1; transform: none; }
 }
 @keyframes mot2 {
-  0%, 22.4% { opacity: 0; transform: translateY(6px); }
-  25%, 47.5% { opacity: 1; transform: none; }
+  0%, 23.4% { opacity: 0; transform: translateY(6px); }
+  25%, 48.5% { opacity: 1; transform: none; }
   50%, 100% { opacity: 0; transform: translateY(-6px); }
 }
 @keyframes mot3 {
-  0%, 47.4% { opacity: 0; transform: translateY(6px); }
-  50%, 72.5% { opacity: 1; transform: none; }
+  0%, 48.4% { opacity: 0; transform: translateY(6px); }
+  50%, 73.5% { opacity: 1; transform: none; }
   75%, 100% { opacity: 0; transform: translateY(-6px); }
 }
 @keyframes mot4 {
-  0%, 72.4% { opacity: 0; transform: translateY(6px); }
-  75%, 97.5% { opacity: 1; transform: none; }
+  0%, 73.4% { opacity: 0; transform: translateY(6px); }
+  75%, 98.5% { opacity: 1; transform: none; }
   100% { opacity: 0; transform: translateY(-6px); }
 }

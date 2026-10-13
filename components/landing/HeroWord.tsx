@@ -1,6 +1,7 @@
 import styles from './HeroWord.module.css'
 
-// Le dernier mot du titre tourne : Avancez → Progressez → Évoluez → Continuez.
+// Le dernier mot du titre tourne : Avancez → Progressez → Évoluez → Continuez,
+// six secondes chacun.
 //
 // Chaque mot a son propre dégradé, et les nappes colorées du fond du hero
 // changent EN MÊME TEMPS pour s'accorder à lui (voir HeroAmbience, qui rejoue

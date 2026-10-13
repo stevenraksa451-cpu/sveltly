@@ -2,13 +2,14 @@
    Nappes colorées du hero.
 
    Les pourcentages sont ceux de HeroWord.module.css — les deux fichiers
-   décrivent la MÊME boucle de 14 s, vue d'un côté par le mot et de l'autre
+   décrivent la MÊME boucle de 24 s, vue d'un côté par le mot et de l'autre
    par le fond. Les changer d'un seul côté désynchronise la couleur du titre
    et celle de l'écran derrière lui, ce qui se voit immédiatement.
 
-   Le fondu du fond est volontairement plus LONG que celui du mot (8 % contre
-   2,5 %) : un mot change net, une lumière change lentement. Croisés à la même
-   vitesse, le fond donnait un à-coup de projecteur à chaque tour.
+   Le fondu du fond est volontairement plus LONG que celui du mot (5 % contre
+   1,5 %, soit 1,2 s contre 0,36 s) : un mot change net, une lumière change
+   lentement. Croisés à la même vitesse, le fond donnait un à-coup de
+   projecteur à chaque tour.
    ========================================================================== */
 
 .ambiance {
@@ -22,7 +23,7 @@
 .calque {
   position: absolute;
   inset: 0;
-  animation: 14s linear infinite both;
+  animation: 24s linear infinite both;
 }
 
 /* Les quatre jeux reprennent la teinte de leur mot. Même géométrie à chaque
@@ -57,27 +58,27 @@
   animation-name: nappe4;
 }
 
-/* Mêmes bornes que les mots, avec un fondu de 8 %. Le calque 1 termine
+/* Mêmes bornes que les mots, avec un fondu de 5 %. Le calque 1 termine
    VISIBLE : sous `prefers-reduced-motion`, la durée tombe à ~0 et c'est lui
    qui reste — un hero avec sa lumière, pas un rectangle noir. */
 @keyframes nappe1 {
-  0%, 17% { opacity: 1; }
-  25%, 92% { opacity: 0; }
+  0%, 20% { opacity: 1; }
+  25%, 95% { opacity: 0; }
   100% { opacity: 1; }
 }
 @keyframes nappe2 {
-  0%, 17% { opacity: 0; }
-  25%, 42% { opacity: 1; }
+  0%, 20% { opacity: 0; }
+  25%, 45% { opacity: 1; }
   50%, 100% { opacity: 0; }
 }
 @keyframes nappe3 {
-  0%, 42% { opacity: 0; }
-  50%, 67% { opacity: 1; }
+  0%, 45% { opacity: 0; }
+  50%, 70% { opacity: 1; }
   75%, 100% { opacity: 0; }
 }
 @keyframes nappe4 {
-  0%, 67% { opacity: 0; }
-  75%, 92% { opacity: 1; }
+  0%, 70% { opacity: 0; }
+  75%, 95% { opacity: 1; }
   100% { opacity: 0; }
 }
 
