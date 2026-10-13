@@ -227,33 +227,41 @@ Règles qui vont avec :
 
 ### Thème sombre : vraiment sombre, et neutre
 
-Fond , cartes , surfaces secondaires  — trois
-paliers espacés d'environ 5 % de clarté. La version précédente était un gris
-CHAUD à  : sur un écran lumineux ça ne passait pas pour du sombre,
-ça passait pour du marron.
+Fond `#0A0A0A`, cartes `#141414`, surfaces secondaires `#1C1C1C` — trois
+paliers espacés d'environ 5 % de clarté : assez pour qu'une carte se détache
+du fond, trop peu pour qu'elle paraisse grise. La version précédente était un
+gris **chaud** à `#1C1917` avec des cartes à `#262220` : sur un écran
+lumineux, ça ne passait pas pour du sombre, ça passait pour du marron.
 
 Neutre, là où le thème clair est chaud, et ce n'est pas une incohérence : une
 teinte chaude donne de la chaleur sur un fond clair, mais du brun sale sur du
-quasi-noir. Le fond n'est pas  pur non plus — du blanc sur du noir
-absolu produit un halo qui fatigue à la lecture, et sur dalle OLED les
-transitions depuis  laissent une traînée.
+quasi-noir. Le fond n'est pas `#000000` pur non plus — du blanc sur du noir
+absolu produit un halo (irradiation) qui fatigue à la lecture, et sur dalle
+OLED les transitions depuis `#000` laissent une traînée. `#0A0A0A` coûte un
+point de contraste et supprime les deux.
 
-⚠️ **, jamais  en dur.** L'accent est un indigo profond
-en clair (, blanc dessus = 6,3:1) mais ÉCLAIRCI en sombre
-() pour rester lisible comme couleur de lien — et le blanc dessus y
-tombe à 2,98:1. C'est l'encre qui s'inverse, pas l'accent : rabaisser l'accent
-rendrait tous les liens illisibles. 34 règles ont été corrigées.
+⚠️ **`--on-accent`, jamais `white` en dur.** L'accent est un indigo profond
+en clair (`#4F46E5`, blanc dessus = 6,3:1) mais **éclairci** en sombre
+(`#818CF8`) pour rester lisible comme couleur de lien — et le blanc dessus y
+tombe à 2,98:1. C'est l'encre qui s'inverse, pas l'accent : le rabaisser
+rendrait tous les liens illisibles sur le fond noir. 34 règles corrigées.
 
-⚠️ **Ne jamais utiliser un token d'ENCRE comme fond.** Le bandeau de
- posait  : en sombre, vaut , donc le bandeau devenait un bloc blanc portant du texte
-blanc. Un fond se prend dans ,  ou , qui
-suivent le thème dans le bon sens.
+⚠️ **Ne jamais utiliser un token d'ENCRE comme fond.** Le bandeau de `/help`
+posait `background: var(--color-ink)`. En sombre, `--color-ink` vaut
+`#FAFAFA` : le bandeau devenait un bloc blanc portant du texte blanc, sans
+aucune erreur ni avertissement. Un fond se prend dans `--bg`, `--bg-card` ou
+`--bg-subtle`, qui suivent le thème dans le bon sens.
+
+Même piège sur les éléments non textuels : une pastille d'interrupteur en
+blanc dur donnait 2,98:1 sur la piste accent du thème sombre, sous le seuil
+de 3:1. Elle prend `--bg-card`, qui s'inverse.
 
 La vitrine, elle, reste claire en toutes circonstances : le garde-fou
- de  redonne les
-valeurs claires, alias  ET tokens de base lus directement par le CSS
-vitrine. Ajouter un token de couleur au CSS de la landing demande de l'ajouter
-à cette liste.
+`[data-theme='dark'] .mk, .mkc` de `styles/marketing.css` redonne les valeurs
+claires — les alias `--mk-*` **et** la trentaine de tokens de base que le CSS
+vitrine lit directement. Ajouter une couleur au CSS de la landing demande de
+l'ajouter à cette liste, sinon elle s'inversera le temps d'une image lors
+d'une navigation depuis l'espace connecté.
 
 ---
 
