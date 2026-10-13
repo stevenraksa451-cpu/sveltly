@@ -444,6 +444,38 @@ désormais **séparés** : `ProductPreview.module.css` porte son propre bloc
 `@media (prefers-reduced-motion: reduce)` qui coupe les animations et pose
 l'état final à la main. La boucle est alors libre de se refermer proprement.
 
+### Deux mots ne se fondent pas l'un dans l'autre
+
+Le mot tournant du titre (`HeroWord`) changeait par à-coups. Trois causes, et
+la durée était la moins importante des trois.
+
+**1. Une courbe d'entrée ne convient pas à un fondu.** `--ease` vaut
+`cubic-bezier(0.2, 0, 0, 1)` : une sortie très sèche, juste pour un élément
+qui apparaît — partir vite, se poser doucement. Sur un fondu, elle fait faire
+à l'opacité presque tout son chemin dans les cent premières millisecondes :
+le changement paraît instantané quelle que soit la durée écrite. Pour une
+transformation sans début ni fin marqués, prendre une courbe **symétrique**
+(easeInOutSine, `cubic-bezier(0.37, 0, 0.63, 1)`).
+
+**2. Le fondu croisé est fait pour des images, pas pour du texte.** Les deux
+mots se chevauchaient à mi-opacité : deux textes différents au même endroit,
+chacun à moitié lisible. Allonger le fondu ne faisait que montrer la bouillie
+plus longtemps. La forme juste est un **relais** — le mot sortant va jusqu'à
+l'opacité 0, puis le suivant entre — avec un recouvrement de l'ordre de
+100 ms par les seules queues des deux courbes : la ligne n'est alors ni
+double ni vide. Les nappes de fond (`HeroAmbience`), elles, se croisent bien :
+ce sont des lumières, pas des signes à lire.
+
+**3. Un flou de sortie vaut mieux qu'une opacité seule.** Net jusqu'à sa
+dernière image, un mot se détache du fond jusqu'au bout : il disparaît. Flouté
+en partant, il se dissout.
+
+Le piège se voit en figeant la boucle, pas en la regardant tourner :
+`document.getAnimations()`, filtrer sur la durée, `pause()` puis
+`currentTime`. ⚠️ Ne pas tenter de repositionner une animation en cours avec
+un `animation-delay` négatif posé en ligne : le délai décale la timeline de
+l'effet, et le `currentTime` ne correspond plus à ce qu'on croit lire.
+
 ### ⚠️ Le score d'accessibilité oscille, et c'est une limite de la mesure
 
 Lighthouse échantillonne **une seule image**. L'aperçu du hero contient des
