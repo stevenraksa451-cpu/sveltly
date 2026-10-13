@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Mot tournant du titre — et SOURCE DES TEMPS pour tout le hero.
+
+   Boucle de 14 s, quatre mots de 3,5 s. Les pourcentages ci-dessous sont
+   rejoués à l'identique par HeroAmbience.module.css, qui fait changer les
+   nappes du fond en même temps que le mot. Les deux fichiers doivent rester
+   d'accord : si vous changez la durée ou le nombre de mots, changez les deux.
+
+      mot 1   0 → 25 %     mot 3   50 → 75 %
+      mot 2  25 → 50 %     mot 4   75 → 100 %
+
+   Le fondu dure 2,5 % (≈ 350 ms) et se joue en croisé : le mot sortant et le
+   mot entrant se chevauchent, sinon la ligne clignote à vide entre les deux.
+
+   ⚠️ Quatre jeux de keyframes explicites plutôt qu'un seul avec des
+   animation-delay, et c'est voulu : sous `prefers-reduced-motion`, la règle
+   globale ramène la durée à ~0 et chaque élément se fige sur son keyframe
+   100 %. Avec des délais, les quatre mots auraient fini cachés — un titre
+   amputé de son dernier mot. Ici le mot 1 termine VISIBLE et les trois
+   autres cachés : le titre s'affiche complet et immobile.
+   ========================================================================== */
+
+/* Grille à une seule cellule : les quatre mots se superposent et le bloc
+   prend la largeur du plus long. La ligne ne bouge donc jamais. */
+/* La ligne de base vient du premier mot empilé — « vertical-align: top »
+   calait le bloc sur le haut de la ligne, ce qui décrochait le mot du reste
+   du titre d'un ou deux pixels. */
+.rotor {
+  display: inline-grid;
+  grid-template-areas: 'mot';
+  vertical-align: baseline;
+}
+
+.mot {
+  grid-area: mot;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Le dégradé est peint sur la boîte du mot : sans cette ligne, un mot
+     court et un mot long ne reçoivent pas la même portion du dégradé et les
+     couleurs sautent d'un mot à l'autre. */
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  animation: 14s var(--mk-ease, ease) infinite both;
+}
+
+/* --- Les quatre teintes ---------------------------------------------------
+   Chacune part d'un bleu-violet et glisse vers sa couleur propre : les quatre
+   gardent ainsi un air de famille au lieu de donner quatre titres différents.
+   Toutes sont des pastels clairs : au-dessus de 9:1 sur l'encre du hero. */
+.indigo { background-image: linear-gradient(120deg, #C7D2FE 0%, #DDD6FE 48%, #99F6E4 100%); }
+.menthe { background-image: linear-gradient(120deg, #BAE6FD 0%, #99F6E4 46%, #A7F3D0 100%); }
+.ambre  { background-image: linear-gradient(120deg, #DDD6FE 0%, #FBCFE8 44%, #FDE68A 100%); }
+.azur   { background-image: linear-gradient(120deg, #E9D5FF 0%, #C7D2FE 46%, #BAE6FD 100%); }
+
+.indigo { animation-name: mot1; }
+.menthe { animation-name: mot2; }
+.ambre  { animation-name: mot3; }
+.azur   { animation-name: mot4; }
+
+/* Le mot sort vers le haut et le suivant entre par le bas : le mouvement dit
+   « la suite », là où un simple fondu dirait « autre chose ». 6 px suffisent
+   à cette taille — au-delà, le titre a l'air de sauter. */
+@keyframes mot1 {
+  0%, 22.5% { opacity: 1; transform: none; }
+  25%, 97.5% { opacity: 0; transform: translateY(-6px); }
+  97.6% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes mot2 {
+  0%, 22.4% { opacity: 0; transform: translateY(6px); }
+  25%, 47.5% { opacity: 1; transform: none; }
+  50%, 100% { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes mot3 {
+  0%, 47.4% { opacity: 0; transform: translateY(6px); }
+  50%, 72.5% { opacity: 1; transform: none; }
+  75%, 100% { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes mot4 {
+  0%, 72.4% { opacity: 0; transform: translateY(6px); }
+  75%, 97.5% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}

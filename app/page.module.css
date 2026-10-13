@@ -49,22 +49,15 @@
    --nav-* sur .page) et reprend sa surface claire au premier défilement.
    ========================================================================== */
 
-/* Le bandeau sombre va d'un bord à l'autre ET remonte DERRIÈRE la barre de
-   navigation : il est tiré vers le haut de la hauteur de celle-ci, puis
-   rend ces pixels en padding. La barre est en position: sticky, donc elle
-   occupe sa place dans le flux — sans cette remontée, une bande claire de
-   64 px resterait coincée entre le bandeau d'annonce et le hero.
-
-   La barre repasse sur sa surface claire dès le premier défilement
-   (.scrolled dans Navbar.module.css), qui réinitialise alors les encres
-   posées plus bas. */
+/* Tirée vers le haut de la hauteur de la barre, qui est en position sticky
+   et occupe donc sa place dans le flux : sans cette remontée, une bande
+   claire de 64 px resterait coincée entre le bandeau d'annonce et le hero. */
 .heroShell {
   --nav-h: 64px;
   margin-top: calc(-1 * var(--nav-h));
   /* Aucune gouttière ici : elle vit sur .heroSection, qui porte le fond.
      Posée sur l'enveloppe, elle laissait les 64 px du haut en dehors du
      panneau sombre — la barre se retrouvait sur une bande blanche. */
-
 }
 
 .heroSection {
@@ -78,14 +71,9 @@
   text-align: center;
   gap: clamp(32px, 4vw, 52px);
 
-  /* Les nappes sont posées aux angles opposés pour que l'encre ne reste
-     nulle part totalement plate. Elles ne bougent pas : un fond qui dérive
-     en boucle derrière un titre fatigue avant d'impressionner. */
-  background:
-    radial-gradient(1100px 620px at 80% 2%, rgba(124, 58, 237, 0.40), transparent 62%),
-    radial-gradient(900px 560px at 8% 94%, rgba(13, 148, 136, 0.28), transparent 60%),
-    radial-gradient(800px 540px at 46% 0%, rgba(79, 70, 229, 0.32), transparent 58%),
-    #16130F;
+  /* Les nappes colorées vivent dans HeroAmbience : elles changent de teinte
+     au rythme du mot tournant du titre. Ici, seule l'encre de base. */
+  background: #16130F;
   color: #FAFAF9;
 
   --pm-ink: #FAFAF9;
@@ -93,19 +81,6 @@
   --pm-line: rgba(250, 250, 249, 0.18);
   --pm-badge-bg: rgba(250, 250, 249, 0.08);
   --brand-e: #A5B4FC;
-}
-
-/* Grain très fin : sans lui, un dégradé sombre de cette taille montre des
-   bandes de quantification sur les écrans 8 bits. */
-.heroSection::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.35;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 3px 3px;
 }
 
 .hero {
@@ -186,19 +161,6 @@
   color: #FAFAF9;
 }
 
-/* L'italique d'Inter est une vraie fonte, chargee dans app/layout.tsx.
-   font-synthesis: none interdit au navigateur de fabriquer une oblique
-   penchee mecaniquement si elle venait a manquer. */
-.heroEm {
-  /* Plus d'italique : la fonte italique d'Inter coûtait trois fichiers pour
-     ce seul mot. Le dégradé portait déjà l'emphase, et une oblique
-     synthétique à cette taille se verrait plus qu'elle n'aiderait. */
-  font-style: normal;
-  background: linear-gradient(120deg, #C7D2FE 0%, #DDD6FE 45%, #99F6E4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
 .heroDesc {
   margin: 0;

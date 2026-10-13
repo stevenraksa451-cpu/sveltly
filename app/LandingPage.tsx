@@ -19,6 +19,8 @@ import ScrollProgress from '@/components/landing/ScrollProgress'
 import ProviderMarks from '@/components/landing/ProviderMarks'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
+import HeroWord from '@/components/landing/HeroWord'
+import HeroAmbience from '@/components/landing/HeroAmbience'
 import PricingSection from '@/components/landing/PricingSection'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import { IconCalendar, IconFocus, IconLock, IconShield, IconSync, IconCheckSquare, IconCode, IconPalette, IconBriefcase, IconPen, IconUsers, IconKey, IconDatabase, IconTrash } from '@/components/landing/icons'
@@ -144,6 +146,7 @@ export default function LandingPage() {
           premier rendu utile. */}
       <div className={styles.heroShell}>
       <section className={styles.heroSection}>
+        <HeroAmbience />
         <div className={styles.hero}>
             <div className={styles.heroContent}>
               <p className={styles.badge}>
@@ -151,9 +154,9 @@ export default function LandingPage() {
               </p>
               <h1 className={styles.heroTitle}>
                 Planifiez. Simplifiez.<br />
-                {/* Un seul mot en italique plutôt qu'en couleur : l'emphase
-                    reste, sans voler l'accent au bouton principal. */}
-                <em className={styles.heroEm}>Avancez.</em>
+                {/* Le dernier mot tourne, et les nappes du fond changent avec
+                    lui — tout en CSS, voir HeroWord et HeroAmbience. */}
+                <HeroWord />
               </h1>
               <p className={styles.heroDesc}>
                 <Brand /> trie vos emails, en tire les tâches et place les rendez-vous.
