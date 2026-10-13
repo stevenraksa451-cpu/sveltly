@@ -45,6 +45,21 @@
      couleurs sautent d'un mot à l'autre. */
   background-size: 100% 100%;
   background-repeat: no-repeat;
+
+  /* La hampe descendante du « g » de Progressez sortait sous le mot.
+     Ce n'est pas un débordement masqué : background-clip: text ne peint le
+     dégradé QUE dans la boîte de l'élément. Comme .mot est un élément de
+     grille, sa hauteur vaut exactement son line-height — 1,04 hérité du
+     titre — alors que la fonte descend ~0,09 em plus bas. La partie du « g »
+     située sous la boîte n'avait donc aucun dégradé à révéler, et
+     disparaissait.
+
+     On agrandit la surface de peinture vers le bas, et on annule aussitôt
+     l'effet sur la mise en page : la cellule de grille ne bouge pas, le
+     titre garde son interligne serré. */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
+
   animation: 24s var(--mk-ease, ease) infinite both;
 }
 

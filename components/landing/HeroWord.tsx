@@ -1,6 +1,6 @@
 import styles from './HeroWord.module.css'
 
-// Le dernier mot du titre tourne : Avancez → Progressez → Évoluez → Continuez,
+// Le dernier mot du titre tourne : Avancez → Progressez → Évoluez → Décidez,
 // six secondes chacun.
 //
 // Chaque mot a son propre dégradé, et les nappes colorées du fond du hero
@@ -22,7 +22,10 @@ const MOTS = [
   { mot: 'Avancez.', teinte: 'indigo' },
   { mot: 'Progressez.', teinte: 'menthe' },
   { mot: 'Évoluez.', teinte: 'ambre' },
-  { mot: 'Continuez.', teinte: 'azur' },
+  // « Continuez » disait « poursuivez comme avant » — l'inverse de ce que
+  // promet le produit. « Décidez » reprend l'accroche juste en dessous :
+  // « Vous arrivez le matin sur des décisions, pas sur une pile. »
+  { mot: 'Décidez.', teinte: 'azur' },
 ] as const
 
 export default function HeroWord() {
