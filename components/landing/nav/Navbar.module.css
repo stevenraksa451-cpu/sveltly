@@ -13,6 +13,13 @@
    translucide floutée, fine bordure, ombre à peine perceptible. Tout en haut
    de page elle reste transparente, posée sur le hero. */
 .scrolled {
+  --nav-ink: var(--mk-ink);
+  --nav-ink-2: var(--mk-ink-2);
+  --nav-hover: var(--mk-surface-2);
+  --nav-active-ink: var(--mk-accent);
+  --nav-active-bg: var(--mk-accent-soft);
+  --logo-ink: var(--text-primary);
+  --brand-e: var(--color-primary);
   background: color-mix(in srgb, var(--mk-bg) 78%, transparent);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
@@ -24,6 +31,13 @@
    page : sans ça, le panneau flotterait sous une barre transparente et
    paraîtrait détaché de son bouton. */
 .menuOpen {
+  --nav-ink: var(--mk-ink);
+  --nav-ink-2: var(--mk-ink-2);
+  --nav-hover: var(--mk-surface-2);
+  --nav-active-ink: var(--mk-accent);
+  --nav-active-bg: var(--mk-accent-soft);
+  --logo-ink: var(--text-primary);
+  --brand-e: var(--color-primary);
   background: color-mix(in srgb, var(--mk-bg) 88%, transparent);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
@@ -71,7 +85,7 @@
   border-radius: var(--mk-radius-sm);
   font-size: 0.88rem;
   font-weight: 500;
-  color: var(--mk-ink-2);
+  color: var(--nav-ink-2, var(--mk-ink-2));
   background: none;
   border: none;
   cursor: pointer;
@@ -80,12 +94,12 @@
   transition: color 0.18s ease, background 0.18s ease;
 }
 
-.trigger:hover { color: var(--mk-ink); background: var(--mk-surface-2); }
-.triggerOpen { color: var(--mk-ink); background: var(--mk-surface-2); }
+.trigger:hover { color: var(--nav-ink, var(--mk-ink)); background: var(--nav-hover, var(--mk-surface-2)); }
+.triggerOpen { color: var(--nav-ink, var(--mk-ink)); background: var(--nav-hover, var(--mk-surface-2)); }
 
 /* Section en cours de lecture (scrollspy) : une pastille de fond teintée,
    jamais un soulignement criard. */
-.triggerActive { color: var(--mk-accent); background: var(--mk-accent-soft); }
+.triggerActive { color: var(--nav-active-ink, var(--mk-accent)); background: var(--nav-active-bg, var(--mk-accent-soft)); }
 
 .chevron {
   transition: transform 0.2s ease;
@@ -107,12 +121,12 @@
   border-radius: var(--mk-radius-sm);
   font-size: 0.88rem;
   font-weight: 500;
-  color: var(--mk-ink-2);
+  color: var(--nav-ink-2, var(--mk-ink-2));
   text-decoration: none;
   white-space: nowrap;
   transition: color 0.18s ease, background 0.18s ease;
 }
-.login:hover { color: var(--mk-ink); background: var(--mk-surface-2); }
+.login:hover { color: var(--nav-ink, var(--mk-ink)); background: var(--nav-hover, var(--mk-surface-2)); }
 
 /* Seul élément fortement coloré de la barre. Même forme et même accent que
    le bouton de fin de page (PageChrome.module.css .ctaButton) : les deux
@@ -146,9 +160,9 @@
   background: none;
   border-radius: var(--mk-radius-sm);
   cursor: pointer;
-  color: var(--mk-ink);
+  color: var(--nav-ink, var(--mk-ink));
 }
-.burger:hover { background: var(--mk-surface-2); }
+.burger:hover { background: var(--nav-hover, var(--mk-surface-2)); }
 
 .burgerBox {
   position: relative;

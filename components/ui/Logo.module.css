@@ -15,14 +15,17 @@
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--text-primary);
+  /* Surchargeable : le logo se pose sur le bandeau sombre du hero tant que la
+     page n'a pas défilé. Un module CSS ne peut pas atteindre les classes
+     hachées d'un autre, d'où la variable. */
+  color: var(--logo-ink, var(--text-primary));
 }
 
 /* Le "e" — caractère distinctif du logotype. Seule lettre en couleur de
    marque ; c'est ce point de couleur unique, pas un dégradé, qui doit
    permettre de reconnaître "le e de Sveltly" en un coup d'œil. */
 .e {
-  color: var(--color-primary);
+  color: var(--brand-e, var(--color-primary));
 }
 
 .animated {
