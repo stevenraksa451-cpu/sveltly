@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { useTheme } from '@/hooks/useTheme'
 import { useProfile } from '@/hooks/useProfile'
 import { getPlan } from '@/lib/plans'
+import { LIVE_PROVIDERS } from '@/lib/providers'
 import { TONES, TONE_LABEL, TONE_EXAMPLE, REPLY_LANGUAGES, REPLY_LANGUAGE_LABEL, REPLY_LANGUAGE_DESC, ReplyLanguage } from '@/lib/tone'
 import styles from './settings.module.css'
 
@@ -56,6 +57,10 @@ function SettingsContent() {
   const router = useRouter()
   const mailboxNotice = searchParams.get('mailbox')
   const mailboxErrorDetail = searchParams.get('mailbox_error')
+  // Erreur renvoyée par /api/mailboxes/connect AVANT toute redirection — un
+  // fournisseur pas encore disponible, des identifiants absents côté serveur.
+  // Distincte de mailbox_error, qui vient du RETOUR OAuth via l'URL.
+  const [connectError, setConnectError] = useState<string | null>(null)
   const calendarNotice = searchParams.get('calendar')
   const calendarErrorDetail = searchParams.get('calendar_error')
   const initialTab = searchParams.get('tab') || (mailboxNotice ? 'mailboxes' : 'account')
@@ -225,7 +230,7 @@ function SettingsContent() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  async function handleConnectGmail() {
+  async function handleConnectMailbox(provider: 'gmail' | 'outlook' = 'gmail') {
     // Même exception que côté serveur (/api/mailboxes/connect) : réparer une
     // boîte déconnectée reste possible au plafond du forfait.
     const mailboxLimit = getPlan(currentPlan).limits.mailboxes
@@ -235,11 +240,12 @@ function SettingsContent() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
-    const res = await fetch('/api/mailboxes/connect', {
+    const res = await fetch(`/api/mailboxes/connect?provider=${provider}`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
     const data = await res.json()
     if (data.url) window.location.href = data.url
+    else if (data.error) setConnectError(data.error)
   }
 
   async function handleConnectCalendar() {
@@ -551,7 +557,7 @@ function SettingsContent() {
                             seule action proposée était « Passer à Pro », qui
                             n'aurait rien réparé. */}
                         {!box.is_connected && (
-                          <button className={styles.reconnectBtn} onClick={handleConnectGmail}>
+                          <button className={styles.reconnectBtn} onClick={() => handleConnectMailbox(box.provider === 'outlook' ? 'outlook' : 'gmail')}>
                             Reconnecter
                           </button>
                         )}
@@ -576,12 +582,25 @@ function SettingsContent() {
                       tone="neutral"
                     />
                   ) : (
-                    <button className={styles.addMailboxBtn} onClick={handleConnectGmail}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                      Ajouter une boîte mail
-                    </button>
+                    <div className={styles.addMailboxRow}>
+                      {/* Un bouton par fournisseur CONNECTABLE. La liste vient
+                          de lib/providers.ts : un fournisseur encore
+                          `planned` n'apparaît pas, et le serveur le refuserait
+                          de toute façon. */}
+                      {LIVE_PROVIDERS.map(p => (
+                        <button
+                          key={p.id}
+                          className={styles.addMailboxBtn}
+                          onClick={() => handleConnectMailbox(p.id)}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                          </svg>
+                          Ajouter une boîte {p.name}
+                        </button>
+                      ))}
+                      {connectError && <p className={styles.connectError}>{connectError}</p>}
+                    </div>
                   )
                 })()}
               </div>

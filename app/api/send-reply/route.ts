@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { tryAcrossMailboxes } from '@/lib/gmail-mailbox'
+import { getGmailMailboxes } from '@/lib/gmail-mailbox'
+import { tryAcrossOutlookMailboxes, getOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
@@ -43,6 +45,55 @@ export async function POST(req: NextRequest) {
     .replace(/\//g, '_')
     .replace(/=+$/, '')
 
+  // De quelle boîte part la réponse ?
+  //
+  // Un envoi n'a pas d'identifiant de message à sonder, contrairement aux
+  // actions : impossible de deviner le fournisseur par un 404. On regarde
+  // donc ce que l'utilisateur a connecté. Avec les DEUX, Gmail l'emporte —
+  // c'est le comportement historique, et répondre depuis la mauvaise adresse
+  // est un défaut connu du mode multi-boîte, pas une régression introduite
+  // par Outlook. Le corriger demande que le client transmette la boîte
+  // d'origine du message : noté dans CLAUDE.md.
+  const boitesGmail = await getGmailMailboxes(supabase, user.id)
+
+  if (boitesGmail.length === 0) {
+    const boitesOutlook = await getOutlookMailboxes(supabase, user.id)
+    if (boitesOutlook.length === 0) {
+      return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
+    }
+
+    // Graph prend un objet, pas un message RFC822 encodé : ni en-têtes bruts
+    // à assembler, ni injection d'en-tête possible — les champs sont séparés
+    // par construction.
+    const envoi = await tryAcrossOutlookMailboxes(supabase, user.id, (token) =>
+      fetch(`${GRAPH}/me/sendMail`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: {
+            subject: safeSubject,
+            body: { contentType: 'Text', content: body },
+            toRecipients: [{ emailAddress: { address: safeTo } }],
+          },
+          saveToSentItems: true,
+        }),
+      })
+    )
+
+    // sendMail rend 202 Accepted avec un corps VIDE : `data` est alors {} et
+    // il ne faut surtout pas le lire comme une erreur.
+    if (!envoi) {
+      return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
+    }
+    if (!envoi.res.ok) {
+      const message = envoi.data?.error?.message || `envoi refusé (${envoi.res.status})`
+      return NextResponse.json({ error: message }, { status: 400 })
+    }
+
+    await supabase.from('reply_history').insert({ user_id: user.id, body, was_ai: true })
+    return NextResponse.json({ ok: true })
+  }
+
   const result = await tryAcrossMailboxes(supabase, user.id, (token) =>
     fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
@@ -57,7 +108,7 @@ export async function POST(req: NextRequest) {
   console.log('Gmail send response:', result?.data?.error || 'OK')
 
   if (!result) {
-    return NextResponse.json({ error: 'Gmail non connecté' }, { status: 400 })
+    return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
   }
   if (result.data.error) {
     return NextResponse.json({ error: result.data.error.message }, { status: 400 })

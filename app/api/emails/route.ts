@@ -5,6 +5,8 @@ import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { getPlan } from '@/lib/plans'
 import { encryptToken, decryptToken } from '@/lib/token-crypto'
 import { getGmailMailboxes, tryAcrossMailboxes } from '@/lib/gmail-mailbox'
+import { getOutlookMailboxes, tryAcrossOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
+import { fetchOutlookMailboxEmails } from '@/lib/outlook-fetch'
 import { getCachedEmails, setCachedEmails, CACHE_DURATION } from '@/lib/email-cache'
 import { createGoogleCalendarEvent } from '@/lib/google-calendar-sync'
 import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTaskSafely } from '@/lib/tasks'
@@ -674,9 +676,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(cached.data)
   }
 
-  const mailboxes = await getGmailMailboxes(supabase, user.id)
-  if (mailboxes.length === 0) {
-    return NextResponse.json({ error: 'Gmail non connecté' }, { status: 400 })
+  // Les deux fournisseurs sont interrogés ensemble et leurs messages fusionnés
+  // dans une seule liste triée par date : l'utilisateur voit UNE boîte de
+  // réception, pas deux onglets. Tout ce qui vient après — analyse, agenda,
+  // tâches, temps économisé — ignore complètement d'où vient un email.
+  const [mailboxes, outlookMailboxes] = await Promise.all([
+    getGmailMailboxes(supabase, user.id),
+    getOutlookMailboxes(supabase, user.id),
+  ])
+  if (mailboxes.length === 0 && outlookMailboxes.length === 0) {
+    return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
   }
 
   // Emails déjà connus (même si le TTL du cache est dépassé) : base de fusion
@@ -684,13 +693,16 @@ export async function GET(req: NextRequest) {
   // en place reste valable tel quel — on ne le retouche pas.
   const previouslyCachedAll = (cached?.data?.emails || []) as any[]
 
-  const perMailbox = await Promise.all(
-    mailboxes.map(mb => fetchMailboxEmails(
+  const perMailbox = await Promise.all([
+    ...mailboxes.map(mb => fetchMailboxEmails(
       supabase,
       mb,
       previouslyCachedAll.filter((e: any) => e.mailboxId === mb.id)
-    ))
-  )
+    )),
+    // Outlook n'a pas encore de synchro incrémentale et ne reçoit donc pas
+    // le cache précédent — voir le commentaire en tête de lib/outlook-fetch.ts.
+    ...outlookMailboxes.map(mb => fetchOutlookMailboxEmails(supabase, mb)),
+  ])
   const merged = perMailbox
     .flat()
     .sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime())
@@ -1093,16 +1105,43 @@ export async function GET(req: NextRequest) {
         // le reste sera traité aux synchros suivantes (poll client ~60s).
         .slice(0, 15)
 
+      // Quelles boîtes sont des boîtes Outlook — l'identifiant de boîte porté
+      // par chaque email suffit à savoir à quelle API s'adresser, sans
+      // relecture en base.
+      const idsOutlook = new Set(outlookMailboxes.map(mb => mb.id))
+
       for (const email of eligible) {
         try {
-          const result = await tryAcrossMailboxes(supabase, user.id, (token) =>
-            fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${email.id}/modify`, {
-              method: 'POST',
-              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ removeLabelIds: ['INBOX'] }),
-            })
-          )
-          if (result && !result.data?.error) {
+          let archive = false
+
+          if (idsOutlook.has(email.mailboxId)) {
+            // Graph n'a pas d'étiquettes : archiver, c'est DÉPLACER le message
+            // vers le dossier Archive. 'archive' est un nom de dossier bien
+            // connu, utilisable tel quel à la place d'un identifiant.
+            const result = await tryAcrossOutlookMailboxes(supabase, user.id, (token) =>
+              fetch(`${GRAPH}/me/messages/${email.id}/move`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destinationId: 'archive' }),
+              })
+            )
+            archive = !!result && !result.data?.error
+            // Le déplacement change l'identifiant du message côté Graph : on
+            // garde le nouveau pour que les actions suivantes (ouverture,
+            // pièces jointes) visent toujours le bon message.
+            if (archive && result?.data?.id) email.id = result.data.id
+          } else {
+            const result = await tryAcrossMailboxes(supabase, user.id, (token) =>
+              fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${email.id}/modify`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ removeLabelIds: ['INBOX'] }),
+              })
+            )
+            archive = !!result && !result.data?.error
+          }
+
+          if (archive) {
             email.labelIds = (email.labelIds || []).filter((l: string) => l !== 'INBOX')
             email.autoArchived = true
           }

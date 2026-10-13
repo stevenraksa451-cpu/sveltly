@@ -450,12 +450,29 @@ Testé et **écarté** : `experimental.cssChunking: 'strict'`. Mesuré à 85 con
   d'implémenter.
 - **Export de données** : absent, signalé sur
   `/securite/controle-de-vos-donnees`.
-- **Outlook** : pas branché. Déclaré `planned` dans `lib/providers.ts`, ce qui
-  l'affiche avec une pastille « Bientôt » sur la landing et le dit dans la FAQ,
-  sur `/produit` et dans les pages légales. Reste à faire : une app Azure
-  (`MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET`, URI de redirection
-  `/api/mailboxes/callback`) et la route Microsoft Graph. Basculer `status`
-  à `'live'` **après** avoir connecté une vraie boîte, pas avant.
+- **Outlook** : le code est écrit, l'application Azure manque. Voir
+  **`OUTLOOK.md`** pour la marche à suivre complète. Résumé : créer
+  l'inscription Azure, poser `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET`,
+  puis basculer `status` à `'live'` dans `lib/providers.ts` — **après** avoir
+  connecté une vraie boîte et vu ses emails arriver, jamais avant.
+
+  Tant que `status` vaut `planned`, rien n'est joignable : `/api/mailboxes/connect`
+  refuse la demande même appelée à la main, le bouton n'est pas rendu, et la
+  vitrine annonce « Bientôt ». C'est la source unique qui tient la porte.
+
+  Les messages Graph sont normalisés dans **exactement** la même forme que les
+  messages Gmail (`lib/outlook-fetch.ts`) : tout ce qui vient après — analyse,
+  agenda, tâches, temps économisé — ignore d'où vient un email, et doit
+  continuer de l'ignorer. Les deux bibliothèques restent séparées plutôt que
+  fusionnées derrière une abstraction : les API ne se ressemblent que de loin
+  (jetons, pagination, formes de message, étiquettes contre dossiers), et une
+  couche commune aurait surtout servi à cacher les endroits où elles divergent.
+
+  ⚠️ **Microsoft fait tourner les jetons de rafraîchissement**, contrairement à
+  Google qui réutilise le même indéfiniment. Ne pas réenregistrer celui qui
+  revient à chaque rafraîchissement condamne la boîte au premier roulement —
+  elle se déconnecterait silencieusement quelques jours plus tard. Voir
+  `refreshOutlookToken`.
 - **`SITE_URL`** dans `lib/brand.ts` vaut `https://sveltly.fr` — à ajuster si le
   domaine final diffère, sinon sitemap et balises canoniques pointent à côté.
 - **Renommage de marque** : `lib/brand.ts` ne gouverne que les pages marketing

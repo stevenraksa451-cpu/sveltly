@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js'
 import { encryptToken, decryptStrict } from '@/lib/token-crypto'
 import { invalidateEmailCache } from '@/lib/email-cache'
 import { getPlan } from '@/lib/plans'
+import { GRAPH, MS_AUTHORITY, MS_SCOPES, microsoftCredentials } from '@/lib/outlook-mailbox'
 
 function redirectWithStatus(origin: string, status: 'connected' | 'error', message?: string) {
   const url = new URL('/settings', origin)
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
   if (!code || !state) return redirectWithStatus(req.url, 'error', 'requête invalide')
 
   let uid: string
+  let provider: 'gmail' | 'outlook' = 'gmail'
   try {
     // decryptStrict (pas decryptToken) : un state qui n'est pas un texte
     // chiffré valide doit être rejeté, jamais traité comme du JSON en clair
@@ -37,35 +39,80 @@ export async function GET(req: NextRequest) {
     const payload = JSON.parse(decrypted)
     if (!payload.uid || !payload.exp || Date.now() > payload.exp) throw new Error('state expiré')
     uid = payload.uid
+    // Le fournisseur vient du state signé, jamais d'un paramètre d'URL : il
+    // décide à quel service on échange le code et sous quelle étiquette la
+    // boîte est enregistrée. En clair, il serait modifiable.
+    if (payload.provider === 'outlook') provider = 'outlook'
   } catch {
     return redirectWithStatus(req.url, 'error', 'session expirée, réessayez')
   }
 
   const redirectUri = `${req.nextUrl.origin}/api/mailboxes/callback`
-  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      code,
-      grant_type: 'authorization_code',
-      redirect_uri: redirectUri,
-    }),
-  })
-  const tokenData = await tokenRes.json()
-  if (!tokenData.access_token) {
-    console.error('Erreur échange code OAuth mailbox:', tokenData.error)
-    return redirectWithStatus(req.url, 'error', 'échange du code impossible')
+
+  // Échange du code, puis lecture de l'adresse. Les deux diffèrent d'un
+  // fournisseur à l'autre ; tout ce qui suit est commun.
+  let tokenData: any
+  let adresse: string | null = null
+
+  if (provider === 'outlook') {
+    const creds = microsoftCredentials()
+    if (!creds) return redirectWithStatus(req.url, 'error', 'connexion Outlook non configurée')
+
+    const tokenRes = await fetch(`${MS_AUTHORITY}/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: creds.clientId,
+        client_secret: creds.clientSecret,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+        scope: MS_SCOPES.join(' '),
+      }),
+    })
+    tokenData = await tokenRes.json()
+    if (!tokenData.access_token) {
+      console.error('Erreur échange code OAuth Microsoft :', tokenData.error_description || tokenData.error)
+      return redirectWithStatus(req.url, 'error', 'échange du code impossible')
+    }
+
+    const meRes = await fetch(`${GRAPH}/me?$select=mail,userPrincipalName`, {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    })
+    const me = await meRes.json()
+    // `mail` est vide sur certains comptes (pas de licence Exchange
+    // attribuée) ; userPrincipalName fait alors office d'adresse, et c'est
+    // celle que Graph utilise de toute façon pour identifier la boîte.
+    adresse = me.mail || me.userPrincipalName || null
+  } else {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+      }),
+    })
+    tokenData = await tokenRes.json()
+    if (!tokenData.access_token) {
+      console.error('Erreur échange code OAuth mailbox:', tokenData.error)
+      return redirectWithStatus(req.url, 'error', 'échange du code impossible')
+    }
+
+    const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    })
+    const userInfo = await userInfoRes.json()
+    adresse = userInfo.email || null
   }
 
-  const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-    headers: { Authorization: `Bearer ${tokenData.access_token}` },
-  })
-  const userInfo = await userInfoRes.json()
-  if (!userInfo.email) {
+  if (!adresse) {
     return redirectWithStatus(req.url, 'error', 'email introuvable')
   }
+  const userInfo = { email: adresse }
 
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -106,9 +153,9 @@ export async function GET(req: NextRequest) {
 
   const { error: upsertError } = await supabaseAdmin.from('mailboxes').upsert({
     user_id: uid,
-    provider: 'gmail',
+    provider,
     email: userInfo.email,
-    label: 'Gmail',
+    label: provider === 'outlook' ? 'Outlook' : 'Gmail',
     access_token: encryptToken(tokenData.access_token),
     ...(tokenData.refresh_token ? { refresh_token: encryptToken(tokenData.refresh_token) } : {}),
     is_connected: true,

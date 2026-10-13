@@ -522,3 +522,24 @@
   color: var(--text-muted);
   line-height: 1.55;
 }
+
+/* Rangée des boutons « Ajouter une boîte » — un par fournisseur connectable
+   (voir LIVE_PROVIDERS). Ils passent en colonne sous 520 px plutôt que de se
+   serrer sur une ligne. */
+.addMailboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.connectError {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--urgent);
+}
+
+@media (max-width: 520px) {
+  .addMailboxRow { flex-direction: column; align-items: stretch; }
+}

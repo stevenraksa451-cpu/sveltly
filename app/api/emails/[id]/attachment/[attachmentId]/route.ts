@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { tryAcrossMailboxes } from '@/lib/gmail-mailbox'
+import { tryAcrossOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
 
 export async function GET(
   req: NextRequest,
@@ -27,8 +28,30 @@ export async function GET(
     })
   )
 
+  // Aucune boîte Gmail, ou aucune ne connaît ce message : l'identifiant vient
+  // d'une boîte Outlook. Un identifiant de message n'existe que dans UNE
+  // boîte, donc le 404 suffit à trancher — le client n'a rien à dire du
+  // fournisseur.
+  if (!result || result.res.status === 404) {
+    const outlook = await tryAcrossOutlookMailboxes(supabase, user.id, (token) =>
+      fetch(`${GRAPH}/me/messages/${id}/attachments/${attachmentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    )
+    if (outlook && outlook.res.ok && outlook.data?.contentBytes) {
+      return new NextResponse(Buffer.from(outlook.data.contentBytes, 'base64'), {
+        headers: {
+          // Graph donne le vrai type MIME, contrairement à Gmail qui ne rend
+          // que les octets — autant le transmettre.
+          'Content-Type': outlook.data.contentType || 'application/octet-stream',
+          'Content-Disposition': 'attachment',
+        },
+      })
+    }
+  }
+
   if (!result) {
-    return NextResponse.json({ error: 'Gmail non connecté' }, { status: 400 })
+    return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
   }
   if (result.data.error) {
     return NextResponse.json({ error: result.data.error.message }, { status: 400 })
