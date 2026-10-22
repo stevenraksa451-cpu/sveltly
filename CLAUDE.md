@@ -412,6 +412,15 @@ compte de test : **51/50 consommés**, essentiellement sur des notifications
 Google, un code 2FA Instagram et une promo ChatGPT — zéro réponse réelle.
 Le tri, les résumés et la détection de tâches restent gratuits pour ces types.
 
+⚠️ **L’unité facturée n’est donc PAS l’unité qui coûte**, et c’est assumé :
+une pub analysée consomme ses ~1 529 tokens sans faire bouger le compteur.
+Facturer une newsletter comme une « réponse IA » contredirait la page
+Tarifs — la décision reste celle-ci. Mais elle a une conséquence : **rien
+dans le forfait Gratuit ne borne le coût d’un utilisateur**. Aujourd’hui
+c’est le quota Groq global qui s’en charge. Le jour où ce quota est levé
+(palier payant), plus rien ne le fait : il faudra alors un second compteur,
+sur les emails ANALYSÉS, affiché comme tel à côté des 50 réponses.
+
 ---
 
 ### Deux règles tirées de mesures Lighthouse réelles
