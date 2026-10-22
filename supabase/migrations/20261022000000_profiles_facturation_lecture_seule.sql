@@ -1,4 +1,8 @@
--- Empêche un utilisateur de se mettre lui-même en Pro depuis son navigateur.
+-- Empêche un utilisateur de se mettre lui-même en Pro, ou de remettre son
+-- compteur de réponses IA à zéro, depuis son navigateur.
+--
+-- Idempotente : `create or replace` + `drop trigger if exists`. La rejouer
+-- ne coûte rien.
 --
 -- LE PROBLÈME
 -- Le navigateur écrit directement dans `profiles` (réglages, onboarding —
@@ -8,20 +12,21 @@
 -- console du navigateur, avec la clé anon qui est publique par construction :
 --
 --     supabase.from('profiles').update({ plan: 'pro' }).eq('id', monId)
+--     supabase.from('profiles').update({ ai_replies_count: 0 }).eq('id', monId)
 --
--- Le forfait Pro était donc gratuit pour qui savait ouvrir un onglet
--- développeur. Et comme aucun paiement n'est branché (pas de Stripe), aucun
--- recoupement de facturation n'aurait révélé un compte passé Pro tout seul.
+-- Le forfait Pro était gratuit pour qui savait ouvrir un onglet développeur,
+-- et le quota mensuel se rechargeait à volonté. Comme aucun paiement n'est
+-- branché, aucun recoupement de facturation ne l'aurait révélé.
 --
 -- POURQUOI UN DÉCLENCHEUR ET PAS UNE PERMISSION DE COLONNE
--- `revoke update (plan) on profiles from authenticated` ne fonctionne pas
--- tel quel : en PostgreSQL, une permission UPDATE au niveau de la TABLE
--- couvre toutes les colonnes et ne peut pas être retirée colonne par
--- colonne. Il faudrait révoquer la permission de table puis la re-accorder
--- sur chaque colonne autorisée — donc énumérer tout le schéma de `profiles`,
--- et casser silencieusement chaque colonne ajoutée plus tard, qui ne serait
--- alors plus modifiable par personne. Un déclencheur ne dépend pas du
--- schéma : il nomme les trois colonnes à protéger et ignore le reste.
+-- `revoke update (plan) on profiles from authenticated` ne fonctionne pas tel
+-- quel : en PostgreSQL, une permission UPDATE au niveau de la TABLE couvre
+-- toutes les colonnes et ne se retire pas colonne par colonne. Il faudrait
+-- révoquer la permission de table puis la re-accorder sur chaque colonne
+-- autorisée — donc énumérer tout le schéma de `profiles`, et casser
+-- silencieusement chaque colonne ajoutée plus tard, qui ne serait alors plus
+-- modifiable par personne. Un déclencheur ne dépend pas du schéma : il nomme
+-- les trois colonnes à protéger et ignore le reste.
 --
 -- POURQUOI `current_user` ET PAS LE RÔLE DU JETON
 -- Les routes serveur utilisent la clé service-role : elles arrivent comme
@@ -35,6 +40,9 @@ returns trigger
 language plpgsql
 set search_path = public
 as $$
+declare
+  ancien_mois timestamp;
+  nouveau_mois timestamp;
 begin
   -- Tout ce qui n'est pas le navigateur d'un utilisateur connecté passe :
   -- routes serveur (service_role), tâches d'administration (postgres), et
@@ -44,11 +52,80 @@ begin
     return new;
   end if;
 
+  ---------------------------------------------------------------------------
+  -- 1 · Le forfait ne bouge jamais depuis le client.
+  -- Vérifié avant d'écrire cette règle : AUCUN code de l'application n'écrit
+  -- `plan`. Ce verrou ne peut donc rien casser.
+  ---------------------------------------------------------------------------
   if new.plan is distinct from old.plan then
     raise exception
       'profiles.plan est en lecture seule depuis le client (tentative : % -> %)',
       old.plan, new.plan
       using errcode = 'insufficient_privilege';
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- 2 · La date de remise à zéro ne recule pas, et ne part pas dans le futur.
+  --
+  -- lib/ai-usage.ts lit le quota ainsi : si le MOIS de `ai_replies_reset_at`
+  -- diffère du mois courant, le compteur est considéré comme remis à zéro.
+  -- La comparaison porte sur une différence, pas sur un ordre — déplacer la
+  -- date vers un mois PASSÉ ou vers un mois FUTUR produit donc exactement le
+  -- même résultat : un quota vide. Les deux sens doivent être fermés.
+  --
+  -- La seule écriture légitime est celle de `increment_ai_usage`, qui pose la
+  -- date du jour : elle avance, et jamais au-delà d'aujourd'hui.
+  ---------------------------------------------------------------------------
+  if old.ai_replies_reset_at is not null then
+    if new.ai_replies_reset_at is null then
+      raise exception
+        'profiles.ai_replies_reset_at ne peut pas être vidée depuis le client'
+        using errcode = 'insufficient_privilege';
+    end if;
+
+    if new.ai_replies_reset_at::timestamptz < old.ai_replies_reset_at::timestamptz then
+      raise exception
+        'profiles.ai_replies_reset_at ne peut pas reculer (% -> %)',
+        old.ai_replies_reset_at, new.ai_replies_reset_at
+        using errcode = 'insufficient_privilege';
+    end if;
+  end if;
+
+  -- Un jour de marge : le serveur pose la date en UTC, et un client dans un
+  -- fuseau en avance ne doit pas se faire refuser une écriture légitime.
+  if new.ai_replies_reset_at is not null
+     and new.ai_replies_reset_at::timestamptz > now() + interval '1 day' then
+    raise exception
+      'profiles.ai_replies_reset_at ne peut pas être placée dans le futur (%)',
+      new.ai_replies_reset_at
+      using errcode = 'insufficient_privilege';
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- 3 · Le compteur ne baisse QUE lors d'un changement de mois.
+  --
+  -- C'est la règle qui permet de poser ce verrou SANS connaître le corps de
+  -- `increment_ai_usage` — fonction écrite directement dans Supabase, absente
+  -- de ce dépôt. Qu'elle soit SECURITY DEFINER (exemptée par `current_user`
+  -- plus haut) ou SECURITY INVOKER (elle arrive ici comme `authenticated`),
+  -- elle ne fait jamais que deux choses : incrémenter, ou repartir de zéro en
+  -- changeant de mois. Les deux passent. Toute autre baisse est refusée.
+  --
+  -- Le mois est tronqué en UTC pour coller exactement à getUTCMonth() de
+  -- lib/ai-usage.ts : sur un décalage de fuseau, la base et l'application
+  -- doivent voir le même mois, sinon l'une autoriserait ce que l'autre
+  -- considère comme un mois différent.
+  ---------------------------------------------------------------------------
+  if coalesce(new.ai_replies_count, 0) < coalesce(old.ai_replies_count, 0) then
+    ancien_mois  := date_trunc('month', (old.ai_replies_reset_at::timestamptz) at time zone 'UTC');
+    nouveau_mois := date_trunc('month', (new.ai_replies_reset_at::timestamptz) at time zone 'UTC');
+
+    if ancien_mois is null or nouveau_mois is null or ancien_mois = nouveau_mois then
+      raise exception
+        'profiles.ai_replies_count ne peut baisser que lors du changement de mois (% -> %)',
+        old.ai_replies_count, new.ai_replies_count
+        using errcode = 'insufficient_privilege';
+    end if;
   end if;
 
   return new;
@@ -62,9 +139,13 @@ create trigger profiles_facturation_lecture_seule
   for each row
   execute function public.profiles_facturation_lecture_seule();
 
--- Même verrou à l'INSERT : `upsert` depuis l'onboarding crée la ligne si elle
--- n'existe pas, et pourrait la créer directement avec plan = 'pro'.
--- Le défaut de la colonne reprend la main.
+
+-- ---------------------------------------------------------------------------
+-- À l'INSERT : le forfait repart toujours de 'free'
+-- ---------------------------------------------------------------------------
+-- `upsert` depuis l'onboarding crée la ligne si elle n'existe pas, et
+-- pourrait la créer directement avec plan = 'pro'. Le compteur, lui, n'a pas
+-- besoin d'être protégé ici : une ligne neuve part à zéro de toute façon.
 create or replace function public.profiles_insert_plan_par_defaut()
 returns trigger
 language plpgsql
@@ -87,35 +168,34 @@ create trigger profiles_insert_plan_par_defaut
 
 
 -- ---------------------------------------------------------------------------
--- RESTE À FAIRE : le compteur de réponses IA
+-- Vérifier que ça marche, depuis l'éditeur SQL de Supabase
 -- ---------------------------------------------------------------------------
--- `ai_replies_count` et `ai_replies_reset_at` sont encore modifiables depuis
--- le navigateur. C'est moins grave — on s'offre des réponses IA en plus, pas
--- le forfait Pro — mais ça coûte des tokens Groq, déjà la ressource la plus
--- serrée du projet.
+-- L'éditeur SQL s'exécute en `postgres`, donc exempté : les trois tentatives
+-- ci-dessous PASSERAIENT telles quelles. Pour tester réellement, il faut se
+-- faire passer pour le rôle du navigateur :
 --
--- Ces deux colonnes ne peuvent PAS être protégées de la même façon sans
--- vérification préalable : elles sont écrites par la fonction
--- `increment_ai_usage` (app/api/analyze/route.ts:476), dont le corps ne se
--- trouve nulle part dans ce dépôt — la base a été construite directement
--- dans Supabase. Si cette fonction est SECURITY INVOKER, elle s'exécute en
--- tant qu'`authenticated` et le déclencheur ci-dessus la bloquerait : le
--- compteur cesserait d'avancer, et toutes les réponses IA deviendraient
--- gratuites. L'inverse exact du but recherché.
+--     begin;
+--     set local role authenticated;
+--     update public.profiles set plan = 'pro' where id = '<un-uuid>';
+--     -- attendu : ERROR  profiles.plan est en lecture seule depuis le client
+--     rollback;
 --
--- 1. Regarder ce que fait la fonction, et sous quel régime :
+--     begin;
+--     set local role authenticated;
+--     update public.profiles set ai_replies_count = 0 where id = '<un-uuid>';
+--     -- attendu : ERROR  ne peut baisser que lors du changement de mois
+--     rollback;
 --
---      select p.prosecdef as security_definer,
---             pg_get_functiondef(p.oid) as corps
---      from pg_proc p
---      where p.pronamespace = 'public'::regnamespace
---        and p.proname = 'increment_ai_usage';
+--     begin;
+--     set local role authenticated;
+--     update public.profiles set ai_replies_reset_at = now() - interval '2 months'
+--       where id = '<un-uuid>';
+--     -- attendu : ERROR  ne peut pas reculer
+--     rollback;
 --
--- 2. Si `security_definer` vaut false, NE PAS se contenter de basculer la
---    fonction : vérifier d'abord que son UPDATE porte bien un
---    `where id = auth.uid()`. Une fonction SECURITY DEFINER ignore RLS ; si
---    elle comptait sur RLS pour ne toucher que la ligne de l'appelant, la
---    basculer lui ferait incrémenter le compteur de TOUS les comptes.
+-- Et que le chemin légitime passe toujours — à lancer en `postgres`, donc
+-- sans `set role`, exactement comme le font les routes serveur :
 --
--- 3. Une fois les deux points vérifiés, étendre le déclencheur ci-dessus aux
---    deux colonnes.
+--     select public.increment_ai_usage(1, current_date);
+--     select plan, ai_replies_count, ai_replies_reset_at
+--       from public.profiles where id = auth.uid();

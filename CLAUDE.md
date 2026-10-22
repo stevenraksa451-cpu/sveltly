@@ -95,10 +95,21 @@ colonnes, `plan` comprise. Voir la migration
 `20261022000000_profiles_facturation_lecture_seule.sql`, qui explique
 pourquoi un déclencheur et pas `revoke update (plan)`.
 
-⚠️ `ai_replies_count` et `ai_replies_reset_at` restent modifiables : la
-fonction `increment_ai_usage` n’est pas dans ce dépôt, et la protéger sans
-lire son corps risquait de figer le compteur. La marche à suivre est dans la
-migration.
+Le compteur mensuel est protégé par la même fonction, avec une règle qui
+tient **sans connaître le corps de `increment_ai_usage`** — écrite
+directement dans Supabase, absente de ce dépôt, et qu’on ne pouvait donc ni
+basculer en SECURITY DEFINER ni bloquer à l’aveugle sans risquer de figer le
+compteur :
+
+- `ai_replies_count` ne peut **baisser que si le mois de**
+  `ai_replies_reset_at` **change dans la même écriture**. C’est exactement
+  ce que fait la remise à zéro mensuelle, et rien d’autre.
+- `ai_replies_reset_at` ne peut ni reculer, ni partir dans le futur.
+  ⚠️ Les deux sens comptent : `lib/ai-usage.ts` teste une DIFFÉRENCE de mois,
+  pas un ordre — un mois passé et un mois futur vident tous les deux le quota.
+
+Le mois est tronqué en UTC côté base pour coller à `getUTCMonth()` côté
+application : sur un décalage de fuseau, les deux doivent voir le même mois.
 
 ---
 

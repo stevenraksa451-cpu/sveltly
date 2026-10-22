@@ -72,8 +72,11 @@ export default function Page() {
                 </p>
                 <p>
                   <strong>Et si j’atteins les cinquante réponses ?</strong><br />
-                  Le tri, les résumés et les tâches continuent. Seule la génération de nouveaux brouillons
-                  s’arrête jusqu’au mois suivant.
+                  Le tri continue, par mots-clés plutôt que par IA : vos messages restent rangés par
+                  priorité et par type, mais plus rien n’est lu. Les résumés, les tâches et la
+                  planification automatique s’arrêtent jusqu’au mois suivant — ils sortent tous de la
+                  même analyse que les brouillons. Rien n’est perdu : ces emails sont réanalysés dès que
+                  le compteur repart.
                 </p>
                 <p>
                   <strong>Comment passer au Pro ?</strong><br />
