@@ -101,6 +101,7 @@ lire son corps risquait de figer le compteur. La marche à suivre est dans la
 migration.
 
 ---
+
 ### Prix
 
 **Pro = 12 €/mois** (9,60 € en annuel). Source unique : `lib/plans.tsx`, qui
