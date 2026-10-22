@@ -61,6 +61,46 @@ publique : c'est précisément comme ça que la contradiction est née.
 Et jamais de date. « Bientôt » sans échéance est une intention ; « en mars »
 est une promesse, et on n'en fait pas.
 
+### Forfaits : trois règles tirées d’un audit
+
+**1. Le plafond de boîtes mail a UNE source : `lib/mailbox-quota.ts`.**
+Trois routes créent une ligne dans `mailboxes` — `/api/mailboxes/callback`,
+`app/auth/callback` et `/api/save-token` (les deux moitiés de la connexion
+Google, selon que Supabase renvoie un code ou un fragment). La règle ne
+vivait que dans la première : un compte Gratuit ayant déjà ajouté une boîte
+repartait d’une reconnexion Google avec deux boîtes. Toute nouvelle route qui
+écrit dans `mailboxes` passe par `boiteAutorisee`.
+
+Les trois ne réagissent pas pareil à un refus, et c’est voulu : dans les
+réglages l’utilisateur a demandé une boîte, un refus doit se voir ; sur un
+chemin de connexion il a demandé à se connecter, et la connexion aboutit.
+
+**2. Le mode dégradé arrête BIEN PLUS que les brouillons.**
+Passé le quota mensuel, `/api/analyze` rend `buildFallback` : classement par
+mots-clés, `hasActionItem` forcé à false (aucune tâche), aucun `dailySummary`
+(le Résumé du jour retombe sur les objets d’emails), et un rendez-vous détecté
+**sans date** — donc jamais planifié. Quatre promesses du forfait Gratuit
+tombent ensemble.
+
+Le site affirmait le contraire à trois endroits, dont la FAQ de `/tarifs` qui
+répondait précisément à cette question. **Toute phrase décrivant ce que le
+forfait Gratuit continue de faire doit être relue contre `buildFallback`**,
+pas contre l’intention du forfait. C’est la règle d’honnêteté du contenu,
+appliquée aux limites.
+
+**3. `profiles.plan` est protégé par un déclencheur, pas par RLS.**
+RLS porte sur la LIGNE. Le navigateur écrit légitimement dans `profiles`
+(réglages, onboarding), donc UPDATE lui est accordé — et couvrait toutes les
+colonnes, `plan` comprise. Voir la migration
+`20261022000000_profiles_facturation_lecture_seule.sql`, qui explique
+pourquoi un déclencheur et pas `revoke update (plan)`.
+
+⚠️ `ai_replies_count` et `ai_replies_reset_at` restent modifiables : la
+fonction `increment_ai_usage` n’est pas dans ce dépôt, et la protéger sans
+lire son corps risquait de figer le compteur. La marche à suivre est dans la
+migration.
+
+---
 ### Prix
 
 **Pro = 12 €/mois** (9,60 € en annuel). Source unique : `lib/plans.tsx`, qui
