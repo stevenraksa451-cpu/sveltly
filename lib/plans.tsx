@@ -28,11 +28,20 @@ export const PLANS: Plan[] = [
     tagline: <>Pour découvrir <Brand /></>,
     priceMonthly: 0,
     priceAnnualMonthly: 0,
+    // ⚠️ Ces lignes s'affichent derrière une COCHE (PricingSection) : chacune
+    // doit décrire ce que le forfait FAIT, pas ce qu’il refuse.
+    //
+    // « Tri automatique illimité » était faux. Passé le quota, /api/analyze
+    // bascule sur buildFallback : classement par mots-clés, AUCUNE tâche
+    // (hasActionItem forcé à false), aucun résumé, et un rendez-vous détecté
+    // sans date — donc jamais planifié. Trois des quatre promesses s’arrêtaient
+    // en même temps que les brouillons, et /tarifs affirmait le contraire à
+    // trois endroits (tableau, corps de page, FAQ).
     features: [
       '1 boîte mail connectée',
-      'Tri automatique illimité',
       '50 réponses IA par mois',
-      'Planification automatique (7 jours à l\'avance)',
+      'Tri, résumés, tâches et planification à 7 jours — jusqu’à cette limite',
+      'Au-delà : tri simplifié par mots-clés, sans résumé ni tâche',
     ],
     limits: { mailboxes: 1, aiRepliesPerMonth: 50 },
   },
