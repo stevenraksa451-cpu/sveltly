@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { encryptToken } from '@/lib/token-crypto'
+import { boiteAutorisee } from '@/lib/mailbox-quota'
 
 export async function GET(req: NextRequest) {
   // Supabase passe le code ici
@@ -20,7 +21,14 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code)
   if (error) console.error('Erreur exchangeCodeForSession:', error.message)
 
-  if (!error && data.session?.provider_token) {
+  // Même règle que /api/save-token, l’autre moitié de ce même chemin de
+  // connexion : au plafond, la boîte n’est pas enregistrée, mais la
+  // connexion aboutit. Voir lib/mailbox-quota.ts.
+  if (
+    !error &&
+    data.session?.provider_token &&
+    (await boiteAutorisee(supabase, data.session.user.id, data.session.user.email))
+  ) {
     // provider_refresh_token manquait ici (contrairement à /api/save-token,
     // l'autre chemin possible selon que Supabase renvoie un "code" ou un
     // fragment #access_token) : sans lui, le mailbox perd tout accès Gmail

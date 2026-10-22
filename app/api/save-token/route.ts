@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '@/lib/token-crypto'
+import { boiteAutorisee } from '@/lib/mailbox-quota'
 
 export async function POST(req: NextRequest) {
   const { accessToken, providerToken, refreshToken } = await req.json()
@@ -23,6 +24,15 @@ export async function POST(req: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  // Chemin de CONNEXION, pas d’ajout de boîte : au plafond, on n’enregistre
+  // simplement pas cette boîte-là, et la connexion aboutit quand même.
+  // Refuser l’accès à son propre compte parce que le forfait plafonne les
+  // boîtes n’aurait aucun sens. Sans ce test, un compte Gratuit ayant déjà
+  // ajouté une boîte par les réglages repartait d’ici avec une deuxième.
+  if (!(await boiteAutorisee(supabase, user.id, user.email))) {
+    return NextResponse.json({ ok: true, mailboxIgnoree: 'limite_forfait' })
+  }
 
   // Clé refresh_token OMISE (pas mise à null) quand refreshToken est absent —
   // Google ne le renvoie que lors du tout premier consentement ; toute

@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken, decryptStrict } from '@/lib/token-crypto'
 import { invalidateEmailCache } from '@/lib/email-cache'
-import { getPlan } from '@/lib/plans'
+import { boiteAutorisee } from '@/lib/mailbox-quota'
 import { GRAPH, MS_AUTHORITY, MS_SCOPES, microsoftCredentials } from '@/lib/outlook-mailbox'
 
 function redirectWithStatus(origin: string, status: 'connected' | 'error', message?: string) {
@@ -127,28 +127,11 @@ export async function GET(req: NextRequest) {
   // gratuit pouvait donc connecter plus de boîtes que sa limite. Reconnecter
   // une boîte déjà existante (même email) reste toujours autorisé, même au
   //-delà de la limite — seul l'AJOUT d'une boîte supplémentaire est bloqué.
-  const { data: existingMailbox } = await supabaseAdmin
-    .from('mailboxes')
-    .select('id')
-    .eq('user_id', uid)
-    .eq('email', userInfo.email)
-    .maybeSingle()
-
-  if (!existingMailbox) {
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('plan')
-      .eq('id', uid)
-      .single()
-    const { count } = await supabaseAdmin
-      .from('mailboxes')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', uid)
-
-    const mailboxLimit = getPlan(profile?.plan).limits.mailboxes
-    if (mailboxLimit !== null && (count ?? 0) >= mailboxLimit) {
-      return redirectWithStatus(req.url, 'error', 'limite de boîtes mail atteinte pour ce forfait')
-    }
+  // Règle commune aux trois chemins qui enregistrent une boîte, désormais
+  // dans lib/mailbox-quota.ts. Ici l’utilisateur a explicitement demandé à
+  // ajouter une boîte : un refus doit se voir.
+  if (!(await boiteAutorisee(supabaseAdmin, uid, userInfo.email))) {
+    return redirectWithStatus(req.url, 'error', 'limite de boîtes mail atteinte pour ce forfait')
   }
 
   const { error: upsertError } = await supabaseAdmin.from('mailboxes').upsert({
