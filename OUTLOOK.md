@@ -103,11 +103,14 @@ demanderait une colonne : `history_id`, qui sert à Gmail, contient un entier
 court, et y glisser une URL de plusieurs centaines de caractères est un pari
 sur un schéma que ce dépôt ne décrit pas — la table `mailboxes` a été créée
 directement dans Supabase. En attendant, chaque synchro relit la fenêtre de
-7 jours : un appel de liste, filtré côté serveur Graph.
+7 jours : un appel de liste, filtré côté serveur Graph. C’est aussi la raison
+pour laquelle cette fenêtre n’a PAS été raccourcie quand le plafond d’emails
+est passé de 300 à 60 (voir `lib/sync-window.ts`) — côté Gmail elle ne sert
+qu’à la première synchro, côté Outlook à toutes.
 
 **Les pièces jointes ne sont pas listées à la synchro.** Graph demande un
-appel séparé par message, soit jusqu'à 300 appels de plus à chaque synchro
-complète. `hasAttachments` suffit à savoir qu'il y en a ; la liste se charge
+appel séparé par message, soit jusqu'à un appel par email du plafond de
+synchro à chaque synchro complète. `hasAttachments` suffit à savoir qu'il y en a ; la liste se charge
 à l'ouverture du message.
 
 **Une réponse part de Gmail si les deux fournisseurs sont connectés.** Un

@@ -9,15 +9,21 @@
 // Microsoft Graph, sans boîte Outlook connectée. Voir lib/outlook-mailbox.ts.
 import { decryptToken, encryptToken } from '@/lib/token-crypto'
 import { GRAPH, refreshOutlookToken } from '@/lib/outlook-mailbox'
+import { FENETRE_PREMIERE_SYNCHRO_JOURS, PLAFOND_PREMIERE_SYNCHRO } from '@/lib/sync-window'
 
 /**
- * Même fenêtre que Gmail (INITIAL_SYNC_MAX_AGE_DAYS) et même plafond
- * (MAX_INITIAL_SYNC_EMAILS) : les deux fournisseurs doivent remonter le même
- * volume, sinon le compteur « temps économisé » et la boîte de réception
- * n'auraient pas le même sens selon le fournisseur.
+ * Fenêtre et plafond viennent de lib/sync-window.ts, partagés avec Gmail :
+ * les deux fournisseurs doivent remonter le même volume, sinon le compteur
+ * « temps économisé » et la boîte de réception n'auraient pas le même sens
+ * selon le fournisseur.
+ *
+ * Ces deux valeurs étaient recopiées ici, sous un commentaire demandant de
+ * les garder identiques à celles de Gmail — c'est-à-dire la façon dont deux
+ * constantes finissent par diverger. Le plafond est d'ailleurs passé de 300
+ * à 60 côté Gmail sans que cette copie bouge.
  */
-const FENETRE_JOURS = 7
-const PLAFOND_EMAILS = 300
+const FENETRE_JOURS = FENETRE_PREMIERE_SYNCHRO_JOURS
+const PLAFOND_EMAILS = PLAFOND_PREMIERE_SYNCHRO
 const TAILLE_PAGE = 50
 
 /**

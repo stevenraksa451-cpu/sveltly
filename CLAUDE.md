@@ -381,6 +381,21 @@ Seul le RÉSULTAT est stocké, jamais le corps de l'email : le dupliquer
 durablement changerait la nature des données conservées, ce qui demande une
 décision explicite et une mise à jour de la politique de confidentialité.
 
+**Le deuxième levier : ne pas tout avaler à l’inscription.**
+Le quota de 200 000 tokens est celui de l’APPLICATION, une seule clé, tous
+comptes confondus. Une première synchro à 300 emails coûte donc
+300 × 1 529 ≈ **459 000 tokens — 2,3 jours de budget dépensés par un seul
+nouvel inscrit**, et le deuxième inscrit de la semaine n’avait plus de
+produit : sa synchro s’arrêtait sur la limite quotidienne et ses emails
+restaient `pending` pendant des jours.
+
+Le plafond est donc à **60** (`lib/sync-window.ts`, partagé avec Outlook qui en
+portait une copie), soit ~92 000 tokens. La **fenêtre reste à 7 jours** : les
+deux fournisseurs rendent les messages du plus récent au plus ancien, donc
+sur une boîte active c’est le plafond qui mord en premier et la fenêtre ne
+coûte rien de plus — et côté Outlook elle s’applique à CHAQUE synchro, faute
+de delta, donc la raccourcir ferait perdre des emails.
+
 Les trois leviers suivants, par ordre de rendement : taille du prompt · `maxTokensFor`
 (réservation dimensionnée sur le lot, pas forfaitaire) · `EMAIL_CHARS_FOR_ANALYSIS`.
 

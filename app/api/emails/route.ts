@@ -3,6 +3,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { getPlan } from '@/lib/plans'
+import { FENETRE_PREMIERE_SYNCHRO_JOURS, PLAFOND_PREMIERE_SYNCHRO } from '@/lib/sync-window'
 import { encryptToken, decryptToken } from '@/lib/token-crypto'
 import { getGmailMailboxes, tryAcrossMailboxes } from '@/lib/gmail-mailbox'
 import { getOutlookMailboxes, tryAcrossOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
@@ -193,28 +194,17 @@ async function fetchOneMessage(supabase: any, tokenState: GmailTokenState, messa
   }
 }
 
-// Première synchro : ne remonte que les emails reçus dans cette fenêtre —
-// pas "les N derniers emails quelle que soit leur ancienneté". Pour une
-// boîte à volume modeste, ça réduit déjà fortement le nombre d'emails
-// récupérés (donc la durée de la synchro) par rapport à un plafond purement
-// numérique. Filtré directement côté Gmail via le paramètre `q` de
-// messages.list (`newer_than:Nd`) plutôt que récupéré puis jeté côté
-// serveur — aucun appel gaspillé sur des messages hors fenêtre.
-const INITIAL_SYNC_MAX_AGE_DAYS = 7
-
-// Filet de sécurité SUPPLÉMENTAIRE, indépendant de la fenêtre de 7 jours —
-// une boîte recevant un volume anormalement élevé (spam massif, liste de
-// diffusion très active) pourrait quand même accumuler beaucoup d'emails en
-// seulement 7 jours. Les emails au-delà de ce plafond (même dans la fenêtre
-// des 7 jours) ne sont simplement pas synchronisés par Sveltly à la première
-// synchro, pas "perdus" au sens d'un bug.
+// Fenêtre et plafond de la première synchro : lib/sync-window.ts, partagé
+// avec Outlook (lib/outlook-fetch.ts), qui en portait sa propre copie.
 //
-// Mesuré en conditions réelles (boîte de test à >500 emails, voir la
-// vérification de ce correctif) : récupérer le détail de 500 messages prend
-// à elle seule 25 à 40s, AVANT même l'analyse Groq — au-delà d'un plafond
-// autour de 300, le risque de dépasser un timeout de plateforme (la plupart
-// des hébergeurs serverless coupent une route autour de 60s) devient réel.
-const MAX_INITIAL_SYNC_EMAILS = 300
+// Le plafond est passé de 300 à 60, et c'est le budget Groq qui l'impose,
+// pas la durée de la synchro : 300 emails coûtent ~459 000 tokens d'analyse,
+// soit 2,3 fois le quota quotidien de TOUTE l'application. La raison
+// historique du 300 — un timeout de plateforme au-delà, mesuré sur une boîte
+// de test à 500 emails — reste valable, elle est simplement devenue la
+// deuxième contrainte. Le détail du calcul est dans lib/sync-window.ts.
+const INITIAL_SYNC_MAX_AGE_DAYS = FENETRE_PREMIERE_SYNCHRO_JOURS
+const MAX_INITIAL_SYNC_EMAILS = PLAFOND_PREMIERE_SYNCHRO
 // Gmail plafonne lui-même messages.list à 500 résultats par page.
 const GMAIL_LIST_PAGE_SIZE = 100
 // Filet de sécurité indépendant de MAX_INITIAL_SYNC_EMAILS : si Gmail
