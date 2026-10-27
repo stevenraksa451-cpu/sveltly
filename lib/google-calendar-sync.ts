@@ -46,9 +46,40 @@ async function refreshCalendarToken(refreshToken: string): Promise<string | null
   }
 }
 
+/**
+ * Repasse `is_connected` à false quand Google refuse définitivement l'accès.
+ *
+ * Le côté Gmail avait déjà ce correctif (`markMailboxDisconnected` dans
+ * app/api/emails/route.ts) ; le côté agenda ne l'a jamais eu, et le symptôme
+ * est mot pour mot celui décrit là-bas. `is_connected` ne valait true que
+ * depuis le callback OAuth et n'en redescendait jamais : un calendrier dont
+ * le jeton avait expiré ou été révoqué restait affiché « Connecté » dans les
+ * Réglages pendant que chaque synchro échouait en silence. L'utilisateur
+ * voyait un agenda qui ne se remplit plus, sans savoir pourquoi, et sans
+ * rien à cliquer.
+ *
+ * Le `.eq('is_connected', true)` évite de réécrire la ligne à chaque appel
+ * une fois la déconnexion déjà enregistrée.
+ */
+export async function marquerCalendrierDeconnecte(supabase: any, accountId: string) {
+  const { error } = await supabase
+    .from('calendar_accounts')
+    .update({ is_connected: false })
+    .eq('id', accountId)
+    .eq('is_connected', true)
+  if (error) console.error('❌ Marquage calendrier déconnecté:', error.message)
+  else console.log('🔌 Calendrier ' + accountId + ' marqué déconnecté (jeton invalide)')
+}
+
 // Rejoue `doFetch` avec un access_token rafraîchi si Google répond 401, et
 // persiste le nouveau token chiffré — mêmes garanties que pour Gmail
 // (le refresh_token ne quitte jamais cette fonction en clair au-delà de l'appel réseau).
+//
+// ⚠️ Le test portait sur `401 && account.refresh_token`. Sans refresh_token,
+// la branche entière était sautée : la réponse 401 remontait telle quelle,
+// l'appelant logguait son erreur, et personne n'enregistrait jamais que le
+// calendrier était mort. C'est maintenant l'inverse — on entre dans la
+// branche sur le seul 401, et on en ressort en ayant tranché.
 async function withFreshToken(
   supabase: any,
   account: CalendarAccountRow,
@@ -57,13 +88,19 @@ async function withFreshToken(
   const token = decryptToken(account.access_token)!
   let res = await doFetch(token)
 
-  if (res.status === 401 && account.refresh_token) {
-    const refreshTokenPlain = decryptToken(account.refresh_token)
+  if (res.status === 401) {
+    const refreshTokenPlain = account.refresh_token ? decryptToken(account.refresh_token) : null
     const newToken = refreshTokenPlain ? await refreshCalendarToken(refreshTokenPlain) : null
     if (newToken) {
       await supabase.from('calendar_accounts').update({ access_token: encryptToken(newToken) }).eq('id', account.id)
       res = await doFetch(newToken)
     }
+
+    // Toujours 401 après la tentative — ou aucun refresh_token à jouer, ou
+    // un refresh_token que Google refuse : les jetons sont morts pour de
+    // bon. Seule une reconnexion peut les ressusciter, encore faut-il que
+    // quelqu'un le sache.
+    if (res.status === 401) await marquerCalendrierDeconnecte(supabase, account.id)
   }
 
   return res

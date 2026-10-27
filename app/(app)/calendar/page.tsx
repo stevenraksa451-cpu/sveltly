@@ -1,6 +1,7 @@
 'use client'
 // app/(app)/calendar/page.tsx
 import { useState, useEffect, Suspense } from 'react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import AppLayout from '@/components/layout/AppLayout'
 import CalendarView from '@/components/calendar/CalendarView'
@@ -21,6 +22,11 @@ function CalendarContent() {
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
 
   const [calendarConnected, setCalendarConnected] = useState(false)
+  // Distinct de `calendarConnected` : une ligne calendar_accounts existe, mais
+  // Google a définitivement refusé ses jetons. Sans cet état, repasser
+  // simplement `calendarConnected` à false faisait DISPARAÎTRE toute la barre
+  // de synchronisation — la panne devenait encore plus silencieuse qu'avant.
+  const [calendarExpire, setCalendarExpire] = useState(false)
   const [autoSync, setAutoSync] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
@@ -39,6 +45,17 @@ function CalendarContent() {
     })
     const data = await res.json().catch(() => null)
     setSyncing(false)
+
+    // La route a constaté que Google refuse les jetons et a déjà repassé
+    // is_connected à false. On bascule l'affichage tout de suite, y compris
+    // en synchro automatique (showMessage = false) : c'est précisément le cas
+    // où l'utilisateur n'a rien demandé et doit quand même être prévenu.
+    if (data?.disconnected) {
+      setCalendarConnected(false)
+      setCalendarExpire(true)
+      return
+    }
+
     if (data?.imported > 0) refresh()
     if (showMessage) {
       setSyncMessage(data?.imported > 0 ? `${data.imported} événement${data.imported > 1 ? 's' : ''} importé${data.imported > 1 ? 's' : ''}` : 'Déjà à jour')
@@ -54,12 +71,19 @@ function CalendarContent() {
 
       const [{ data: profile }, { data: account }] = await Promise.all([
         supabase.from('profiles').select('calendar_auto_sync').eq('id', user.id).single(),
-        supabase.from('calendar_accounts').select('id').eq('user_id', user.id).eq('is_connected', true).maybeSingle(),
+        // `is_connected` est LU, plus filtré : au rechargement de la page, une
+        // ligne filtrée se serait comportée comme une absence de ligne, et le
+        // « connexion expirée » aurait disparu au premier F5 — l'utilisateur
+        // serait revenu à un agenda muet.
+        supabase.from('calendar_accounts').select('id, is_connected').eq('user_id', user.id).eq('provider', 'google').maybeSingle(),
       ])
 
-      const connected = !!account
+      // Aucune ligne = jamais connecté. Une ligne à false = connexion morte,
+      // à reconnecter. Les deux méritent un affichage différent.
+      const connected = !!account?.is_connected
       const auto = profile?.calendar_auto_sync ?? true
       setCalendarConnected(connected)
+      setCalendarExpire(!!account && !account.is_connected)
       setAutoSync(auto)
 
       if (connected && auto) syncFromGoogle(false)
@@ -243,6 +267,18 @@ function CalendarContent() {
         </span>
 
         <div className={styles.toolbarActions}>
+          {calendarExpire && (
+            /* La barre reste en place, mais ne propose plus de synchroniser :
+               relancer un import ne peut que réechouer. Le seul geste utile
+               est la reconnexion, alors c'est le seul qu'on propose. */
+            <Link href="/settings?tab=agenda" className={styles.syncExpired}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+              </svg>
+              Connexion Google Calendar expirée — reconnecter
+            </Link>
+          )}
+
           {calendarConnected && (
             <>
               {/* Même emplacement pour l'état de synchro et pour le message

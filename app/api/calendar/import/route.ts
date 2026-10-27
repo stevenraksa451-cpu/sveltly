@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken, encryptToken } from '@/lib/token-crypto'
+import { marquerCalendrierDeconnecte } from '@/lib/google-calendar-sync'
 
 async function refreshAccessToken(refreshToken: string): Promise<string | null> {
   try {
@@ -85,13 +86,24 @@ export async function GET(req: NextRequest) {
   do {
     let res = await fetchGoogleEvents(token, pageToken)
 
-    if (res.status === 401 && account.refresh_token) {
-      const refreshTokenPlain = decryptToken(account.refresh_token)
+    if (res.status === 401) {
+      const refreshTokenPlain = account.refresh_token ? decryptToken(account.refresh_token) : null
       const newToken = refreshTokenPlain ? await refreshAccessToken(refreshTokenPlain) : null
       if (newToken) {
         await supabase.from('calendar_accounts').update({ access_token: encryptToken(newToken) }).eq('id', account.id)
         token = newToken
         res = await fetchGoogleEvents(token, pageToken)
+      }
+
+      // Encore 401 : les jetons sont morts. On le DIT, au lieu de rendre un
+      // { imported: 0 } que le client affichait en « Déjà à jour » — un
+      // calendrier déconnecté était alors indiscernable d'un calendrier sans
+      // rien à importer. C'est ce qui rendait la panne invisible : la route
+      // répondait 200, la barre affichait « Déjà à jour », et le seul indice
+      // était une ligne de log côté serveur.
+      if (res.status === 401) {
+        await marquerCalendrierDeconnecte(supabase, account.id)
+        return NextResponse.json({ imported: 0, disconnected: true })
       }
     }
 

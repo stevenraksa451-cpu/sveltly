@@ -46,6 +46,26 @@
 .syncBtn:hover:not(:disabled) { background: var(--bg-subtle); color: var(--text-primary); }
 .syncBtn:disabled { opacity: 0.6; cursor: default; }
 
+/* Connexion Google morte. Même forme que .syncBtn pour que la barre ne
+   change pas de hauteur, mais en pastille ambre : c'est un état à régler,
+   pas une action ordinaire. Les deux jetons sont vérifiés AA et s'inversent
+   avec le thème — pas de couleur en dur ici. */
+.syncExpired {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: var(--tint-amber-bg);
+  color: var(--tint-amber-fg);
+  transition: all var(--transition);
+}
+.syncExpired:hover { border-color: currentColor; }
+
 .syncSpin { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
