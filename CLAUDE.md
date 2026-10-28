@@ -600,6 +600,21 @@ apparaît systématiquement, c'est un vrai défaut.
   `stripe_customer_id` / `current_period_end`. Le paiement en ligne est annoncé
   comme non branché sur `/tarifs` et `/contact`. Demande les clés avant
   d'implémenter.
+- **Le schéma de la base n'est pas dans le dépôt** — c'est le risque
+  structurel n°1, devant tous les bugs. Tables, contraintes et **politiques
+  RLS** n'existent que dans le projet Supabase : ni second environnement, ni
+  retour arrière, ni relecture en revue de code.
+
+  Mesuré : 14 migrations distantes sans fichier local, 4 fichiers locaux
+  absents de l'historique distant, **0 qui concordent**. `db pull` et
+  `db dump` exigent Docker (non installé) et refusent de tourner sur un
+  historique divergent.
+
+  ⚠️ La réparation que propose la CLI marquerait `20261022000000` comme
+  *appliquée* alors qu'elle ne l'est pas — un mensonge durable, et c'est le
+  verrou de facturation. Voir **`supabase/schema/README.md`** : état mesuré,
+  extraction du schéma sans Docker, et l'ordre des opérations.
+
 - **Export de données** : absent, signalé sur
   `/securite/controle-de-vos-donnees`.
 - **Outlook** : le code est écrit, l'application Azure manque. Voir
