@@ -654,8 +654,30 @@ apparaît systématiquement, c'est un vrai défaut.
 
 ```bash
 npx tsc --noEmit -p tsconfig.json   # types
+npm test                            # 51 tests, ~0,3 s, aucune dépendance
 npm run build                       # build complet (21 pages marketing en statique)
 ```
+
+### Les tests ne coûtent aucune dépendance
+
+`node:test` + `node:assert/strict`, et Node 24 qui exécute le TypeScript
+nativement. Ni Vitest, ni Jest, ni ts-node — la règle « ne rien ajouter sans
+demander » tient aussi ici.
+
+Quatre modules **purs** couverts : `lib/scheduling.ts` (qu'un rendez-vous
+Google ou avec invités ne soit JAMAIS déplacé), `lib/ai-usage.ts` (la remise à
+zéro mensuelle, jumelle du déclencheur SQL), `lib/tasks.ts` (jeu fermé de
+catégories, priorité héritée de l'email), `lib/providers.ts` (aucune phrase
+réelle ne nomme un fournisseur `planned`). Trois de ces invariants
+correspondent à des bugs **déjà survenus**.
+
+⚠️ **Les imports relatifs des tests portent l'extension `.ts`** — la résolution
+ESM de Node l'exige, d'où `allowImportingTsExtensions` dans `tsconfig.json`.
+Et un import de TYPE doit s'écrire `import type` : sinon Node tente de
+résoudre `@/types` à l'exécution et échoue. Deux fichiers ont été corrigés
+dans ce sens, sans changement de comportement.
+
+Voir `tests/README.md` pour ce qui n'est pas couvert et pourquoi.
 
 **Ne jamais construire pendant que le serveur tourne** : `.next` est corrompu
 et le serveur sert l’ancien build en silence. Pire, `npm run start` échoue sur

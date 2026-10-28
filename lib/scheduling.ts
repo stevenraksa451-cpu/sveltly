@@ -7,7 +7,7 @@
 // réserve son créneau avant un important, qui le réserve avant un normal ;
 // jamais l'inverse. Testé indépendamment de toute base via
 // scratchpad/test-scheduling.js (voir ce fichier pour les cas couverts).
-import { Priority } from '@/types'
+import type { Priority } from '@/types'
 
 export interface ExistingEvent {
   id: string

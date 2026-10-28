@@ -11,6 +11,14 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // Les tests (tests/*.test.ts) tournent sur le lanceur natif de Node, qui
+    // exécute le TypeScript sans transpilation — et la résolution ESM de Node
+    // EXIGE alors l'extension explicite : `from '../lib/tasks.ts'`. TypeScript
+    // la refuse par défaut. Cette option l'autorise sans jamais l'imposer :
+    // tout le code applicatif continue d'importer sans extension.
+    // Elle demande `noEmit` (posé ci-dessus) — c'est déjà le cas, Next compile
+    // avec SWC et tsc ne sert qu'à vérifier les types.
+    "allowImportingTsExtensions": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],

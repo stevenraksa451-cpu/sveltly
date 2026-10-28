@@ -16,7 +16,7 @@
 // nom de l'expéditeur vit dans sa propre colonne `source_label`
 // (migration supabase/migrations/20261002000000_tasks_category_source.sql).
 
-import { EmailType, Priority } from '@/types'
+import type { EmailType, Priority } from '@/types'
 
 // --- Catégories ---------------------------------------------------------
 
