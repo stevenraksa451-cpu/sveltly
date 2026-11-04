@@ -136,13 +136,3 @@
   color: var(--text-primary);
 }
 
-.badge {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 6px;
-  height: 6px;
-  background: var(--urgent);
-  border-radius: 50%;
-  border: 1.5px solid var(--bg-card);
-}

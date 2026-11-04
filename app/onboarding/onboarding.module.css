@@ -27,17 +27,17 @@
   gap: 6px;
 }
 
+/* .progressDotDone retirée de ce groupe : plus aucun className ne la nomme
+   (l'étape franchie se marque autrement). Les deux autres sont vivantes —
+   supprimer la règle entière les aurait emportées avec elle. */
 .progressDot,
-.progressDotActive,
-.progressDotDone {
+.progressDotActive {
   width: 24px;
   height: 4px;
   border-radius: 99px;
   background: var(--border);
 }
 .progressDotActive { background: var(--accent); }
-.progressDotDone { background: var(--accent-muted); }
-
 .title {
   font-size: 1.15rem;
   font-weight: 600;

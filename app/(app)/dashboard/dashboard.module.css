@@ -87,11 +87,6 @@
 }
 .statCell:first-child { border-left: none; }
 
-/* Les trois traits de couleur au-dessus des chiffres ne codaient rien : ni
-   etat, ni priorite, ni categorie. Du decor qui ressemblait a de
-   l'information. Supprimes. */
-.statChip { display: none; }
-
 /* Les trois chiffres ont la MEME taille. Le premier etait a 2,6 rem et les
    deux autres a 1,65 : trois mesures du meme ecran affichees a deux echelles
    se lisent comme deux niveaux d'importance, ce qu'elles ne sont pas.

@@ -29,8 +29,6 @@
 .keyPointsList { margin: 6px 0 0; padding-left: 18px; }
 .keyPointsList li { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; }
 
-.attachmentNote { font-size: var(--text-xs); color: var(--text-muted); margin-top: 10px; }
-
 .taskBtn {
   display: flex;
   align-items: center;
@@ -81,10 +79,6 @@
 }
 .contactName { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
 .contactEmail { font-size: var(--text-xs); color: var(--accent); }
-
-.infoRow { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
-.infoLabel { font-size: var(--text-sm); color: var(--text-muted); }
-.infoValue { font-size: var(--text-sm); color: var(--text-primary); }
 
 .actionRow {
   display: flex;

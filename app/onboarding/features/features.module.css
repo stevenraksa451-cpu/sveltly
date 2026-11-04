@@ -114,13 +114,6 @@
   color: var(--normal);
 }
 
-.noPermTag {
-  margin-top: 4px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
 .footer {
   display: flex;
   justify-content: center;

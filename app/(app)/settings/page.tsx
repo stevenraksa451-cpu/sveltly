@@ -536,8 +536,16 @@ function SettingsContent() {
                     <p>Aucune boîte mail connectée</p>
                   </div>
                 ) : (
+                  // `box.email` et pas l'index : la liste est dynamique, et un
+                  // index fait réassocier les lignes quand une boîte est
+                  // retirée — React garde l'état du mauvais voisin. L'adresse
+                  // est unique par utilisateur (c'est la clé de l'upsert
+                  // `(user_id, email)`), et `id` n'est pas sélectionné par la
+                  // requête : `box.id` vaudrait undefined.
+                  // (`i` reste utilisé plus bas, pour ne pas poser de
+                  // séparateur après la dernière ligne.)
                   mailboxes.map((box, i) => (
-                    <div key={i}>
+                    <div key={box.email}>
                       <div className={styles.mailboxRow}>
                         <div className={styles.providerIcon}>
                           {box.provider === 'gmail' ? 'G' : 'O'}
