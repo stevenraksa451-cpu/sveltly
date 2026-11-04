@@ -1,0 +1,42 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    // ÉTEINTE, et c'est une décision, pas un abandon.
+    //
+    // 136 signalements sur 22 fichiers, tous sur l'apostrophe d'un texte
+    // FRANÇAIS : « l'email », « d'accord », « jusqu'à ». La règle vise
+    // l'ambiguïté typographique de l'anglais ; React échappe correctement ces
+    // caractères dans tous les cas, il n'y a aucun risque de rendu.
+    //
+    // La laisser allumée aurait noyé les deux seuls vrais défauts du dépôt
+    // sous 136 lignes de bruit — et une sortie que personne ne lit ne protège
+    // de rien.
+    //
+    // ⚠️ Ce bruit cachait quand même quelque chose de réel, mais d'un autre
+    // ordre : 987 apostrophes droites contre 378 typographiques, et douze
+    // fichiers qui mélangent les deux. C'est une incohérence de TYPOGRAPHIE
+    // (l'apostrophe française correcte est ’, U+2019), pas de correction —
+    // un chantier à part, à mener d'un coup sur le texte visible.
+    "react/no-unescaped-entities": "off",
+
+    // Un tableau de dépendances incomplet qu'on laisse passer finit par en
+    // cacher un deuxième, celui qui comptait. En avertissement plutôt qu'en
+    // erreur : certains cas légitimes demandent un commentaire, pas un échec
+    // de build.
+    "react-hooks/exhaustive-deps": "warn",
+
+    // Les deux règles qui ont réellement attrapé quelque chose sur ce projet
+    // (voir la section Lighthouse de CLAUDE.md) restent bloquantes.
+    "@next/next/no-html-link-for-pages": "error",
+    "@next/next/no-img-element": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "next-env.d.ts",
+    // Deno : imports https://, global `Deno`. Jamais exécuté par Next.
+    // Même exclusion que dans tsconfig.json, pour la même raison.
+    "supabase/functions/"
+  ]
+}

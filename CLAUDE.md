@@ -654,9 +654,34 @@ apparaît systématiquement, c'est un vrai défaut.
 
 ```bash
 npx tsc --noEmit -p tsconfig.json   # types
+npm run lint                        # ESLint — doit rendre 0
 npm test                            # 51 tests, ~0,3 s, aucune dépendance
 npm run build                       # build complet (21 pages marketing en statique)
 ```
+
+### ESLint : ce qui est éteint, et pourquoi
+
+`npm run lint` appelle **ESLint directement**, pas `next lint` — celui-ci
+disparaît avec Next 16. Rien n'a été installé : `eslint` et
+`eslint-config-next` étaient déjà dans les devDependencies, il ne manquait
+que `.eslintrc.json`.
+
+**`react/no-unescaped-entities` est éteinte.** 136 signalements sur 22
+fichiers, tous sur l'apostrophe d'un texte FRANÇAIS (« l'email »,
+« jusqu'à »). La règle vise l'ambiguïté de l'anglais ; React échappe
+correctement, il n'y a aucun risque de rendu. La laisser allumée noyait les
+deux seuls vrais défauts sous 136 lignes de bruit — et une sortie que
+personne ne lit ne protège de rien.
+
+⚠️ Ce bruit cachait tout de même quelque chose, d'un autre ordre :
+**987 apostrophes droites contre 378 typographiques**, et douze fichiers qui
+mélangent les deux. L'apostrophe française correcte est `’` (U+2019). C'est
+une incohérence de typographie visible par l'utilisateur, pas un bug — un
+chantier à mener d'un coup sur le texte visible, jamais sur le code.
+
+Une seule exception locale dans tout le dépôt : `@next/next/no-img-element`
+dans `components/ui/Avatar.tsx`, avec sa raison écrite sur place (image
+distante de 34 px, décorative, avec repli sur les initiales).
 
 ### Les tests ne coûtent aucune dépendance
 

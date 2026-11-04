@@ -41,6 +41,18 @@ export default function Avatar({ src, initials, size = 40, className }: AvatarPr
         {initials}
       </span>
       {canShowImage && (
+        // Exception assumée à la règle « les images passent par next/image »
+        // (voir CLAUDE.md), désactivée ICI et nulle part ailleurs :
+        // — l'image est distante (lh3.googleusercontent.com ou Supabase, déjà
+        //   autorisés par le CSP de next.config.js) et servie à 34 ou 48 px.
+        //   Google la rend déjà dimensionnée ; la faire transiter par
+        //   l'optimiseur de Next ajouterait un aller-retour serveur par avatar
+        //   sans rien gagner, et demanderait images.remotePatterns.
+        // — elle est purement décorative (alt vide, aria-hidden) : les
+        //   initiales en dessous portent l'information.
+        // — onLoad/onError pilotent le repli sur les initiales quand l'URL
+        //   casse, qui est la raison d'être de ce composant.
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           key={src}
           src={src!}
