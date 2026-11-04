@@ -1,110 +1,108 @@
-# Le schéma de la base, et pourquoi il n'est pas encore ici
+# Le schéma de la base
 
-## L'état réel, mesuré
+`schema_distant.sql` est un **instantané** du schéma `public` réel : tables,
+colonnes, contraintes, index, état RLS, **toutes les politiques RLS**,
+fonctions et déclencheurs. Généré — ne pas l'éditer à la main.
 
-`npx supabase migration list` au 28/10/2026 :
+| | |
+|---|---|
+| Tables | 9 |
+| Politiques RLS | 13 |
+| Fonctions | 4 |
+| Déclencheurs | 2 |
+| Tables **sans** RLS | **0** |
 
-| | nombre | |
-|---|---|---|
-| Migrations **distantes sans fichier local** | 14 | `20260920144516` → `20260925215843` |
-| Migrations **locales absentes de l'historique distant** | 4 | `20261001000000` → `20261022000000` |
-| Migrations dont les deux côtés concordent | **0** | |
-
-Les 14 premières ont été appliquées à la main dans l'éditeur SQL avant que ce
-dépôt existe. Les 4 locales ont été appliquées de la même façon : l'éditeur SQL
-n'écrit rien dans la table d'historique, d'où les deux colonnes qui ne se
-rencontrent jamais.
-
-**Conséquence : le schéma — tables, colonnes, contraintes, index, et surtout
-les politiques RLS — n'existe qu'à un seul endroit, le projet Supabase.** Pas
-de second environnement, pas de retour arrière, pas de relecture en revue de
-code. Si le projet est perdu, le schéma l'est avec.
-
-Trois fois pendant l'audit d'octobre, cette absence a coûté du temps :
-impossible de vérifier qu'une colonne était protégée (la faille `profiles.plan`
-est restée invisible jusqu'à ce qu'on la cherche), impossible de lire
-`increment_ai_usage` (il a fallu contourner), impossible de savoir si une table
-avait RLS.
-
-## Pourquoi `supabase db pull` ne suffit pas ici
-
-Deux obstacles, dans cet ordre :
-
-1. **`db pull` et `db dump` lancent `pg_dump` dans un conteneur.** Sans Docker
-   Desktop installé, les deux échouent sur `LegacyDockerRunError`. `psql` n'est
-   pas installé non plus.
-2. **`db pull` refuse de s'exécuter** tant que les deux historiques divergent
-   (`LegacyDbPullMigrationConflictError`).
-
-## ⚠️ Le piège de la réparation suggérée par la CLI
-
-Devant ce conflit, la CLI propose une liste de commandes toutes faites. La
-dernière est :
-
-```
-supabase migration repair --status applied 20261022000000
-```
-
-**Ne pas la lancer en l'état.** Cette migration — le verrou qui empêche un
-utilisateur de se mettre en Pro depuis sa console — **n'est pas appliquée**.
-La marquer « applied » inscrirait un mensonge durable dans l'historique : la
-base n'aurait pas le déclencheur, le dépôt croirait que si, et plus personne
-ne l'appliquerait jamais.
-
-Les trois autres (`20261001`, `20261002`, `20261012`) sont bien appliquées et
-vérifiées en base — pour celles-là, `--status applied` dit la vérité.
-
-## La marche à suivre, dans l'ordre
-
-### 1. Appliquer la migration en attente
-
-Coller `supabase/APPLIQUER_CES_MIGRATIONS.sql` dans l'éditeur SQL, puis
-dérouler le protocole de vérification écrit en fin de ce fichier. Il demande
-un `set local role authenticated` : sans lui, l'éditeur s'exécute en
-`postgres`, qui est exempté du déclencheur, et les tentatives d'attaque
-passeraient toutes — on conclurait à tort que le verrou ne marche pas.
-
-### 2. Faire entrer le schéma dans le dépôt — sans rien installer
-
-Coller `supabase/schema/EXTRAIRE_LE_SCHEMA.sql` dans l'éditeur SQL. La requête
-ne lit que les catalogues système, elle ne modifie rien. Elle rend une seule
-cellule de texte contenant tables, colonnes, contraintes, index, état RLS,
-**toutes les politiques RLS**, fonctions et déclencheurs.
-
-Copier le résultat dans `supabase/schema/schema_distant.sql` et commiter.
-
-C'est un **instantané de référence**, pas une chaîne de migrations rejouable.
-Il règle la relecture, la perte du projet et l'audit des politiques — pas le
-déploiement.
-
-### 3. Sortir du régime manuel — quand vous pourrez installer Docker
-
-Une fois Docker Desktop en place, et **seulement après l'étape 1** :
+## Le régénérer
 
 ```bash
-# Les 14 migrations historiques n'ont pas de fichier : on les retire de
-# l'historique distant. Rien n'est défait en base — ces lignes ne contiennent
-# qu'un numéro de version, jamais de SQL.
-npx supabase migration repair --status reverted 20260920144516
-# … les 13 autres, la CLI donne la liste complète
-
-# Les 4 locales sont alors réellement appliquées : là, c'est vrai.
-npx supabase migration repair --status applied 20261001000000
-npx supabase migration repair --status applied 20261002000000
-npx supabase migration repair --status applied 20261012000000
-npx supabase migration repair --status applied 20261022000000
-
-# Les deux historiques concordent : db pull génère enfin une base de départ.
-npx supabase db pull
+npx supabase db query --linked -f supabase/schema/EXTRAIRE_LE_SCHEMA.sql
 ```
 
-À partir de là, `supabase db push` fonctionne et
-`APPLIQUER_CES_MIGRATIONS.sql` n'a plus de raison d'être.
+La requête ne lit que les catalogues système : elle ne modifie rien.
 
-## Ce que ce dossier contient
+## ⚠️ `supabase db query --linked` — la commande qui change tout
+
+Elle exécute du SQL sur le projet lié **via l'API de gestion** : pas de
+Docker, pas de mot de passe de base, pas de copier-coller dans le tableau de
+bord.
+
+Elle n'était pas dans la liste de sous-commandes consultée en premier — la
+sortie était tronquée à `reset`, et `query` vient après. Conséquence : une
+marche à suivre manuelle entière (extraire à la main, recoller le résultat)
+a été écrite pour un obstacle qui n'existait pas. **Relire la liste complète
+d'une CLI avant de conclure qu'une capacité manque.**
+
+Ce qui reste vrai : `db pull` et `db dump` exigent Docker, et `db pull` refuse
+en plus de tourner tant que les historiques divergent.
+
+```bash
+npx supabase db query --linked -f supabase/migrations/<fichier>.sql   # appliquer
+npx supabase db query --linked "select …"                             # inspecter
+```
+
+## État des migrations
+
+`npx supabase migration list` : 14 migrations distantes sans fichier local
+(antérieures à ce dépôt), 4 fichiers locaux absents de l'historique distant,
+**0 qui concordent**. Les quatre locales sont pourtant bien appliquées et
+vérifiées en base — l'éditeur SQL n'écrit rien dans la table d'historique.
+
+Ce désaccord n'empêche plus rien d'important : le schéma est dans le dépôt,
+et `db query` applique les migrations. Il bloque seulement `db push` et
+`db pull`. Pour en sortir, il faut Docker — et **d'abord** vérifier chaque
+migration avant de la déclarer appliquée : la réparation que propose la CLI
+marquerait tout sans rien contrôler.
+
+## Vérifier un verrou : trois tests faux d'affilée
+
+Le déclencheur de facturation (`20261022000000`) a semblé inopérant **trois
+fois**, pour trois raisons différentes. Aucune n'était un défaut du verrou.
+C'est le mode d'emploi de toute vérification future sur cette base :
+
+1. **`set local role authenticated` sans JWT.** La RLS ne laisse alors voir
+   aucune ligne : l'`UPDATE` touche 0 ligne et le déclencheur BEFORE UPDATE
+   ne se déclenche jamais. Il faut poser les claims comme le fait PostgREST :
+   `set_config('request.jwt.claims', '{"sub":"<uuid>","role":"authenticated"}', true)`.
+
+2. **Un `when others` trop large** dans le bloc de test attrapait l'échec du
+   `set role` lui-même et le rapportait comme un échec du verrou.
+
+3. **La cible était déjà en `plan = 'pro'`.** `new.plan is distinct from
+   old.plan` était faux, et le déclencheur a laissé passer **à juste titre**.
+   Tester sur un profil réellement en `free`.
+
+Résultat une fois le test correct : `plan`, `ai_replies_count` et
+`ai_replies_reset_at` tous les trois **bloqués**, et l'écriture légitime
+(`full_name`) passe.
+
+Pour que le test ne puisse rien écrire quelle que soit l'issue, l'envelopper
+dans un bloc `DO` dont chaque sous-bloc lève — y compris en cas de succès —
+et terminer par un `raise exception`. Ne PAS se fier à `begin … rollback` :
+rien ne garantit que l'API n'exécute pas les instructions séparément, auquel
+cas l'`UPDATE` serait validé.
+
+## Ce que l'extraction a révélé
+
+`increment_ai_usage` — invisible depuis ce dépôt pendant toute la mise en
+place du verrou — est en **SECURITY DEFINER**, avec `search_path` fixé et
+surtout `where id = (select auth.uid())`. Elle est donc correctement bornée
+à l'appelant, et exemptée du déclencheur par `current_user`. Le compteur
+continue d'avancer, ce que le test confirme.
+
+Sa logique correspond exactement à la règle écrite à l'aveugle : même mois →
+incrément ; mois différent → repart à `p_n` **et** déplace `ai_replies_reset_at`.
+C'est précisément la seule baisse que le déclencheur autorise.
+
+⚠️ Nuance restante : la fonction tronque le mois avec
+`date_trunc('month', ai_replies_reset_at)` — donc dans le fuseau de la
+session — alors que le déclencheur et `lib/ai-usage.ts` tronquent en **UTC**.
+Sans conséquence aujourd'hui (la fonction est exemptée), mais les deux
+pourraient diverger de quelques heures au basculement du 1er du mois.
+
+## Ce dossier
 
 | Fichier | Rôle |
 |---|---|
-| `EXTRAIRE_LE_SCHEMA.sql` | La requête à coller. Ne modifie rien. |
-| `schema_distant.sql` | L'instantané. **Généré — ne pas éditer à la main.** |
+| `schema_distant.sql` | L'instantané. **Généré — ne pas éditer.** |
+| `EXTRAIRE_LE_SCHEMA.sql` | La requête qui le produit. Ne modifie rien. |
 | `README.md` | Ce fichier. |

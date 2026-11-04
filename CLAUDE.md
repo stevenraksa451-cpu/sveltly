@@ -600,20 +600,21 @@ apparaît systématiquement, c'est un vrai défaut.
   `stripe_customer_id` / `current_period_end`. Le paiement en ligne est annoncé
   comme non branché sur `/tarifs` et `/contact`. Demande les clés avant
   d'implémenter.
-- **Le schéma de la base n'est pas dans le dépôt** — c'est le risque
-  structurel n°1, devant tous les bugs. Tables, contraintes et **politiques
-  RLS** n'existent que dans le projet Supabase : ni second environnement, ni
-  retour arrière, ni relecture en revue de code.
+- **Historique des migrations désaccordé** (le schéma, lui, est désormais
+  dans le dépôt : `supabase/schema/schema_distant.sql`). 14 migrations
+  distantes sans fichier local, 4 fichiers locaux absents de l'historique
+  distant, **0 qui concordent** — l'éditeur SQL n'écrit rien dans la table
+  d'historique. Cela bloque `db push` et `db pull`, rien d'autre.
 
-  Mesuré : 14 migrations distantes sans fichier local, 4 fichiers locaux
-  absents de l'historique distant, **0 qui concordent**. `db pull` et
-  `db dump` exigent Docker (non installé) et refusent de tourner sur un
-  historique divergent.
+  ⚠️ La réparation que propose la CLI marque tout sans rien vérifier.
+  Contrôler chaque migration avant de la déclarer appliquée.
 
-  ⚠️ La réparation que propose la CLI marquerait `20261022000000` comme
-  *appliquée* alors qu'elle ne l'est pas — un mensonge durable, et c'est le
-  verrou de facturation. Voir **`supabase/schema/README.md`** : état mesuré,
-  extraction du schéma sans Docker, et l'ordre des opérations.
+  **`npx supabase db query --linked -f <fichier.sql>`** exécute du SQL sur le
+  projet lié via l'API de gestion : ni Docker, ni mot de passe, ni
+  copier-coller. C'est la voie normale pour appliquer une migration et pour
+  inspecter la base. Voir `supabase/schema/README.md` — qui raconte aussi les
+  **trois tests faux d'affilée** par lesquels le verrou de facturation a
+  semblé inopérant.
 
 - **Export de données** : absent, signalé sur
   `/securite/controle-de-vos-donnees`.
