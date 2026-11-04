@@ -36,7 +36,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'Agenda automatique',
-    desc: <>Un rendez-vous mentionné dans un email ? <Brand /> le détecte et l'ajoute directement à votre agenda, sans que vous ayez à le faire vous-même.</>,
+    desc: <>Un rendez-vous mentionné dans un email ? <Brand /> le détecte et l’ajoute directement à votre agenda, sans que vous ayez à le faire vous-même.</>,
   },
 ]
 
@@ -86,7 +86,7 @@ export default function OnboardingFeaturesPage() {
           </div>
           <h1 className={styles.title}>Voici ce que <Brand /> fait pour vous</h1>
           <p className={styles.subtitle}>
-            Chaque fonctionnalité s'active en connectant votre Gmail — vous choisissez si et quand.
+            Chaque fonctionnalité s’active en connectant votre Gmail — vous choisissez si et quand.
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export default function OnboardingFeaturesPage() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>
           </svg>
-          Rien n'est envoyé automatiquement, et vous pouvez révoquer l'accès à tout moment depuis les paramètres.
+          Rien n’est envoyé automatiquement, et vous pouvez révoquer l’accès à tout moment depuis les paramètres.
         </p>
 
         <div className={styles.footer}>

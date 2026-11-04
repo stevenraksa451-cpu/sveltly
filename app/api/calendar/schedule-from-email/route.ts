@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
   const eventPriority: Priority = priority === 'urgent' || priority === 'important' ? priority : 'normal'
 
   if (!date || !startTime) {
-    return NextResponse.json({ error: 'Données d\'événement manquantes' }, { status: 400 })
+    return NextResponse.json({ error: 'Données d’événement manquantes' }, { status: 400 })
   }
 
   const authHeader = req.headers.get('authorization')
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
         date,
         start_time: forceSlot.startTime,
         end_time: forceSlot.endTime,
-        description: sourceSubject ? `Détecté depuis l'email : ${sourceSubject}` : null,
+        description: sourceSubject ? `Détecté depuis l’email : ${sourceSubject}` : null,
         from_email_id: sourceEmailId || null,
         color: '#1A73E8',
         priority: eventPriority,
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
         date,
         start_time: result.startTime,
         end_time: result.endTime,
-        description: sourceSubject ? `Détecté depuis l'email : ${sourceSubject}` : null,
+        description: sourceSubject ? `Détecté depuis l’email : ${sourceSubject}` : null,
         from_email_id: sourceEmailId || null,
         color: '#1A73E8',
         priority: eventPriority,
@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
       date,
       startTime: result.startTime,
       endTime: result.endTime,
-      description: sourceSubject ? `Détecté depuis l'email : ${sourceSubject}` : null,
+      description: sourceSubject ? `Détecté depuis l’email : ${sourceSubject}` : null,
       color: '#1A73E8',
       priority: eventPriority,
       sourceEmailId: sourceEmailId || null,

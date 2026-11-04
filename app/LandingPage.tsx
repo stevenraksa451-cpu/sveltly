@@ -44,7 +44,7 @@ const HOURS_GIVEN_BACK = Math.round(BASELINE_EMAIL_HOURS * SAVINGS_RATIO)
 const SMALL_FEATURES = [
   { number: '03', icon: <IconCalendar />, title: 'Agenda automatique', desc: 'Les rendez-vous et réunions mentionnés dans vos emails sont détectés et ajoutés à votre agenda sans aucune action de votre part.' },
   { number: '04', icon: <IconCheckSquare />, title: 'Tâches automatiques', desc: <><Brand /> repère les actions à faire dans vos emails et les transforme en tâches, classées et prêtes à traiter — sans que vous ayez à les recopier.</> },
-  { number: '06', icon: <IconFocus />, title: 'Zéro distraction', desc: 'Une interface pensée pour aller à l\'essentiel. Pas de notifications inutiles, pas de complexité. Juste vos emails, organisés.' },
+  { number: '06', icon: <IconFocus />, title: 'Zéro distraction', desc: 'Une interface pensée pour aller à l’essentiel. Pas de notifications inutiles, pas de complexité. Juste vos emails, organisés.' },
   // "Chiffrement de bout en bout" retiré : le produit ne l'implémente pas et
   // ne peut pas l'implémenter — les emails doivent être lisibles côté serveur
   // pour être analysés. Remplacé par ce qui est réellement en place (voir la
@@ -121,10 +121,10 @@ const STEPS = [
 ]
 
 const FAQ = [
-  { q: <>Est-ce que <Brand /> lit vraiment mes emails ?</>, a: 'Oui, c\'est nécessaire pour l\'analyse et la classification. Vos données ne sont jamais partagées ni utilisées à d\'autres fins.' },
+  { q: <>Est-ce que <Brand /> lit vraiment mes emails ?</>, a: 'Oui, c’est nécessaire pour l’analyse et la classification. Vos données ne sont jamais partagées ni utilisées à d’autres fins.' },
   { q: 'Les réponses sont-elles envoyées automatiquement ?', a: <>Non, jamais. <Brand /> rédige des brouillons que vous devez relire et valider vous-même avant tout envoi.</> },
-  { q: 'Est-ce gratuit ?', a: 'Oui. La création de compte et l\'utilisation de base sont gratuites.' },
-  { q: <><Brand /> est-il un produit récent ?</>, a: <>Oui, <Brand /> vient d'être lancé. Vous faites partie des premiers utilisateurs à le tester.</> },
+  { q: 'Est-ce gratuit ?', a: 'Oui. La création de compte et l’utilisation de base sont gratuites.' },
+  { q: <><Brand /> est-il un produit récent ?</>, a: <>Oui, <Brand /> vient d’être lancé. Vous faites partie des premiers utilisateurs à le tester.</> },
 ]
 
 export default function LandingPage() {
@@ -150,7 +150,7 @@ export default function LandingPage() {
         <div className={styles.hero}>
             <div className={styles.heroContent}>
               <p className={styles.badge}>
-                ~{HOURS_GIVEN_BACK} h rendues par semaine sur {BASELINE_EMAIL_HOURS} h d'emails
+                ~{HOURS_GIVEN_BACK} h rendues par semaine sur {BASELINE_EMAIL_HOURS} h d’emails
               </p>
               <h1 className={styles.heroTitle}>
                 Planifiez. Simplifiez.<br />
@@ -298,13 +298,13 @@ export default function LandingPage() {
             {/* Tuile moyenne — réponses IA, avec un mini-aperçu du brouillon généré */}
             <Reveal variant="scale" delay={80} className={`${styles.bentoTile} ${styles.bentoMed}`}>
               <span className={styles.featureNumber}>02</span>
-              <h3 className={styles.bentoTitle}>Réponses générées par l'IA</h3>
+              <h3 className={styles.bentoTitle}>Réponses générées par l’IA</h3>
               <p className={styles.bentoDesc}>
-                Des brouillons adaptés au contexte et au ton de l'expéditeur. Vous relisez, vous ajustez, vous envoyez.
+                Des brouillons adaptés au contexte et au ton de l’expéditeur. Vous relisez, vous ajustez, vous envoyez.
               </p>
               <div className={styles.mockReply} aria-hidden="true">
                 <p className={styles.mockQuoted}>« Pouvez-vous valider le devis avant vendredi ? »</p>
-                <p className={styles.mockReplyText}>Bonjour Marine, le devis est validé de mon côté. Je vous transmets la version signée d'ici vendredi.</p>
+                <p className={styles.mockReplyText}>Bonjour Marine, le devis est validé de mon côté. Je vous transmets la version signée d’ici vendredi.</p>
                 <span className={styles.mockReadyChip}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="20 6 9 17 4 12" /></svg>
                   Prêt à envoyer

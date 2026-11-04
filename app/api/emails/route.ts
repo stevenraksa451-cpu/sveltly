@@ -587,7 +587,7 @@ async function analyzeEmailsInBatches(
   for (let i = 0; i < batches.length; i++) {
     if (i > 0 && Date.now() - startTime > MAX_ANALYSIS_DURATION_MS) {
       const remaining = batches.slice(i).reduce((sum, b) => sum + b.length, 0)
-      console.log(`⏱️ Budget temps d'analyse dépassé (${MAX_ANALYSIS_DURATION_MS}ms) après ${i} lot(s) — arrêt, ${remaining} email(s) restent en attente pour la prochaine synchro.`)
+      console.log(`⏱️ Budget temps d’analyse dépassé (${MAX_ANALYSIS_DURATION_MS}ms) après ${i} lot(s) — arrêt, ${remaining} email(s) restent en attente pour la prochaine synchro.`)
       break
     }
 
@@ -620,7 +620,7 @@ async function analyzeEmailsInBatches(
 
     if (parsed.groqError?.type === 'tokens_per_day') {
       const remaining = batches.slice(i).reduce((sum, b) => sum + b.length, 0)
-      console.log(`🛑 Limite Groq quotidienne atteinte — arrêt de l'envoi de nouveaux lots (${remaining} email(s) restent en attente pour la prochaine synchro).`)
+      console.log(`🛑 Limite Groq quotidienne atteinte — arrêt de l’envoi de nouveaux lots (${remaining} email(s) restent en attente pour la prochaine synchro).`)
       return { analysisById, degradedIds, stoppedForDailyLimit: true }
     }
 
@@ -662,7 +662,7 @@ export async function GET(req: NextRequest) {
 
   const cached = getCachedEmails(user.id)
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log('✅ Cache hit — pas d\'appel Groq')
+    console.log('✅ Cache hit — pas d’appel Groq')
     return NextResponse.json(cached.data)
   }
 
@@ -741,7 +741,7 @@ export async function GET(req: NextRequest) {
   })
 
   if (storedAnalyses.size > 0) {
-    console.log(`💾 ${storedAnalyses.size} analyse(s) relue(s) en base — autant d'appels Groq évités`)
+    console.log(`💾 ${storedAnalyses.size} analyse(s) relue(s) en base — autant d’appels Groq évités`)
   }
 
   // Réponse immédiate avec ce qu'on a déjà (emails Gmail + analyse IA d'une
@@ -1136,7 +1136,7 @@ export async function GET(req: NextRequest) {
             email.autoArchived = true
           }
         } catch (err) {
-          console.error(`❌ Erreur archivage auto de l'email ${email.id}:`, err)
+          console.error(`❌ Erreur archivage auto de l’email ${email.id}:`, err)
         }
       }
 

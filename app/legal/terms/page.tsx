@@ -2,7 +2,7 @@
 import TermsContent from '@/components/legal/TermsContent'
 
 export const metadata = {
-  title: 'Conditions générales d\'utilisation — Sveltly',
+  title: 'Conditions générales d’utilisation — Sveltly',
 }
 
 export default function TermsPage() {

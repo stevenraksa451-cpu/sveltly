@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
             <div className={styles.statCell}>
               <p className={styles.statValue}>{eventsPending ? '—' : todayEvents.length}</p>
-              <p className={styles.statLabel}>Réunions aujourd'hui</p>
+              <p className={styles.statLabel}>Réunions aujourd’hui</p>
               <p className={styles.statSub}>
                 {eventsPending ? '' : todayEvents.length > 0 ? `Prochaine à ${todayEvents[0].startTime}` : 'Rien de prévu'}
               </p>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
                   sinon il laisse croire que le total ne porte que sur la
                   journée. */}
               <p className={styles.statSub}>
-                {emailsPending ? '' : `dont ${todayEmailsCount} email${todayEmailsCount !== 1 ? 's' : ''} aujourd'hui`}
+                {emailsPending ? '' : `dont ${todayEmailsCount} email${todayEmailsCount !== 1 ? 's' : ''} aujourd’hui`}
               </p>
             </div>
           </div>

@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
   // ici comme sur la vitrine.
   const connu = PROVIDERS.find(p => p.id === demande)
   if (!connu || connu.status !== 'live') {
-    return NextResponse.json({ error: `${connu?.name ?? demande} n'est pas encore disponible` }, { status: 400 })
+    return NextResponse.json({ error: `${connu?.name ?? demande} n’est pas encore disponible` }, { status: 400 })
   }
 
   // State signé (AES-256-GCM, même clé que les tokens) : porte l'utilisateur

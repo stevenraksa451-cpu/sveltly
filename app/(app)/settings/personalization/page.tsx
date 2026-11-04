@@ -12,12 +12,12 @@ export default function PersonalizationPage() {
   const { theme, changeTheme: selectTheme } = useTheme()
 
   return (
-    <AppLayout title="Personnalisation" subtitle={<>Ajustez l'apparence de <Brand />.</>}>
+    <AppLayout title="Personnalisation" subtitle={<>Ajustez l’apparence de <Brand />.</>}>
       <div className={styles.grid}>
         <div className={styles.card} style={{ cursor: 'default' }}>
           <div className={styles.cardBody}>
             <h3 className={styles.cardTitle}>Thème</h3>
-            <p className={styles.cardDesc}>Choisissez l'apparence claire ou sombre de l'interface.</p>
+            <p className={styles.cardDesc}>Choisissez l’apparence claire ou sombre de l’interface.</p>
 
             <div className={local.themeOptions}>
               <button

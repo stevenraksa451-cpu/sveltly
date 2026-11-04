@@ -132,7 +132,7 @@ export default function ImpactCalculator() {
           <SparkleDoodle size={13} rotate={-10} className={styles.titleSparkle} />
         </h2>
         <p className={styles.desc}>
-          Le temps passé sur les emails est du temps non facturé. <Brand /> l'automatise —
+          Le temps passé sur les emails est du temps non facturé. <Brand /> l’automatise —
           voici ce que ça représente pour vous.
         </p>
       </div>
@@ -198,7 +198,7 @@ export default function ImpactCalculator() {
 
       <p className={styles.source}>
         Base de calcul : <Brand /> rend environ {Math.round(SAVINGS_RATIO * 100)} % du temps passé sur vos emails —
-        pas la totalité, puisqu'il reste à relire un résumé et valider un brouillon. Même méthode que le
+        pas la totalité, puisqu’il reste à relire un résumé et valider un brouillon. Même méthode que le
         compteur « temps économisé » de votre tableau de bord, détaillée dans le produit.
         Taux de change indicatifs, août 2026 — non actualisés en temps réel.
       </p>

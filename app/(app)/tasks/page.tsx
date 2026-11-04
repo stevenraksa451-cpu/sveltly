@@ -55,7 +55,7 @@ function groupKeyOf(t: Task, today: string): 'done' | 'none' | 'overdue' | 'toda
 function dueLabel(dueDate: string | null): string {
   if (!dueDate) return ''
   const today = todayIso()
-  if (dueDate === today) return "Aujourd'hui"
+  if (dueDate === today) return "Aujourd’hui"
   if (dueDate === tomorrowIso()) return 'Demain'
   const d = new Date(dueDate + 'T00:00:00')
   const diffDays = Math.round((d.getTime() - new Date(today).getTime()) / 86400000)
@@ -76,7 +76,7 @@ function completedLabel(completedAt: string | null): string | null {
   startOfToday.setHours(0, 0, 0, 0)
   const days = Math.floor((startOfToday.getTime() - done.getTime()) / 86400000) + 1
 
-  if (days <= 0) return "Terminée aujourd'hui"
+  if (days <= 0) return "Terminée aujourd’hui"
   if (days === 1) return 'Terminée hier'
   if (days < 7) return `Terminée il y a ${days} jours`
   if (days < 30) return `Terminée il y a ${Math.floor(days / 7)} sem.`
@@ -126,7 +126,7 @@ function matchesSearch(t: Task, q: string): boolean {
 // le champ natif, toujours là pour une date précise ou lointaine.
 function DateChips({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const options = [
-    { label: "Aujourd'hui", date: todayIso() },
+    { label: "Aujourd’hui", date: todayIso() },
     { label: 'Demain', date: tomorrowIso() },
     { label: 'Dans 1 semaine', date: inDaysIso(7) },
   ]
@@ -403,7 +403,7 @@ function TasksContent() {
   const grouped = useMemo(() => {
     const groups: { key: string; label: string; items: Task[]; repliable?: boolean }[] = [
       { key: 'overdue', label: 'En retard', items: [] },
-      { key: 'today', label: "Aujourd'hui", items: [] },
+      { key: 'today', label: "Aujourd’hui", items: [] },
       { key: 'upcoming', label: 'Prochainement', items: [] },
       { key: 'done', label: 'Terminées', items: [] },
       { key: 'none', label: 'Sans échéance', items: [] },
@@ -474,7 +474,7 @@ function TasksContent() {
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'today' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('today'); setCategoryFilter(null) }}>
               <span className={styles.sideIcon}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></span>
-              Aujourd'hui
+              Aujourd’hui
               <span className={styles.sideCount}>{counts.today}</span>
             </button>
             <button className={`${styles.sideItem} ${sideFilter === 'upcoming' ? styles.sideItemActive : ''}`} onClick={() => { setSideFilter('upcoming'); setCategoryFilter(null) }}>
@@ -517,7 +517,7 @@ function TasksContent() {
           <div className={styles.mainHeader}>
             <div>
               <h2 className={styles.mainTitle}>
-                {sideFilter === 'all' ? 'Toutes les tâches' : sideFilter === 'today' ? "Aujourd'hui" : sideFilter === 'upcoming' ? 'Prochainement' : sideFilter === 'overdue' ? 'En retard' : 'Terminées'}
+                {sideFilter === 'all' ? 'Toutes les tâches' : sideFilter === 'today' ? "Aujourd’hui" : sideFilter === 'upcoming' ? 'Prochainement' : sideFilter === 'overdue' ? 'En retard' : 'Terminées'}
               </h2>
               {/* Le sous-titre compte ce qu'il RESTE, pas le contenu de la
                   liste : annoncer « 24 tâches » quand 20 sont terminées
@@ -582,7 +582,7 @@ function TasksContent() {
               [...Array(4)].map((_, i) => <div key={i} className={`${styles.skeletonRow} skeleton`} />)
             ) : grouped.length === 0 ? (
               <div className={styles.empty}>
-                <p className={styles.emptyTitle}>{search ? 'Aucun résultat' : 'Rien ici pour l\'instant'}</p>
+                <p className={styles.emptyTitle}>{search ? 'Aucun résultat' : 'Rien ici pour l’instant'}</p>
                 <p className={styles.emptyDesc}>{search ? 'Essayez un autre terme de recherche.' : 'Cliquez sur "Nouvelle tâche" pour en ajouter une.'}</p>
               </div>
             ) : (
@@ -654,7 +654,7 @@ function TasksContent() {
                         onDragLeave={handleDragLeave}
                         onDrop={() => handleDrop(task.id, group.key)}
                       >
-                        <span className={styles.dragHandle} title="Glisser pour réordonner, ou déposer sur « Aujourd'hui »/« Sans échéance » pour replanifier">
+                        <span className={styles.dragHandle} title="Glisser pour réordonner, ou déposer sur « Aujourd’hui »/« Sans échéance » pour replanifier">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>
                         </span>
                         <button
@@ -741,7 +741,7 @@ function TasksContent() {
               </div>
             </div>
             <div className={styles.legend}>
-              <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#FBBF24' }} />Aujourd'hui<span className={styles.legendCount}>{counts.today}</span></div>
+              <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#FBBF24' }} />Aujourd’hui<span className={styles.legendCount}>{counts.today}</span></div>
               <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#2563EB' }} />Prochainement<span className={styles.legendCount}>{counts.upcoming}</span></div>
               <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#EF4444' }} />En retard<span className={styles.legendCount}>{counts.overdue}</span></div>
               <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#22C55E' }} />Terminées<span className={styles.legendCount}>{counts.done}</span></div>
@@ -751,7 +751,7 @@ function TasksContent() {
           <div className={styles.card}>
             <p className={styles.cardTitle}>Productivité</p>
             <p className={styles.completionRate}>{completionRate}%</p>
-            <p className={styles.completionLabel}>Taux d'achèvement global</p>
+            <p className={styles.completionLabel}>Taux d’achèvement global</p>
             <div className={styles.progressTrack}>
               <div className={styles.progressFill} style={{ width: `${completionRate}%` }} />
             </div>
@@ -782,7 +782,7 @@ function TasksContent() {
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
                 <button className={styles.adviceBtnSecondary} onClick={rescheduleOverdueToToday}>
-                  Tout replanifier à aujourd'hui
+                  Tout replanifier à aujourd’hui
                 </button>
               </div>
             </div>

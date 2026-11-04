@@ -318,7 +318,7 @@ function SettingsContent() {
   // TODO: brancher sur le portail client Stripe ou une route dédiée d'annulation
   function handleCancelSubscription() {
     const confirmed = window.confirm(
-      "Annuler votre abonnement Pro ? Vous conserverez l'accès Pro jusqu'à la fin de la période déjà payée, puis votre compte repassera automatiquement au forfait Gratuit."
+      "Annuler votre abonnement Pro ? Vous conserverez l’accès Pro jusqu’à la fin de la période déjà payée, puis votre compte repassera automatiquement au forfait Gratuit."
     )
     if (!confirmed) return
     window.location.href = `mailto:support@sveltly.fr?subject=${encodeURIComponent('Annuler mon abonnement Pro')}`
@@ -384,7 +384,7 @@ function SettingsContent() {
       a.click()
       URL.revokeObjectURL(url)
     } catch (err: any) {
-      alert('Erreur lors de l\'export : ' + (err?.message || 'réessayez'))
+      alert('Erreur lors de l’export : ' + (err?.message || 'réessayez'))
     }
     setExportingData(false)
   }
@@ -468,7 +468,7 @@ function SettingsContent() {
             <section className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2 className={styles.sectionTitle}>Compte</h2>
-                <p className={styles.sectionDesc}>Vos informations de profil, visibles dans l'application.</p>
+                <p className={styles.sectionDesc}>Vos informations de profil, visibles dans l’application.</p>
               </div>
               <div className={styles.card}>
                 <div className={styles.profileRow}>
@@ -584,7 +584,7 @@ function SettingsContent() {
                   return atLimit && !needsRepair ? (
                     <UsageLimitCard
                       title="Limite de boîtes mail atteinte"
-                      message={`${userName.split(' ')[0] ? userName.split(' ')[0] + ', vous avez' : 'Vous avez'} connecté ${mailboxes.length} boîte mail sur ${mailboxLimit} pour le forfait Gratuit. Passez à Pro pour en connecter d'autres.`}
+                      message={`${userName.split(' ')[0] ? userName.split(' ')[0] + ', vous avez' : 'Vous avez'} connecté ${mailboxes.length} boîte mail sur ${mailboxLimit} pour le forfait Gratuit. Passez à Pro pour en connecter d’autres.`}
                       current={mailboxes.length}
                       max={mailboxLimit}
                       tone="neutral"
@@ -625,7 +625,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Ton des réponses</p>
-                    <p className={styles.prefDesc}>Change le style d'écriture de tous les brouillons générés automatiquement. Peut être ajusté au cas par cas sur chaque email, ou mémorisé pour un expéditeur précis.</p>
+                    <p className={styles.prefDesc}>Change le style d’écriture de tous les brouillons générés automatiquement. Peut être ajusté au cas par cas sur chaque email, ou mémorisé pour un expéditeur précis.</p>
                   </div>
                 </div>
                 <div className={styles.toneOptions}>
@@ -664,7 +664,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Planification automatique</p>
-                    <p className={styles.prefDesc}>Ajoute directement à votre agenda les rendez-vous détectés dans vos emails, sans que vous ayez à cliquer sur "Ajouter à l'agenda"</p>
+                    <p className={styles.prefDesc}>Ajoute directement à votre agenda les rendez-vous détectés dans vos emails, sans que vous ayez à cliquer sur "Ajouter à l’agenda"</p>
                   </div>
                   <button
                     className={`${styles.toggle} ${autoSchedule ? styles.toggleOn : ''}`}
@@ -677,7 +677,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Créer des tâches automatiquement depuis mes emails</p>
-                    <p className={styles.prefDesc}>Ajoute une tâche quand un email contient une demande d'action sans créneau précis (ex: "peux-tu valider ce document ?"), séparément des rendez-vous détectés</p>
+                    <p className={styles.prefDesc}>Ajoute une tâche quand un email contient une demande d’action sans créneau précis (ex: "peux-tu valider ce document ?"), séparément des rendez-vous détectés</p>
                   </div>
                   <button
                     className={`${styles.toggle} ${autoTasks ? styles.toggleOn : ''}`}
@@ -714,7 +714,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Fuseau horaire</p>
-                    <p className={styles.prefDesc}>Utilisé pour interpréter les horaires mentionnés dans vos emails, et pour l'heure d'envoi du résumé quotidien</p>
+                    <p className={styles.prefDesc}>Utilisé pour interpréter les horaires mentionnés dans vos emails, et pour l’heure d’envoi du résumé quotidien</p>
                   </div>
                   <select
                     className={styles.selectInput}
@@ -732,8 +732,8 @@ function SettingsContent() {
 
                 <div className={styles.prefRow}>
                   <div>
-                    <p className={styles.prefLabel}>Durée par défaut d'un événement</p>
-                    <p className={styles.prefDesc}>Appliquée quand aucune durée n'est précisée dans l'email</p>
+                    <p className={styles.prefLabel}>Durée par défaut d’un événement</p>
+                    <p className={styles.prefDesc}>Appliquée quand aucune durée n’est précisée dans l’email</p>
                   </div>
                   <div className={styles.segmented}>
                     {[15, 30, 45, 60].map(d => (
@@ -797,7 +797,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Refuser automatiquement hors disponibilités</p>
-                    <p className={styles.prefDesc}>Les rendez-vous proposés en dehors de vos heures de disponibilité sont signalés en conflit plutôt qu'ajoutés</p>
+                    <p className={styles.prefDesc}>Les rendez-vous proposés en dehors de vos heures de disponibilité sont signalés en conflit plutôt qu’ajoutés</p>
                   </div>
                   <button
                     className={`${styles.toggle} ${autoDeclineOutsideHours ? styles.toggleOn : ''}`}
@@ -837,8 +837,8 @@ function SettingsContent() {
                         <p className={styles.prefLabel}>Synchronisation automatique</p>
                         <p className={styles.prefDesc}>
                           {calendarAutoSync
-                            ? "Les changements sur Google Calendar sont importés automatiquement à chaque ouverture de l'agenda."
-                            : "Désactivée — utilisez le bouton \"Synchroniser\" dans l'agenda pour importer les changements manuellement."}
+                            ? "Les changements sur Google Calendar sont importés automatiquement à chaque ouverture de l’agenda."
+                            : "Désactivée — utilisez le bouton \"Synchroniser\" dans l’agenda pour importer les changements manuellement."}
                         </p>
                       </div>
                       <button
@@ -879,13 +879,13 @@ function SettingsContent() {
             <section className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2 className={styles.sectionTitle}>Apparence</h2>
-                <p className={styles.sectionDesc}>Personnalisez l'affichage de l'interface.</p>
+                <p className={styles.sectionDesc}>Personnalisez l’affichage de l’interface.</p>
               </div>
               <div className={styles.card}>
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Thème</p>
-                    <p className={styles.prefDesc}>Bascule instantanément l'interface entre clair, sombre, ou suit votre système</p>
+                    <p className={styles.prefDesc}>Bascule instantanément l’interface entre clair, sombre, ou suit votre système</p>
                   </div>
                   <div className={styles.segmented}>
                     {(['light', 'dark', 'system'] as const).map(t => (
@@ -907,7 +907,7 @@ function SettingsContent() {
             <section className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2 className={styles.sectionTitle}>Facturation</h2>
-                <p className={styles.sectionDesc}>Votre forfait, votre moyen de paiement et l'historique de vos factures.</p>
+                <p className={styles.sectionDesc}>Votre forfait, votre moyen de paiement et l’historique de vos factures.</p>
               </div>
 
               <div className={styles.card}>
@@ -958,7 +958,7 @@ function SettingsContent() {
               </div>
               <div className={styles.card}>
                 {INVOICES.length === 0 ? (
-                  <div className={styles.emptyMailbox}><p>Aucune facture pour l'instant.</p></div>
+                  <div className={styles.emptyMailbox}><p>Aucune facture pour l’instant.</p></div>
                 ) : (
                   <div className={styles.invoiceTableWrap}>
                     <table className={styles.invoiceTable}>
@@ -994,14 +994,14 @@ function SettingsContent() {
               {currentPlan === 'pro' && (
                 <>
                   <div className={styles.sectionHead} style={{ marginTop: 8 }}>
-                    <h3 className={`${styles.prefLabel} ${styles.dangerTitle}`}>Annuler l'abonnement</h3>
+                    <h3 className={`${styles.prefLabel} ${styles.dangerTitle}`}>Annuler l’abonnement</h3>
                   </div>
                   <div className={`${styles.card} ${styles.dangerCard}`}>
                     <div className={styles.securityRow}>
                       <div>
                         <p className={styles.prefLabel}>Annuler mon abonnement Pro</p>
                         <p className={styles.prefDesc}>
-                          Vous conserverez l'accès Pro jusqu'à la fin de la période déjà payée,
+                          Vous conserverez l’accès Pro jusqu’à la fin de la période déjà payée,
                           puis votre compte repassera automatiquement au forfait Gratuit.
                         </p>
                       </div>
@@ -1023,7 +1023,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Notifications push</p>
-                    <p className={styles.prefDesc}>Affiche une alerte dans le navigateur dès qu'un email est trié</p>
+                    <p className={styles.prefDesc}>Affiche une alerte dans le navigateur dès qu’un email est trié</p>
                   </div>
                   <button
                     className={`${styles.toggle} ${notifs ? styles.toggleOn : ''}`}
@@ -1036,7 +1036,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Résumé par email</p>
-                    <p className={styles.prefDesc}>Envoie un récapitulatif de vos emails non traités chaque jour, à l'heure de votre choix</p>
+                    <p className={styles.prefDesc}>Envoie un récapitulatif de vos emails non traités chaque jour, à l’heure de votre choix</p>
                   </div>
                   <button
                     className={`${styles.toggle} ${emailNotifs ? styles.toggleOn : ''}`}
@@ -1051,8 +1051,8 @@ function SettingsContent() {
                     <div className={styles.divider} />
                     <div className={styles.prefRow}>
                       <div>
-                        <p className={styles.prefLabel}>Heure d'envoi</p>
-                        <p className={styles.prefDesc}>Selon votre fuseau horaire, réglé dans l'onglet Agenda</p>
+                        <p className={styles.prefLabel}>Heure d’envoi</p>
+                        <p className={styles.prefDesc}>Selon votre fuseau horaire, réglé dans l’onglet Agenda</p>
                       </div>
                       <select
                         className={styles.selectInput}
@@ -1088,7 +1088,7 @@ function SettingsContent() {
             <section className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2 className={styles.sectionTitle}>Sécurité</h2>
-                <p className={styles.sectionDesc}>Contrôlez l'accès à votre compte, et voyez concrètement comment vos données sont protégées.</p>
+                <p className={styles.sectionDesc}>Contrôlez l’accès à votre compte, et voyez concrètement comment vos données sont protégées.</p>
               </div>
 
               <div className={styles.sectionHead} style={{ marginTop: 8 }}>
@@ -1101,7 +1101,7 @@ function SettingsContent() {
                     <p className={styles.prefDesc}>
                       {authProvider === 'google'
                         ? <>Connexion à <Brand /> via Google OAuth 2.0 — aucun mot de passe <Brand /> associé à ce compte.</>
-                        : 'Connexion par mot de passe (8 caractères minimum). Vous pouvez le réinitialiser à tout moment depuis l\'écran de connexion.'}
+                        : 'Connexion par mot de passe (8 caractères minimum). Vous pouvez le réinitialiser à tout moment depuis l’écran de connexion.'}
                     </p>
                   </div>
                   <span className={styles.securityBadge}>Actif</span>
@@ -1133,7 +1133,7 @@ function SettingsContent() {
                 <div className={styles.securityRow}>
                   <div>
                     <p className={styles.prefLabel}>Jetons de connexion chiffrés</p>
-                    <p className={styles.prefDesc}>Vos accès Gmail et Google Agenda sont chiffrés (AES-256-GCM) avant d'être stockés — jamais en clair, jamais lisibles depuis votre navigateur.</p>
+                    <p className={styles.prefDesc}>Vos accès Gmail et Google Agenda sont chiffrés (AES-256-GCM) avant d’être stockés — jamais en clair, jamais lisibles depuis votre navigateur.</p>
                   </div>
                   <span className={styles.securityBadge}>AES-256</span>
                 </div>
@@ -1141,7 +1141,7 @@ function SettingsContent() {
                 <div className={styles.securityRow}>
                   <div>
                     <p className={styles.prefLabel}>Isolation de vos données</p>
-                    <p className={styles.prefDesc}>Chaque compte est cloisonné au niveau de la base de données (Row Level Security) — techniquement impossible d'accéder aux données d'un autre utilisateur, même en cas de bug applicatif.</p>
+                    <p className={styles.prefDesc}>Chaque compte est cloisonné au niveau de la base de données (Row Level Security) — techniquement impossible d’accéder aux données d’un autre utilisateur, même en cas de bug applicatif.</p>
                   </div>
                   <span className={styles.securityBadge}>Isolé</span>
                 </div>
@@ -1149,7 +1149,7 @@ function SettingsContent() {
                 <div className={styles.securityRow}>
                   <div>
                     <p className={styles.prefLabel}>Contenu des emails affichés</p>
-                    <p className={styles.prefDesc}>Le code de vos emails est systématiquement nettoyé avant affichage, pour empêcher tout script malveillant qu'un email reçu pourrait contenir de s'exécuter.</p>
+                    <p className={styles.prefDesc}>Le code de vos emails est systématiquement nettoyé avant affichage, pour empêcher tout script malveillant qu’un email reçu pourrait contenir de s’exécuter.</p>
                   </div>
                   <span className={styles.securityBadge}>Filtré</span>
                 </div>
@@ -1157,7 +1157,7 @@ function SettingsContent() {
                 <div className={styles.securityRow}>
                   <div>
                     <p className={styles.prefLabel}>Intelligence artificielle</p>
-                    <p className={styles.prefDesc}>Le contenu transmis à notre fournisseur d'analyse IA ne sert qu'à traiter cet email précis — jamais utilisé pour entraîner un modèle, jamais conservé au-delà du traitement.</p>
+                    <p className={styles.prefDesc}>Le contenu transmis à notre fournisseur d’analyse IA ne sert qu’à traiter cet email précis — jamais utilisé pour entraîner un modèle, jamais conservé au-delà du traitement.</p>
                   </div>
                   <span className={styles.securityBadge}>Non réutilisé</span>
                 </div>
@@ -1192,7 +1192,7 @@ function SettingsContent() {
             <section className={styles.section}>
               <div className={styles.sectionHead}>
                 <h2 className={`${styles.sectionTitle} ${styles.dangerTitle}`}>Zone de danger</h2>
-                <p className={styles.sectionDesc}>Ces actions sont irréversibles. Assurez-vous d'avoir exporté vos données avant de continuer.</p>
+                <p className={styles.sectionDesc}>Ces actions sont irréversibles. Assurez-vous d’avoir exporté vos données avant de continuer.</p>
               </div>
               <div className={`${styles.card} ${styles.dangerCard}`}>
                 <div className={styles.securityRow}>

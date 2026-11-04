@@ -110,7 +110,7 @@ function etiquette(
   // Un événement sur toute la journée n'est pas « En cours » pendant 24 h —
   // l'étiquette ne voulait rien dire, et peignait en rouge un anniversaire.
   if (estJourneeEntiere(event.startTime, event.endTime)) {
-    if (jours === 0) return { text: "Aujourd'hui", tone: 'soon' }
+    if (jours === 0) return { text: "Aujourd’hui", tone: 'soon' }
     return parJour()
   }
 

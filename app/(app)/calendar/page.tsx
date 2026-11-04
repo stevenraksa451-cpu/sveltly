@@ -133,9 +133,9 @@ function CalendarContent() {
     // été enregistré — aucune erreur visible, aucune trace de ce qui a été
     // tapé. En lançant ici, EventList (l'appelant) garde le formulaire ouvert
     // et affiche l'erreur au lieu de réinitialiser silencieusement.
-    if (!res.ok) throw new Error(json.error || 'Erreur lors de la création de l\'événement')
+    if (!res.ok) throw new Error(json.error || 'Erreur lors de la création de l’événement')
     if (json.conflict) return { conflict: true, data: json }
-    if (!json.event) throw new Error('Erreur lors de la création de l\'événement')
+    if (!json.event) throw new Error('Erreur lors de la création de l’événement')
     return { conflict: false, event: toCalendarEvent(json.event) }
   }
 

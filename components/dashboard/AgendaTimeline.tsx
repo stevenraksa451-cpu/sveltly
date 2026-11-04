@@ -37,7 +37,7 @@ function AgendaTimeline({ events, loading }: { events: CalendarEvent[]; loading:
               <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
           </span>
-          <p>Aucun événement prévu aujourd'hui.</p>
+          <p>Aucun événement prévu aujourd’hui.</p>
         </div>
       ) : (
         <div className={styles.timeline}>

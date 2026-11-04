@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
           <div className={styles.logoWrap}><Logo size={46} showText /></div>
           <h1 className={styles.title}>Lien invalide ou expiré</h1>
           <p className={styles.subtitle}>
-            Ce lien de réinitialisation n'est plus valide. Demandez-en un nouveau.
+            Ce lien de réinitialisation n’est plus valide. Demandez-en un nouveau.
           </p>
           <Link href="/auth/forgot-password" className={styles.submitBtn} style={{ textAlign: 'center', display: 'block', marginTop: 16 }}>
             Redemander un lien

@@ -9,7 +9,7 @@ const ALGO = 'aes-256-gcm'
 
 function getKey(): Buffer {
   const secret = process.env.TOKEN_ENCRYPTION_KEY
-  if (!secret) throw new Error('TOKEN_ENCRYPTION_KEY manquante dans les variables d\'environnement')
+  if (!secret) throw new Error('TOKEN_ENCRYPTION_KEY manquante dans les variables d’environnement')
   const key = Buffer.from(secret, 'base64')
   if (key.length !== 32) throw new Error('TOKEN_ENCRYPTION_KEY doit être une clé de 32 octets encodée en base64')
   return key

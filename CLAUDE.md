@@ -673,11 +673,32 @@ correctement, il n'y a aucun risque de rendu. La laisser allumée noyait les
 deux seuls vrais défauts sous 136 lignes de bruit — et une sortie que
 personne ne lit ne protège de rien.
 
-⚠️ Ce bruit cachait tout de même quelque chose, d'un autre ordre :
-**987 apostrophes droites contre 378 typographiques**, et douze fichiers qui
-mélangent les deux. L'apostrophe française correcte est `’` (U+2019). C'est
-une incohérence de typographie visible par l'utilisateur, pas un bug — un
-chantier à mener d'un coup sur le texte visible, jamais sur le code.
+⚠️ Ce bruit cachait tout de même quelque chose, d'un autre ordre : le site
+mélangeait les deux apostrophes, parfois sur la même page. **C'est réglé** —
+voir ci-dessous.
+
+### L'apostrophe française est `’` (U+2019), partout dans le texte visible
+
+262 apostrophes droites converties dans 38 fichiers par
+`node scripts/apostrophes.js` (`--ecrire` pour appliquer, sans rien pour
+simuler). Vérifié sur le HTML servi : plus une seule apostrophe droite dans
+le texte visible de `/`, `/tarifs` et `/legal/privacy`.
+
+Le script passe par l'**AST de TypeScript**, jamais par une expression
+régulière sur le fichier entier — qui toucherait les imports, les noms de
+classes et les chemins. Il ne modifie que `JsxText`, les chaînes et les
+morceaux de template, et il **refuse** :
+
+- les spécificateurs de module (`from '…'`) ;
+- toute chaîne qui est un opérande de `===` `!==` `==` `!=` ou un `case` —
+  y changer un caractère changerait le résultat du test, pas l'affichage ;
+- les clés d'objet et les accès indexés ;
+- ⚠️ tout ce qui vit sous un `__html`. Cas réel : le script anti-flash du
+  thème de `app/layout.tsx` est un template passé à
+  `dangerouslySetInnerHTML`. Le codemod voulait convertir les apostrophes de
+  ses commentaires JavaScript. Sans effet cette fois — mais on ne laisse pas
+  un outil de typographie réécrire du code exécutable. Ce sont les seules
+  apostrophes droites qui restent dans le HTML, et elles sont invisibles.
 
 Une seule exception locale dans tout le dépôt : `@next/next/no-img-element`
 dans `components/ui/Avatar.tsx`, avec sa raison écrite sur place (image

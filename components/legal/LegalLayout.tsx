@@ -62,7 +62,7 @@ export default function LegalLayout({
     <div className={styles.page}>
       <header className={styles.header}>
         <Link href="/"><Logo size={32} showText /></Link>
-        <Link href="/" className={styles.backLink}>← Retour à l'accueil</Link>
+        <Link href="/" className={styles.backLink}>← Retour à l’accueil</Link>
       </header>
 
       <div className={styles.layout}>

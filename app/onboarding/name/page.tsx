@@ -38,7 +38,7 @@ export default function OnboardingNamePage() {
           <span className={styles.progressDot} />
         </div>
 
-        <h1 className={styles.title}>Comment souhaitez-vous qu'on vous appelle ?</h1>
+        <h1 className={styles.title}>Comment souhaitez-vous qu’on vous appelle ?</h1>
         <p className={styles.subtitle}>
           On utilisera ce prénom pour personnaliser votre tableau de bord.
         </p>

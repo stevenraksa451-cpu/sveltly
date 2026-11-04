@@ -55,7 +55,7 @@ export default function ReorganizeDayPanel({ moves, busy, onApply, onClose }: Pr
       </div>
 
       {movable.length === 0 && atRisk.length === 0 ? (
-        <p className={styles.empty}>Aucun conflit à résoudre aujourd'hui.</p>
+        <p className={styles.empty}>Aucun conflit à résoudre aujourd’hui.</p>
       ) : (
         <>
           {movable.length > 0 && (

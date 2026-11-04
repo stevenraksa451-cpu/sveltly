@@ -139,7 +139,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       // Sans ce retour, le bouton "Enregistrer" ne faisait rien de visible en
       // cas d'échec — l'utilisateur ne pouvait pas savoir que rien n'avait
       // été sauvegardé.
-      setEventError(json.error || 'Erreur lors de l\'enregistrement')
+      setEventError(json.error || 'Erreur lors de l’enregistrement')
       return
     }
     if (json.status === 'created') {
@@ -207,7 +207,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       setSent(true)
       setTimeout(() => setSent(false), 3000)
     } else {
-      setError(data.error || 'Erreur lors de l\'envoi')
+      setError(data.error || 'Erreur lors de l’envoi')
     }
     setSending(false)
   }
@@ -292,14 +292,14 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
               <rect x="3" y="4" width="18" height="18" rx="2"/>
               <path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
-            {email.autoScheduled ? 'Événement ajouté automatiquement à l\'agenda' : 'Événement détecté dans cet email'}
+            {email.autoScheduled ? 'Événement ajouté automatiquement à l’agenda' : 'Événement détecté dans cet email'}
           </div>
         )}
 
         {email.schedulingStatus === 'plan_limit' && (
           <Link href="/settings?tab=billing" className={styles.planLimitBanner}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
-            Le forfait Gratuit planifie automatiquement jusqu'à 7 jours à l'avance — passez à Pro pour une planification sans limite de délai
+            Le forfait Gratuit planifie automatiquement jusqu’à 7 jours à l’avance — passez à Pro pour une planification sans limite de délai
           </Link>
         )}
       </div>
@@ -333,7 +333,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
             sandbox="allow-same-origin allow-popups"
             className={styles.emailFrame}
             style={{ height: iframeHeight }}
-            title="Contenu de l'email"
+            title="Contenu de l’email"
           />
         ) : (
           <p className={styles.bodyText}>{email.body}</p>
@@ -361,7 +361,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
             <rect x="3" y="4" width="18" height="18" rx="2"/>
             <path d="M16 2v4M8 2v4M3 10h18"/>
           </svg>
-          {email.autoScheduled ? 'Ajouté automatiquement' : eventSaved ? 'Ajouté à l\'agenda' : 'Ajouter à l\'agenda'}
+          {email.autoScheduled ? 'Ajouté automatiquement' : eventSaved ? 'Ajouté à l’agenda' : 'Ajouter à l’agenda'}
         </button>
 
         <button className={styles.actionBtn} onClick={onArchive} disabled={!onArchive}>
@@ -377,7 +377,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       {/* Formulaire ajout agenda */}
       {showEventForm && (
         <div className={styles.eventForm}>
-          <p className={styles.eventFormTitle}>Ajouter à l'agenda</p>
+          <p className={styles.eventFormTitle}>Ajouter à l’agenda</p>
           <div className={styles.eventFields}>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Titre</label>
@@ -385,7 +385,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
                 className={styles.fieldInput}
                 value={eventTitle}
                 onChange={e => setEventTitle(e.target.value)}
-                placeholder="Titre de l'événement"
+                placeholder="Titre de l’événement"
                 disabled={!!eventConflict}
               />
             </div>
@@ -515,7 +515,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
           {rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
             <div className={styles.rateLimitNotice}>
-              <p className={styles.rateLimitTitle}>Limite quotidienne de l'IA atteinte.</p>
+              <p className={styles.rateLimitTitle}>Limite quotidienne de l’IA atteinte.</p>
               <p className={styles.rateLimitCountdown}>{formatRetryDelay(rateLimitSeconds)}</p>
             </div>
           ) : (

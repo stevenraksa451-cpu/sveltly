@@ -22,7 +22,7 @@ export default function CallbackClient() {
             refreshToken: session.provider_refresh_token || null,
           })
         })
-        if (!res.ok) console.error('Échec de l\'enregistrement de la connexion Gmail')
+        if (!res.ok) console.error('Échec de l’enregistrement de la connexion Gmail')
       }
       router.push('/dashboard')
     }

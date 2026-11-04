@@ -111,7 +111,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
     } catch (err: any) {
       // Le formulaire reste ouvert avec ce qui a été tapé, plutôt que de se
       // fermer et de tout effacer comme si l'événement avait été enregistré.
-      setAddError(err?.message || 'Erreur lors de la création de l\'événement')
+      setAddError(err?.message || 'Erreur lors de la création de l’événement')
     }
     setSaving(false)
   }
@@ -124,7 +124,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
       resetForm()
       setAdding(false)
     } catch (err: any) {
-      setAddError(err?.message || 'Erreur lors de la création de l\'événement')
+      setAddError(err?.message || 'Erreur lors de la création de l’événement')
     }
     setResolving(false)
   }
@@ -137,7 +137,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
       resetForm()
       setAdding(false)
     } catch (err: any) {
-      setAddError(err?.message || 'Erreur lors de la création de l\'événement')
+      setAddError(err?.message || 'Erreur lors de la création de l’événement')
     }
     setResolving(false)
   }
@@ -167,7 +167,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
       <div className={styles.header}>
         <div>
           <div className={styles.dateLabel}>
-            {isToday && <span className={styles.todayChip}>Aujourd'hui</span>}
+            {isToday && <span className={styles.todayChip}>Aujourd’hui</span>}
             <p className={styles.dateText}>{formatted}</p>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
         <div className={styles.form}>
           <input
             className={styles.titleInput}
-            placeholder="Titre de l'événement"
+            placeholder="Titre de l’événement"
             value={title}
             onChange={e => setTitle(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAdd()}

@@ -16,13 +16,13 @@ import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 export default function TermsContent() {
   return (
     <LegalLayout
-      title="Conditions générales d'utilisation"
+      title="Conditions générales d’utilisation"
       updated="1er octobre 2026"
       readingMinutes={4}
-      essentialsTitle="L'essentiel, avant le texte complet"
+      essentialsTitle="L’essentiel, avant le texte complet"
       essentials={[
         { icon: <IconCheck />, text: <>Le forfait Gratuit est <strong>vraiment gratuit</strong>, aucune carte requise.</> },
-        { icon: <IconCheck />, text: <>Vous gardez le <strong>contrôle total</strong> sur chaque brouillon généré par l'IA.</> },
+        { icon: <IconCheck />, text: <>Vous gardez le <strong>contrôle total</strong> sur chaque brouillon généré par l’IA.</> },
         { icon: <IconCheck />, text: <>Vous pouvez <strong>résilier à tout moment</strong>, sans justification.</> },
         { icon: <IconCheck />, text: <>Droit français — litiges traités de façon <strong>équitable et transparente</strong>.</> },
       ]}
@@ -41,8 +41,8 @@ export default function TermsContent() {
                 </div>
               </div>
               <p>
-                Les présentes conditions générales d'utilisation (CGU) régissent l'accès et l'utilisation du service
-                <Brand />, une application de gestion d'emails assistée par intelligence artificielle, actuellement
+                Les présentes conditions générales d’utilisation (CGU) régissent l’accès et l’utilisation du service
+                <Brand />, une application de gestion d’emails assistée par intelligence artificielle, actuellement
                 développée et éditée à titre individuel par Steven Rakotomandimby. En créant un compte, vous acceptez
                 sans réserve les présentes CGU.
               </p>
@@ -57,8 +57,8 @@ export default function TermsContent() {
             <p>
               <Brand /> se connecte à votre boîte mail ({PROVIDERS_LIVE_LABEL}) pour trier automatiquement vos emails par priorité,
               générer des résumés et des brouillons de réponse, et détecter les rendez-vous mentionnés afin de les
-              proposer à votre agenda. Aucune réponse n'est jamais envoyée automatiquement : chaque brouillon généré
-              par l'IA doit être relu et validé par vous avant tout envoi.
+              proposer à votre agenda. Aucune réponse n’est jamais envoyée automatiquement : chaque brouillon généré
+              par l’IA doit être relu et validé par vous avant tout envoi.
             </p>
           ),
         },
@@ -81,8 +81,8 @@ export default function TermsContent() {
           content: (
             <p>
               <Brand /> propose un forfait Gratuit et un forfait Pro payant, dont le détail (fonctionnalités, limites,
-              tarifs) est présenté sur notre page d'accueil et dans les réglages de l'application. Les tarifs peuvent
-              évoluer ; toute modification vous sera communiquée à l'avance et n'affectera pas une période déjà payée.
+              tarifs) est présenté sur notre page d’accueil et dans les réglages de l’application. Les tarifs peuvent
+              évoluer ; toute modification vous sera communiquée à l’avance et n’affectera pas une période déjà payée.
             </p>
           ),
         },
@@ -95,9 +95,9 @@ export default function TermsContent() {
               <p>Vous vous engagez à ne pas utiliser <Brand /> pour :</p>
               <ul>
                 <li>Envoyer des messages illégaux, frauduleux, diffamatoires ou constitutifs de harcèlement.</li>
-                <li>Tenter d'accéder aux données d'un autre utilisateur ou de contourner les mesures de sécurité du service.</li>
-                <li>Surcharger intentionnellement l'infrastructure du service (par exemple par des requêtes automatisées abusives).</li>
-                <li>Utiliser les brouillons générés par l'IA à des fins de spam ou de prospection non sollicitée.</li>
+                <li>Tenter d’accéder aux données d’un autre utilisateur ou de contourner les mesures de sécurité du service.</li>
+                <li>Surcharger intentionnellement l’infrastructure du service (par exemple par des requêtes automatisées abusives).</li>
+                <li>Utiliser les brouillons générés par l’IA à des fins de spam ou de prospection non sollicitée.</li>
               </ul>
             </>
           ),
@@ -109,7 +109,7 @@ export default function TermsContent() {
           content: (
             <p>
               Le service <Brand />, sa marque, son interface et son code sont la propriété exclusive de son éditeur. Vous
-              conservez l'intégralité des droits sur le contenu de vos emails ; <Brand /> n'en revendique aucun usage
+              conservez l’intégralité des droits sur le contenu de vos emails ; <Brand /> n’en revendique aucun usage
               au-delà de ce qui est nécessaire au fonctionnement du service (voir notre{' '}
               <Link href="/legal/privacy">politique de confidentialité</Link>).
             </p>
@@ -121,10 +121,10 @@ export default function TermsContent() {
           title: 'Limitation de responsabilité',
           content: (
             <p>
-              Les classifications, résumés et brouillons de réponse générés par l'intelligence artificielle de <Brand />
-              sont fournis à titre d'assistance et peuvent contenir des erreurs. Il vous appartient de vérifier leur
-              exactitude avant toute action (envoi d'un email, ajout d'un événement à l'agenda). <Brand /> ne saurait être
-              tenu responsable des conséquences d'une information erronée générée par l'IA que vous auriez utilisée
+              Les classifications, résumés et brouillons de réponse générés par l’intelligence artificielle de <Brand />
+              sont fournis à titre d’assistance et peuvent contenir des erreurs. Il vous appartient de vérifier leur
+              exactitude avant toute action (envoi d’un email, ajout d’un événement à l’agenda). <Brand /> ne saurait être
+              tenu responsable des conséquences d’une information erronée générée par l’IA que vous auriez utilisée
               sans vérification.
             </p>
           ),

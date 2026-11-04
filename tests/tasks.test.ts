@@ -21,7 +21,7 @@ describe('resolveTaskCategory — jeu fermé, jamais de texte libre', () => {
   // maintenant dans `source_label`.
   test('un nom d’expéditeur ne devient jamais une catégorie', () => {
     const r = resolveTaskCategory('Marie Lavoisier', undefined)
-    assert.ok(TASK_CATEGORIES.includes(r), `« ${r} » n'appartient pas au jeu fermé`)
+    assert.ok(TASK_CATEGORIES.includes(r), `« ${r} » n’appartient pas au jeu fermé`)
     assert.equal(r, 'Autre')
   })
 

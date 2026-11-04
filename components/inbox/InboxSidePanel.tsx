@@ -310,13 +310,13 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
       <div className={styles.card}>
         <div className={styles.cardTitle}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
-          Résumé de l'email
+          Résumé de l’email
         </div>
 
         {display.dailySummary ? (
           <p className={styles.summaryText}>{display.dailySummary}</p>
         ) : summaryError ? (
-          <p className={styles.summaryPending}>Impossible de générer le résumé pour l'instant — réessayez en rouvrant cet email.</p>
+          <p className={styles.summaryPending}>Impossible de générer le résumé pour l’instant — réessayez en rouvrant cet email.</p>
         ) : (
           <p className={styles.summaryPending}>Résumé en cours de génération...</p>
         )}
@@ -346,13 +346,13 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
             {email.schedulingStatus === 'plan_limit' && (
               <Link href="/settings?tab=billing" className={styles.planLimitBanner}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 9.5 7 12l5-8 5 8 4.5-2.5L20 19H4z"/></svg>
-                Planifié automatiquement jusqu'à 7 jours en Gratuit — Pro n'a pas de limite
+                Planifié automatiquement jusqu’à 7 jours en Gratuit — Pro n’a pas de limite
               </Link>
             )}
             {schedulingState.step === 'idle' && (
               <button className={styles.scheduleBtn} onClick={() => handleScheduleEvent()}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                Ajouter à l'agenda
+                Ajouter à l’agenda
               </button>
             )}
 

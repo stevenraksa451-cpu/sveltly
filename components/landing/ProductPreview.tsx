@@ -29,7 +29,7 @@ export default function ProductPreview() {
       {/* Le visuel est décoratif : il illustre une interface décrite en toutes
           lettres dans le texte du hero. Un lecteur d'écran qui énumérerait
           ces faux emails n'y gagnerait rien. */}
-      <div className={styles.window} role="img" aria-label="Aperçu de l'interface Sveltly : un email est trié, résumé, et le rendez-vous qu'il contient est ajouté à l'agenda.">
+      <div className={styles.window} role="img" aria-label="Aperçu de l’interface Sveltly : un email est trié, résumé, et le rendez-vous qu’il contient est ajouté à l’agenda.">
         <div className={styles.titlebar} aria-hidden="true">
           <span className={styles.dots}>
             <i /><i /><i />

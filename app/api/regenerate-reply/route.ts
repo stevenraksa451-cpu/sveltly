@@ -23,14 +23,14 @@ function parseGroqRetryAfterSeconds(message: string): number | null {
   return Math.ceil(minutes * 60 + seconds)
 }
 
-const REGEN_SYSTEM_PROMPT = `Tu rédiges une réponse à un email à la place de l'utilisateur — tu ES l'utilisateur, tu écris à la première personne, prête à être envoyée telle quelle.
+const REGEN_SYSTEM_PROMPT = `Tu rédiges une réponse à un email à la place de l’utilisateur — tu ES l’utilisateur, tu écris à la première personne, prête à être envoyée telle quelle.
 
-INTERDIT : "Vous pourriez répondre en disant...", "Voici une suggestion...", parler de l'email à la troisième personne. OBLIGATOIRE : écris directement le texte final, comme si tu prenais le clavier à la place de l'utilisateur, en prenant de vraies décisions (accepter/refuser/proposer une alternative) plutôt que de rester vague. Aucun commentaire, aucune note entre parenthèses — juste le texte, brut, prêt à partir.
+INTERDIT : "Vous pourriez répondre en disant...", "Voici une suggestion...", parler de l’email à la troisième personne. OBLIGATOIRE : écris directement le texte final, comme si tu prenais le clavier à la place de l’utilisateur, en prenant de vraies décisions (accepter/refuser/proposer une alternative) plutôt que de rester vague. Aucun commentaire, aucune note entre parenthèses — juste le texte, brut, prêt à partir.
 
-Ne jamais inventer un fait absent de l'email (nom, montant, date, société) : appuie-toi uniquement sur ce que l'email contient réellement.
+Ne jamais inventer un fait absent de l’email (nom, montant, date, société) : appuie-toi uniquement sur ce que l’email contient réellement.
 
 ## LANGUE DE SORTIE
-La langue de la réponse est indiquée par la ligne "Langue de réponse demandée: X" dans le message ci-dessous — applique-la exactement, indépendamment de la langue de l'email reçu.
+La langue de la réponse est indiquée par la ligne "Langue de réponse demandée: X" dans le message ci-dessous — applique-la exactement, indépendamment de la langue de l’email reçu.
 
 ## TON DE LA RÉPONSE — OBLIGATOIRE
 
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
     if (groqErrorCode === 'rate_limit_exceeded' || err?.status === 429) {
       return NextResponse.json({
         error: 'rate_limit',
-        message: "Limite quotidienne de l'IA atteinte",
+        message: "Limite quotidienne de l’IA atteinte",
         retryAfterSeconds: parseGroqRetryAfterSeconds(groqErrorMessage),
       }, { status: 429 })
     }

@@ -12,15 +12,15 @@ const FAQ = [
   },
   {
     q: 'Comment fonctionne le tri par priorité ?',
-    a: <><Brand /> analyse le sujet et le contenu de chaque email pour le classer en urgent, important ou normal, selon la présence d'un délai, d'une action demandée, ou du type d'expéditeur.</>
+    a: <><Brand /> analyse le sujet et le contenu de chaque email pour le classer en urgent, important ou normal, selon la présence d’un délai, d’une action demandée, ou du type d’expéditeur.</>
   },
   {
     q: 'Les réponses IA sont-elles envoyées automatiquement ?',
-    a: 'Non. Ce sont des brouillons que vous pouvez modifier avant d\'envoyer — vous gardez le contrôle total sur ce qui part de votre boîte.'
+    a: 'Non. Ce sont des brouillons que vous pouvez modifier avant d’envoyer — vous gardez le contrôle total sur ce qui part de votre boîte.'
   },
   {
     q: 'Comment les rendez-vous sont-ils ajoutés à mon agenda ?',
-    a: <><Brand /> détecte les dates et heures mentionnées dans un email, vérifie vos disponibilités et vos horaires de travail, puis ajoute l'événement à votre agenda — sans double réservation.</>
+    a: <><Brand /> détecte les dates et heures mentionnées dans un email, vérifie vos disponibilités et vos horaires de travail, puis ajoute l’événement à votre agenda — sans double réservation.</>
   },
   {
     q: 'Mon token Gmail a expiré, que faire ?',
@@ -32,7 +32,7 @@ const FAQ = [
   },
   {
     q: 'Mes données sont-elles protégées ?',
-    a: 'Oui. Chaque compte n\'a accès qu\'à ses propres données grâce à des règles d\'accès strictes au niveau de la base de données. Nous ne traitons vos emails que pour les fonctions que vous activez vous-même.'
+    a: 'Oui. Chaque compte n’a accès qu’à ses propres données grâce à des règles d’accès strictes au niveau de la base de données. Nous ne traitons vos emails que pour les fonctions que vous activez vous-même.'
   },
   {
     q: 'Puis-je connecter plusieurs boîtes mail ?',
@@ -60,7 +60,7 @@ export default function HelpPage() {
               </svg>
             </span>
             <div>
-              <p className={styles.bannerTitle}>Besoin d'aide personnalisée ?</p>
+              <p className={styles.bannerTitle}>Besoin d’aide personnalisée ?</p>
               <p className={styles.bannerDesc}>Notre équipe répond sous 24h</p>
             </div>
           </div>

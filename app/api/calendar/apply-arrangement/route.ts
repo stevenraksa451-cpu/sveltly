@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (updateError || !savedRow) {
-        syncWarnings.push(`"${row.title}" n'a pas pu être déplacé.`)
+        syncWarnings.push(`"${row.title}" n’a pas pu être déplacé.`)
         continue
       }
 

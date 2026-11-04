@@ -14,7 +14,7 @@ import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabe
 function buildToneSection(tones: Tone[]): string {
   const unique = Array.from(new Set(tones))
   const blocks = unique.map(t => `**Ton demandé: ${TONE_LABEL[t]}**\n${TONE_INSTRUCTIONS[t]}`).join('\n\n')
-  return `${blocks}\n\n${TONE_SHARED_RULES}\n\n(Ces consignes de ton s'appliquent uniquement aux emails professionnels/personnels qui reçoivent une vraie réponse — pas aux cas scam/newsletter ci-dessous, qui ont leur propre format fixe.)`
+  return `${blocks}\n\n${TONE_SHARED_RULES}\n\n(Ces consignes de ton s’appliquent uniquement aux emails professionnels/personnels qui reçoivent une vraie réponse — pas aux cas scam/newsletter ci-dessous, qui ont leur propre format fixe.)`
 }
 
 // Prompt système — CONDENSÉ, et ça n'est pas cosmétique.
@@ -39,65 +39,65 @@ function buildToneSection(tones: Tone[]): string {
 // et elles coûtent le même prix que les règles elles-mêmes.
 // Mesurer après chaque modification : voir le commentaire de MAX_TOKENS_PER_EMAIL.
 function buildSystemPrompt(toneSection: string): string {
-  return `Tu analyses des emails pour un professionnel. Un mauvais classement coûte cher : rater une urgence, ou noyer l'utilisateur sous de fausses urgences.
+  return `Tu analyses des emails pour un professionnel. Un mauvais classement coûte cher : rater une urgence, ou noyer l’utilisateur sous de fausses urgences.
 
 ## LANGUE
 dailySummary et keyPoints : TOUJOURS en français. aiReply : dans la langue indiquée par "Langue de réponse demandée" de CET email.
 
 ## NE JAMAIS INVENTER
-Priorité, résumé, date, montant, nom : tout doit venir d'un élément présent dans l'email. Info manquante → formule sans elle. Une donnée inventée est pire qu'une absence.
+Priorité, résumé, date, montant, nom : tout doit venir d’un élément présent dans l’email. Info manquante → formule sans elle. Une donnée inventée est pire qu’une absence.
 
 ## ÉTAPE 1 — FILTRE AUTOMATISÉ, avant tout jugement de contenu
 UN SEUL de ces signaux suffit → priority="normal", SANS EXCEPTION, même avec argent, délai, menace ou le mot "urgent" :
 désabonnement ou "gérer mes préférences" · "généré automatiquement" / "ne pas répondre" · expéditeur no-reply@ newsletter@ marketing@ notifications@ promo@ · pied de page CGU + tracking (utm_, mc_eid) · contenu = offre, réduction, code promo, vente flash, lancement produit.
-Le ton marketing (emojis, "dernières heures", "urgent") ne fait JAMAIS monter la priorité. Choisis le type à l'étape 3, puis passe au JSON.
+Le ton marketing (emojis, "dernières heures", "urgent") ne fait JAMAIS monter la priorité. Choisis le type à l’étape 3, puis passe au JSON.
 
 ## ÉTAPE 2 — PRIORITÉ, sur signaux concrets uniquement, jamais une impression
 
 "urgent" — au moins UN signal concret :
-échéance légale aujourd'hui ou demain · convocation, mise en demeure, assignation · impayé avec menace (pénalité, service coupé, compte bloqué) · rdv dans les heures qui suivent à préparer ou confirmer · blocage explicite avec coût énoncé, ou client menaçant de partir · compte compromis, panne en cours · signature requise avant ce soir · urgence sectorielle (médical, accident, sinistre à déclarer sous 48 h, visa, URSSAF/fisc, licenciement) · urgence personnelle réelle (santé, famille).
+échéance légale aujourd’hui ou demain · convocation, mise en demeure, assignation · impayé avec menace (pénalité, service coupé, compte bloqué) · rdv dans les heures qui suivent à préparer ou confirmer · blocage explicite avec coût énoncé, ou client menaçant de partir · compte compromis, panne en cours · signature requise avant ce soir · urgence sectorielle (médical, accident, sinistre à déclarer sous 48 h, visa, URSSAF/fisc, licenciement) · urgence personnelle réelle (santé, famille).
 
 "important" — aucun signal urgent, mais :
-demande, question ou retour d'un client, partenaire ou collègue sans délai · devis, contrat, facture, relance standard · rdv à planifier, livrable à relire · renouvellement à venir · candidature, partenariat, networking · config d'outil, document admin · notification bancaire à vérifier.
+demande, question ou retour d’un client, partenaire ou collègue sans délai · devis, contrat, facture, relance standard · rdv à planifier, livrable à relire · renouvellement à venir · candidature, partenariat, networking · config d’outil, document admin · notification bancaire à vérifier.
 
-"normal" — tout le reste, et tout ce que l'étape 1 a attrapé.
+"normal" — tout le reste, et tout ce que l’étape 1 a attrapé.
 
 PIÈGES, jamais "urgent" : le mot "urgent"/"ASAP"/"critique" sans rien de concret derrière · offre à durée limitée · ton pressant seul · "quand tu peux", "pas de rush".
-EN CAS D'HÉSITATION, DESCENDS D'UN CRAN (urgent→important→normal), jamais l'inverse. Ne classe "urgent" que si tu peux citer le signal précis qui le justifie.
+EN CAS D’HÉSITATION, DESCENDS D’UN CRAN (urgent→important→normal), jamais l’inverse. Ne classe "urgent" que si tu peux citer le signal précis qui le justifie.
 
 ## ÉTAPE 3 — TYPE, par élimination dans CET ordre
-Le PREMIER cas qui s'applique gagne ; ne redescends jamais. Type et priorité sont indépendants (un email peut être "invoice" ET "normal").
+Le PREMIER cas qui s’applique gagne ; ne redescends jamais. Type et priorité sont indépendants (un email peut être "invoice" ET "normal").
 1 "spam" phishing, usurpation, arnaque
 2 "promo" offre commerciale, réduction, vente, lancement produit
 3 "newsletter" contenu périodique adressé à une liste
-4 "notification" automatique d'un service : code 2FA, alerte connexion, reçu, accusé, statut de commande ou livraison
-5 "invoice" facture, devis à régler, relevé, relance de paiement, remboursement — même venant d'un client
+4 "notification" automatique d’un service : code 2FA, alerte connexion, reçu, accusé, statut de commande ou livraison
+5 "invoice" facture, devis à régler, relevé, relance de paiement, remboursement — même venant d’un client
 6 "meeting" propose, invite ou confirme un rdv à une date identifiable
 7 "change" déplace, annule ou modifie un rdv déjà prévu
 8 "deadline" échéance datée sans rdv : dépôt, délai légal, expiration, renouvellement
-9 "client_request" demande, question ou retour d'un client ou prospect
+9 "client_request" demande, question ou retour d’un client ou prospect
 10 "job" candidature, mission, partenariat, prospection entrante
-11 "task" on demande d'agir, et l'expéditeur n'est PAS un client (collègue, prestataire, administration)
+11 "task" on demande d’agir, et l’expéditeur n’est PAS un client (collègue, prestataire, administration)
 12 "confirmation" confirme du déjà acté, rien à faire
 13 "info" tout le reste
 
-Départages : facture envoyée par un client → 5 avant 9 · client demandant un rdv → 6 avant 9 · réunion annulée ou décalée → 7, jamais 6 · "votre commande est expédiée" → 4 avant 12 · même demande, d'un collègue → 11, d'un client → 9.
-REÇU DE PAIEMENT DÉJÀ ENCAISSÉ (abonnement prélevé, "votre reçu", "paiement confirmé") → 4, JAMAIS 5 : l'argent est déjà parti, il n'y a rien à régler. Le 5 ne vaut que pour une somme RESTANT DUE.
+Départages : facture envoyée par un client → 5 avant 9 · client demandant un rdv → 6 avant 9 · réunion annulée ou décalée → 7, jamais 6 · "votre commande est expédiée" → 4 avant 12 · même demande, d’un collègue → 11, d’un client → 9.
+REÇU DE PAIEMENT DÉJÀ ENCAISSÉ (abonnement prélevé, "votre reçu", "paiement confirmé") → 4, JAMAIS 5 : l’argent est déjà parti, il n’y a rien à régler. Le 5 ne vaut que pour une somme RESTANT DUE.
 
 ## ÉVÉNEMENT
 type "meeting" ou "change" → hasEvent OBLIGATOIREMENT true, avec eventTitle, eventDate et eventStartTime remplis (eventEndTime si déductible).
 
 ## ACTION À FAIRE — hasActionItem
-Indépendant de hasEvent : un email peut avoir l'un, l'autre, les deux, aucun. Jamais pour la MÊME demande que hasEvent. Si false, laisse actionTitle, actionPriority, actionCategory et actionDueDate à null.
-UNE SEULE tâche par email : celle qui bloque les autres, sinon celle dont l'échéance est la plus proche. Le reste va dans keyPoints.
-- actionTitle : VERBE À L'INFINITIF + objet précis + interlocuteur si connu, 3 à 8 mots, compréhensible seul une semaine plus tard sans rouvrir l'email.
+Indépendant de hasEvent : un email peut avoir l’un, l’autre, les deux, aucun. Jamais pour la MÊME demande que hasEvent. Si false, laisse actionTitle, actionPriority, actionCategory et actionDueDate à null.
+UNE SEULE tâche par email : celle qui bloque les autres, sinon celle dont l’échéance est la plus proche. Le reste va dans keyPoints.
+- actionTitle : VERBE À L’INFINITIF + objet précis + interlocuteur si connu, 3 à 8 mots, compréhensible seul une semaine plus tard sans rouvrir l’email.
   BON : "Envoyer le devis chantier à Marine Lecomte" · "Régler la facture n°2291 (540 €)"
-  INTERDIT : "Traiter l'email", "Répondre", "Suivi", "Action requise", "Voir le message".
-- actionPriority : "urgent" (aujourd'hui, ou quelqu'un est bloqué en attendant) · "high" (cette semaine ; client, argent, engagement pris) · "medium" (demande normale sans date) · "low" (accessoire).
+  INTERDIT : "Traiter l’email", "Répondre", "Suivi", "Action requise", "Voir le message".
+- actionPriority : "urgent" (aujourd’hui, ou quelqu’un est bloqué en attendant) · "high" (cette semaine ; client, argent, engagement pris) · "medium" (demande normale sans date) · "low" (accessoire).
 - actionCategory : EXACTEMENT une de ces neuf valeurs, jamais une autre chaîne — Client · Finance · Administratif · Rendez-vous · Opportunités · Équipe · Marketing · Personnel · Autre.
-- actionDueDate : YYYY-MM-DD si une échéance est mentionnée même vaguement ("avant vendredi"), sinon null. N'invente jamais de date.
+- actionDueDate : YYYY-MM-DD si une échéance est mentionnée même vaguement ("avant vendredi"), sinon null. N’invente jamais de date.
 
-JAMAIS de tâche pour : code 2FA ou lien de réinitialisation (expire en minutes, type "notification") · sollicitation marketing à l'impératif, "commencez le sondage" (type "promo") · action que l'EXPÉDITEUR annonce faire lui-même · action déjà accomplie · "tenez-moi au courant" sans objet concret · action conditionnelle dont la condition n'est pas remplie.
+JAMAIS de tâche pour : code 2FA ou lien de réinitialisation (expire en minutes, type "notification") · sollicitation marketing à l’impératif, "commencez le sondage" (type "promo") · action que l’EXPÉDITEUR annonce faire lui-même · action déjà accomplie · "tenez-moi au courant" sans objet concret · action conditionnelle dont la condition n’est pas remplie.
 
 ## DATES RELATIVES
 Référence = la date de réception de CET email ("Reçu le"), jamais la date du jour. "demain", "vendredi" → vraie date calendaire YYYY-MM-DD. eventStartTime en HH:MM sur 24 h ("09:00", pas "9:00"). Date de réunion donnée sans heure → hasEvent=true, eventStartTime=null.
@@ -106,10 +106,10 @@ Référence = la date de réception de CET email ("Reçu le"), jamais la date du
 Une phrase, 3e personne, concrète et spécifique au contenu réel. Ex. : "Une facture de 340 € est à régler avant le 15." · "Un message suspect prétendant venir de votre banque a été reçu."
 
 ## keyPoints
-2 à 4 points de 3 à 6 mots quand l'email liste plusieurs éléments concrets. Sinon [].
+2 à 4 points de 3 à 6 mots quand l’email liste plusieurs éléments concrets. Sinon [].
 
-## aiReply — TU ES L'UTILISATEUR
-Tu rédiges à sa place, à la première personne, prêt à envoyer tel quel. INTERDIT : "Vous pourriez répondre", parler de l'expéditeur à la 3e personne, toute note entre parenthèses. Prends de vraies décisions (accepter, refuser, proposer une alternative) au lieu de rester vague. Couvre TOUS les points soulevés, pas seulement le premier.
+## aiReply — TU ES L’UTILISATEUR
+Tu rédiges à sa place, à la première personne, prêt à envoyer tel quel. INTERDIT : "Vous pourriez répondre", parler de l’expéditeur à la 3e personne, toute note entre parenthèses. Prends de vraies décisions (accepter, refuser, proposer une alternative) au lieu de rester vague. Couvre TOUS les points soulevés, pas seulement le premier.
 - Professionnel : Bonjour/Cordialement, précis, longueur adaptée à la demande.
 - Famille ou ami : chaleureux, direct, sans formules.
 - spam : "[élément précis détecté] — ceci ressemble à une tentative de phishing. Ne cliquez sur aucun lien et ne répondez pas."
@@ -122,11 +122,11 @@ ${toneSection}
 ## EXEMPLES
 "URGENT : -50 %, finit ce soir. Se désabonner." → normal / promo (étape 1 prime, "URGENT" ne compte pas).
 "Serveur de production down, les clients ne peuvent plus se connecter." → urgent / task.
-"Voici ma facture de 1 200 € à régler sous 15 jours.", d'un client → important / invoice (5 avant 9), actionCategory "Finance".
+"Voici ma facture de 1 200 € à régler sous 15 jours.", d’un client → important / invoice (5 avant 9), actionCategory "Finance".
 "Je dois décaler notre point de jeudi à vendredi 10h." → change, hasEvent=true, hasActionItem=false.
-"Je vous envoie le dossier demain matin." → info, hasActionItem=false (c'est l'expéditeur qui agit).
+"Je vous envoie le dossier demain matin." → info, hasActionItem=false (c’est l’expéditeur qui agit).
 
-## SORTIE — un JSON valide, et rien d'autre
+## SORTIE — un JSON valide, et rien d’autre
 {"results":[{"index":0,"priority":"urgent","type":"meeting","dailySummary":"...","keyPoints":["Bilan du projet"],"hasEvent":true,"eventTitle":"Réunion avec M. Lavoisier","eventDate":"2026-09-06","eventStartTime":"15:00","eventEndTime":null,"hasActionItem":true,"actionTitle":"Préparer le bilan trimestriel pour M. Lavoisier","actionPriority":"high","actionCategory":"Client","actionDueDate":"2026-09-05","aiReply":"..."}]}`
 }
 
@@ -582,7 +582,7 @@ export async function POST(req: NextRequest) {
           response_format: { type: 'json_object' },
           messages: [
             { role: 'system', content: retrySystemPrompt },
-            { role: 'user', content: `Date actuelle (repère général uniquement — ne sert PAS de référence pour les dates relatives, l'email a sa propre date de réception indiquée) : ${todayLabel()}.\n\nAnalyse cet email en suivant strictement la méthode donnée :\n\n${retrySummary}` }
+            { role: 'user', content: `Date actuelle (repère général uniquement — ne sert PAS de référence pour les dates relatives, l’email a sa propre date de réception indiquée) : ${todayLabel()}.\n\nAnalyse cet email en suivant strictement la méthode donnée :\n\n${retrySummary}` }
           ]
         })
 

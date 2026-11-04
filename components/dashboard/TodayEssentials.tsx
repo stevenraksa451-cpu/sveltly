@@ -27,7 +27,7 @@ function TodayEssentials({ emails, events, loading }: {
       ),
       color: 'urgent' as const,
       title: e.title,
-      sub: `Aujourd'hui, ${e.startTime} – ${e.endTime}`,
+      sub: `Aujourd’hui, ${e.startTime} – ${e.endTime}`,
       tag: 'Réunion',
     })),
     ...priorityEmails.map(e => ({

@@ -40,7 +40,7 @@ describe('lib/providers', () => {
     for (const p of PLANNED_PROVIDERS) {
       assert.ok(
         !PROVIDERS_LIVE_LABEL.includes(p.name),
-        `« ${p.name} » est annoncé comme connectable alors qu'il est encore planned`
+        `« ${p.name} » est annoncé comme connectable alors qu’il est encore planned`
       )
     }
   })

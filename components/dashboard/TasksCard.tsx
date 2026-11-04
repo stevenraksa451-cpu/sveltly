@@ -23,7 +23,7 @@ function getDueLabel(dueDate: string | null): { text: string; urgent: boolean } 
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 
   if (dueDate < today) return { text: 'En retard', urgent: true }
-  if (dueDate === today) return { text: "Aujourd'hui", urgent: true }
+  if (dueDate === today) return { text: "Aujourd’hui", urgent: true }
   if (dueDate === tomorrow) return { text: 'Demain', urgent: false }
 
   const d = new Date(dueDate + 'T00:00:00')
@@ -151,7 +151,7 @@ function TasksCard() {
               <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
             </svg>
           </span>
-          <p>Aucune tâche pour l'instant.</p>
+          <p>Aucune tâche pour l’instant.</p>
         </div>
       ) : (
         <div className={styles.list}>

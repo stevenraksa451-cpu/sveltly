@@ -96,7 +96,7 @@ export default function ConflictPlanCard({
 
       <div className={styles.actions}>
         <button className={styles.keepBtn} onClick={onKeepAnyway} disabled={busy}>
-          Garder l'heure d'origine quand même
+          Garder l’heure d’origine quand même
         </button>
         {onCancel && (
           <button className={styles.cancelBtn} onClick={onCancel} disabled={busy}>
