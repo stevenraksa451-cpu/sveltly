@@ -110,7 +110,7 @@ function isLowEffort(email: Email): boolean {
 // avec les constantes ci-dessus si vous les modifiez.
 export const TIME_SAVED_METHOD_NOTE = (
   <>
-    Total depuis que <Brand /> suit votre boîte. Temps de traitement manuel estimé (lecture, rédaction, planification, création de tâches) moins le temps de relecture avec <Brand />. Seuls les emails réellement analysés comptent, et les newsletters, pubs et notifications ne comptent qu’un coup d'œil — sans gain de rédaction, puisqu’on n’y répond pas. Référence : étude McKinsey Global Institute sur le temps consacré aux emails en entreprise.
+    Total depuis que <Brand /> suit votre boîte. Temps de traitement manuel estimé (lecture, rédaction, planification, création de tâches) moins le temps de relecture avec <Brand />. Seuls les emails réellement analysés comptent, et les newsletters, pubs et notifications ne comptent qu’un coup d’œil — sans gain de rédaction, puisqu’on n’y répond pas. Référence : étude McKinsey Global Institute sur le temps consacré aux emails en entreprise.
   </>
 )
 

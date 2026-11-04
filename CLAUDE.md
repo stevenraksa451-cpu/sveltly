@@ -701,6 +701,15 @@ morceaux de template, et il **refuse** :
   un outil de typographie réécrire du code exécutable. Ce sont les seules
   apostrophes droites qui restent dans le HTML, et elles sont invisibles.
 
+⚠️ **La plage de caractères doit couvrir le latin étendu.** La première
+version s'arrêtait à `ÿ` (U+00FF) : les ligatures `œ` et `æ` tombaient
+dehors, et **« d'œil » n'était pas converti alors que « qu'un » l'était deux
+mots plus loin, dans la même phrase**. Repéré en relisant le diff, pas par
+un test. La plage est maintenant `A-Za-zÀ-ÖØ-öø-ÿĀ-ſ`.
+
+Les apostrophes des COMMENTAIRES ne sont jamais touchées, et c'est voulu :
+elles ne s'affichent nulle part.
+
 Une seule exception locale dans tout le dépôt : `@next/next/no-img-element`
 dans `components/ui/Avatar.tsx`, avec sa raison écrite sur place (image
 distante de 34 px, décorative, avec repli sur les initiales).

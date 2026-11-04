@@ -32,7 +32,12 @@ const ts = require('typescript')
 const ECRIRE = process.argv.includes('--ecrire')
 
 const IGNORES = ['node_modules', '.next', '.git', '.claude', 'scripts', 'supabase']
-const LETTRE = 'A-Za-zÀ-ÖØ-öø-ÿ'
+// ⚠️ La plage doit couvrir le latin étendu, pas seulement le latin-1.
+// Première version : 'A-Za-zÀ-ÖØ-öø-ÿ', qui s'arrête à U+00FF. Les ligatures
+// françaises œ et æ vivent à U+0152-U+0153 et U+00E6 : « d'œil » n'était donc
+// pas converti, alors que « qu'un » l'était deux mots plus loin, dans la même
+// phrase. Repéré dans le diff du premier passage.
+const LETTRE = 'A-Za-zÀ-ÖØ-öø-ÿĀ-ſ'
 const MOTIF = new RegExp('([' + LETTRE + '])\\\\?\'([' + LETTRE + '])', 'g')
 
 function parcourir(d, sortie = []) {
