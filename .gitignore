@@ -39,3 +39,6 @@ next-env.d.ts
 # outils locaux
 .claude/
 .vscode/
+
+# journaux de serveur local (rebuild/vérifications)
+.srv.log
