@@ -12,6 +12,7 @@ import { useEmails } from '@/hooks/useEmails'
 import { useCalendarEvents } from '@/hooks/useCalendarEvents'
 import { calculateTimeSavedTotal, formatTimeSaved, getEmailsReceivedToday, TIME_SAVED_METHOD_NOTE } from '@/lib/time-saved'
 import styles from './dashboard.module.css'
+import { isoLocal } from '@/lib/dates'
 
 export default function DashboardPage() {
   const { emails, loading: emailsLoading } = useEmails()
@@ -46,7 +47,7 @@ export default function DashboardPage() {
     loadUser()
   }, [])
 
-  const todayIso = new Date().toISOString().split('T')[0]
+  const todayIso = isoLocal()
 
   // Mémoïsés sur [emails]/[events] : sans ça, ces parcours (jusqu'à
   // plusieurs centaines d'emails/événements) se refaisaient à CHAQUE rendu du

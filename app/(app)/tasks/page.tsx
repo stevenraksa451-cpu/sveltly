@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useTasks, toggleTaskCompletion } from '@/hooks/useTasks'
 import { TASK_CATEGORIES, TASK_PRIORITIES, TASK_PRIORITY_LABEL, TaskPriority, isTaskCategory } from '@/lib/tasks'
 import styles from './tasks.module.css'
+import { isoLocal, isoLocalDansNJours } from '@/lib/dates'
 
 interface Task {
   id: string
@@ -35,8 +36,11 @@ const PRIORITY_ORDER = TASK_PRIORITIES
 
 type SideFilter = 'all' | 'today' | 'upcoming' | 'overdue' | 'done'
 
-function todayIso() { return new Date().toISOString().split('T')[0] }
-function inDaysIso(n: number) { return new Date(Date.now() + n * 86400000).toISOString().split('T')[0] }
+function todayIso() { return isoLocal() }
+// Passe par le constructeur Date plutôt que par Date.now() + n * 86400000 :
+// une journée de changement d'heure dure 23 ou 25 heures, et l'arithmétique
+// en millisecondes rend alors le même jour, ou saute le lendemain.
+function inDaysIso(n: number) { return isoLocalDansNJours(n) }
 function tomorrowIso() { return inDaysIso(1) }
 
 // Même logique de classement que le useMemo `grouped` plus bas, mais

@@ -7,6 +7,7 @@ import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTas
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './InboxSidePanel.module.css'
+import { isoLocal } from '@/lib/dates'
 
 // La plupart des pièces jointes (images, PDF courts) pèsent quelques
 // centaines de Ko — toujours afficher en Mo les arrondissait systématiquement
@@ -161,7 +162,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
     if (!user) return
 
     const action = display.detectedAction
-    const todayIso = new Date().toISOString().slice(0, 10)
+    const todayIso = isoLocal()
 
     await insertTaskSafely(supabase, {
       user_id: user.id,

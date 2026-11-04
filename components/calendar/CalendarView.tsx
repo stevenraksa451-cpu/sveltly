@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { CalendarEvent } from '@/types'
 import styles from './CalendarView.module.css'
+import { isoLocal } from '@/lib/dates'
 
 const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 const DAYS_FULL = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
@@ -47,7 +48,7 @@ interface Props {
 
 export default function CalendarView({ events, selectedDate, onSelectDate, view, onViewChange }: Props) {
   const today = new Date()
-  const todayIso = today.toISOString().split('T')[0]
+  const todayIso = isoLocal(today)
 
   const [viewYear, setViewYear] = useState(today.getFullYear())
   const [viewMonth, setViewMonth] = useState(today.getMonth())

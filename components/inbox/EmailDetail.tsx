@@ -10,6 +10,7 @@ import PriorityBadge from '@/components/ui/PriorityBadge'
 import UsageLimitCard from '@/components/ui/UsageLimitCard'
 import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './EmailDetail.module.css'
+import { isoLocal } from '@/lib/dates'
 
 export default function EmailDetail({ email, onClose, onArchive }: { email: Email; onClose: () => void; onArchive?: () => void }) {
   const isArchived = email.labelIds?.includes('INBOX') === false
@@ -37,7 +38,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
     email.detectedEvent?.title || email.subject
   )
   const [eventDate, setEventDate] = useState(
-    email.detectedEvent?.date || new Date().toISOString().split('T')[0]
+    email.detectedEvent?.date || isoLocal()
   )
   const [eventStart, setEventStart] = useState(
     email.detectedEvent?.startTime || '09:00'

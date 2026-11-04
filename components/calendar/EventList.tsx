@@ -5,6 +5,7 @@ import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConflictPlanCard from './ConflictPlanCard'
 import { compareByStartTimeThenPriority } from '@/lib/scheduling'
 import styles from './EventList.module.css'
+import { isoLocal } from '@/lib/dates'
 
 interface AddEventData {
   title: string
@@ -76,7 +77,7 @@ export default function EventList({ events, date, loading, onAddEvent, onDeleteE
     weekday: 'long', day: 'numeric', month: 'long'
   })
 
-  const isToday = date === new Date().toISOString().split('T')[0]
+  const isToday = date === isoLocal()
 
   // Tri chronologique, et à heure égale urgent avant important avant normal
   // (voir lib/scheduling.ts — même comparateur que AgendaTimeline, pour que

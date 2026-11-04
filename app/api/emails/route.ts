@@ -3,6 +3,7 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { getPlan } from '@/lib/plans'
+import { isoDansFuseau } from '@/lib/dates'
 import { FENETRE_PREMIERE_SYNCHRO_JOURS, PLAFOND_PREMIERE_SYNCHRO } from '@/lib/sync-window'
 import { encryptToken, decryptToken } from '@/lib/token-crypto'
 import { getGmailMailboxes, tryAcrossMailboxes } from '@/lib/gmail-mailbox'
@@ -1034,7 +1035,12 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      const todayIso = new Date().toISOString().slice(0, 10)
+      // Le fuseau de l'UTILISATEUR, pas celui du serveur — qui ne veut rien
+      // dire, il dépend de l'hébergeur. Ce todayIso sert à rejeter les
+      // échéances passées (resolveTaskDueDate) : en UTC, une tâche due
+      // aujourd'hui était rejetée en soirée à l'ouest de Greenwich, et une
+      // tâche d'hier acceptée à tort la nuit en Europe.
+      const todayIso = isoDansFuseau(profile?.timezone)
 
       for (const email of toCreateTasks) {
         if (existingTaskEmailIds.has(email.id)) continue

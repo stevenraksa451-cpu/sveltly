@@ -12,13 +12,14 @@ import { supabase } from '@/lib/supabase'
 import { useCalendarEvents } from '@/hooks/useCalendarEvents'
 import { CalendarEvent, Priority } from '@/types'
 import styles from './calendar.module.css'
+import { isoLocal } from '@/lib/dates'
 
 function CalendarContent() {
   const { events, loading, refresh } = useCalendarEvents()
   const searchParams = useSearchParams()
   // Ouvert depuis la palette de recherche (Cmd/Ctrl+K) via /calendar?date=<date> —
   // la sélection existante se fait par jour, pas par événement précis.
-  const [selectedDate, setSelectedDate] = useState(searchParams.get('date') || new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState(searchParams.get('date') || isoLocal())
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
 
   const [calendarConnected, setCalendarConnected] = useState(false)

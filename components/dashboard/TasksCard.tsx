@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useTasks, toggleTaskCompletion } from '@/hooks/useTasks'
 import styles from './TasksCard.module.css'
+import { isoLocal, isoLocalDansNJours } from '@/lib/dates'
 
 interface Task {
   id: string
@@ -19,8 +20,8 @@ interface Task {
 
 function getDueLabel(dueDate: string | null): { text: string; urgent: boolean } {
   if (!dueDate) return { text: '', urgent: false }
-  const today = new Date().toISOString().split('T')[0]
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+  const today = isoLocal()
+  const tomorrow = isoLocalDansNJours(1)
 
   if (dueDate < today) return { text: 'En retard', urgent: true }
   if (dueDate === today) return { text: "Aujourd’hui", urgent: true }
@@ -59,7 +60,7 @@ function TasksCard() {
   // sans échéance ou échues un autre jour, et donnait des pourcentages
   // trompeurs sur un échantillon d'une seule tâche.
   const productivity = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = isoLocal()
     const completedToday = (t: any) => !!t.completed_at && t.completed_at.split('T')[0] === today
     const todayTasks = (tasks as any[]).filter(t => t.due_date === today || completedToday(t))
     if (todayTasks.length === 0) return null
