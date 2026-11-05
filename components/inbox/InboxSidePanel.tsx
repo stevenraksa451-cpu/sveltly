@@ -8,6 +8,7 @@ import PriorityBadge from '@/components/ui/PriorityBadge'
 import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './InboxSidePanel.module.css'
 import { isoLocal } from '@/lib/dates'
+import { lireJson } from '@/lib/lire-json'
 
 // La plupart des pièces jointes (images, PDF courts) pèsent quelques
 // centaines de Ko — toujours afficher en Mo les arrondissait systématiquement
@@ -68,7 +69,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
           body: JSON.stringify({ emails: [email] }),
         })
-        const parsed = await res.json()
+        const parsed = await lireJson(res)
         const analysis = parsed.results?.[0]
         if (!analysis || parsed.groqError) { setSummaryError(true); return }
 
@@ -205,7 +206,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         forceSlot,
       }),
     })
-    const json = await res.json()
+    const json = await lireJson(res)
 
     if (!res.ok) {
       setSchedulingState({ step: 'error', message: json.error || 'Erreur inconnue' })
@@ -237,7 +238,7 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         newEvent: data.pendingEvent,
       }),
     })
-    const json = await res.json()
+    const json = await lireJson(res)
     if (!res.ok) {
       setSchedulingState({ step: 'error', message: json.error || 'Erreur inconnue' })
       return

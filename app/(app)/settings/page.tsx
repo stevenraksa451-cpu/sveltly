@@ -15,6 +15,7 @@ import { getPlan } from '@/lib/plans'
 import { LIVE_PROVIDERS } from '@/lib/providers'
 import { TONES, TONE_LABEL, TONE_EXAMPLE, REPLY_LANGUAGES, REPLY_LANGUAGE_LABEL, REPLY_LANGUAGE_DESC, ReplyLanguage } from '@/lib/tone'
 import styles from './settings.module.css'
+import { lireJson } from '@/lib/lire-json'
 
 const TABS: { id: string; label: string; icon: JSX.Element; danger?: boolean }[] = [
   { id: 'account', label: 'Compte', icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> },
@@ -243,7 +244,7 @@ function SettingsContent() {
     const res = await fetch(`/api/mailboxes/connect?provider=${provider}`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
-    const data = await res.json()
+    const data = await lireJson(res)
     if (data.url) window.location.href = data.url
     else if (data.error) setConnectError(data.error)
   }
@@ -256,7 +257,7 @@ function SettingsContent() {
     const res = await fetch('/api/calendar/connect', {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
-    const data = await res.json()
+    const data = await lireJson(res)
     if (data.url) window.location.href = data.url
     else setConnectingCalendar(false)
   }
@@ -408,7 +409,7 @@ function SettingsContent() {
       })
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
+        const body = await lireJson(res)
         alert('La suppression a échoué : ' + (body.error || 'réessayez.'))
         setDeletingAccount(false)
         return

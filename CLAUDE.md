@@ -379,9 +379,34 @@ lanceur de tests de Node échoue sur `next/server`
 (`ERR_MODULE_NOT_FOUND`) — et ces neuf tests sont précisément ce qui garantit
 qu'un corps d'erreur reste parsable.
 
-Reste ouvert : un 502/504 de l'hébergeur rend du HTML, hors de portée de ce
-filet. Les 12 `await res.json()` côté client ne sont toujours pas protégés
-contre ça.
+### Et côté client : `lib/lire-json.ts`
+
+`routeJson` garantit qu'une route de CE projet rend du JSON. Il ne couvre pas
+ce qui arrive avant ou après le code applicatif : un 502/503/504 de
+l'hébergeur avec sa propre page HTML, un timeout de plateforme qui coupe la
+réponse en plein milieu, un portail Wi-Fi qui intercepte la requête. Dans
+tous ces cas `await res.json()` lève, la promesse n'est pas rattrapée, et le
+bouton garde son « Envoi… » sans aucun message.
+
+Les **14 appels** de l'espace connecté passent par `lireJson(res)`, qui rend
+TOUJOURS un objet. Corps illisible → un `error` portant le code HTTP. Le
+choix n'est pas cosmétique : les quatorze appelants suivaient déjà le motif
+`json.error || 'message par défaut'`, donc un message vrai s'y insère sans
+qu'un seul change de forme.
+
+⚠️ Il lit `res.text()`, **pas** `res.json()`. Le corps d'une réponse ne se lit
+qu'une fois : appeler `.json()` puis `.text()` dans un `catch` lèverait
+« body stream already read » — une seconde erreur par-dessus la première.
+
+⚠️ `JSON.parse('null')` et `JSON.parse('42')` **réussissent** sans rendre un
+objet. Sans garde-fou, l'appelant ferait `json.error` sur un nombre.
+
+⚠️ Son défaut de type est `any`, comme `res.json()`, pour que le remplacement
+soit strictement additif. Avec `Record<string, unknown>`, les quatorze appels
+produisaient dix erreurs de typage sur des champs jusque-là implicitement
+`any` — les corriger aurait demandé d'inventer la forme de chaque réponse
+dans le même commit. Passer un type explicite marche déjà :
+`lireJson<{ imported?: number }>(res)`.
 
 ---
 

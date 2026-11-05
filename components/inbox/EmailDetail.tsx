@@ -11,6 +11,7 @@ import UsageLimitCard from '@/components/ui/UsageLimitCard'
 import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './EmailDetail.module.css'
 import { isoLocal } from '@/lib/dates'
+import { lireJson } from '@/lib/lire-json'
 
 export default function EmailDetail({ email, onClose, onArchive }: { email: Email; onClose: () => void; onArchive?: () => void }) {
   const isArchived = email.labelIds?.includes('INBOX') === false
@@ -134,7 +135,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
         forceSlot,
       }),
     })
-    const json = await res.json()
+    const json = await lireJson(res)
 
     if (!res.ok) {
       // Sans ce retour, le bouton "Enregistrer" ne faisait rien de visible en
@@ -169,7 +170,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
           newEvent: eventConflict.pendingEvent,
         }),
       })
-      const json = await res.json()
+      const json = await lireJson(res)
       if (!res.ok) { setEventError(json.error || 'Erreur lors de la réorganisation'); return }
 
       setEventConflict(null)
@@ -203,7 +204,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       })
     })
 
-    const data = await res.json()
+    const data = await lireJson(res)
     if (res.ok) {
       setSent(true)
       setTimeout(() => setSent(false), 3000)
@@ -230,7 +231,7 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
         },
         body: JSON.stringify({ email, tone: selectedTone, language: selectedLanguage, rememberForContact: rememberContact })
       })
-      const data = await res.json()
+      const data = await lireJson(res)
       if (res.ok) {
         setReplyText(data.reply || email.aiDraftReply || '')
       } else if (data.limitReached) {

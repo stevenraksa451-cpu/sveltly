@@ -13,6 +13,7 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents'
 import { CalendarEvent, Priority } from '@/types'
 import styles from './calendar.module.css'
 import { isoLocal } from '@/lib/dates'
+import { lireJson } from '@/lib/lire-json'
 
 function CalendarContent() {
   const { events, loading, refresh } = useCalendarEvents()
@@ -44,7 +45,7 @@ function CalendarContent() {
     const res = await fetch('/api/calendar/import', {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
-    const data = await res.json().catch(() => null)
+    const data = await lireJson(res)
     setSyncing(false)
 
     // La route a constaté que Google refuse les jetons et a déjà repassé
@@ -127,7 +128,7 @@ function CalendarContent() {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify(eventData),
     })
-    const json = await res.json()
+    const json = await lireJson(res)
 
     // Sans ce contrôle, un échec (réseau, validation, erreur serveur)
     // laissait le formulaire se fermer et se vider comme si l'événement avait
@@ -181,7 +182,7 @@ function CalendarContent() {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ moves, newEvent }),
     })
-    const json = await res.json()
+    const json = await lireJson(res)
     if (!res.ok) throw new Error(json.error || 'Erreur lors de la réorganisation')
     if (Array.isArray(json.syncWarnings) && json.syncWarnings.length > 0) {
       console.warn('Avertissements de synchronisation Google:', json.syncWarnings)
@@ -213,7 +214,7 @@ function CalendarContent() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ date: selectedDate }),
       })
-      const json = await res.json()
+      const json = await lireJson(res)
       setReorganizePreview(json.moves || [])
     } finally {
       setReorganizing(false)
