@@ -71,12 +71,12 @@ export default function Page() {
                   jours. Sans limite de durée.
                 </p>
                 <p>
-                  <strong>Et si j’atteins les cinquante réponses ?</strong><br />
-                  Le tri continue, par mots-clés plutôt que par IA : vos messages restent rangés par
-                  priorité et par type, mais plus rien n’est lu. Les résumés, les tâches et la
-                  planification automatique s’arrêtent jusqu’au mois suivant — ils sortent tous de la
-                  même analyse que les brouillons. Rien n’est perdu : ces emails sont réanalysés dès que
-                  le compteur repart.
+                  <strong>Et si j’atteins le quota du jour ?</strong><br />
+                  Les cinquante réponses sont réparties sur le mois : le plafond remonte un peu chaque
+                  jour, pour que l’IA ne s’arrête jamais plus de quelques heures. Une fois celui du jour
+                  atteint, le tri continue par mots-clés — vos messages restent rangés par priorité et par
+                  type, mais plus rien n’est lu, et les résumés, les tâches et la planification
+                  s’interrompent. Tout repart le lendemain, et ces emails sont réanalysés.
                 </p>
                 <p>
                   <strong>Comment passer au Pro ?</strong><br />

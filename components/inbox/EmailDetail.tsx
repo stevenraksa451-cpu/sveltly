@@ -20,7 +20,11 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
   const [sending, setSending] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [error, setError] = useState('')
-  const [replyLimitInfo, setReplyLimitInfo] = useState<{ current: number; max: number } | null>(null)
+  // `quotidien` distingue les deux blocages, qui n’appellent pas le même
+  // geste : le mois épuisé demande de passer à Pro ou d’attendre ; le plafond
+  // du jour se relève tout seul demain. Les confondre reviendrait à vendre un
+  // abonnement à quelqu’un qui n’a qu’à revenir.
+  const [replyLimitInfo, setReplyLimitInfo] = useState<{ current: number; max: number; quotidien: boolean } | null>(null)
   // Compte à rebours (en secondes) avant de pouvoir régénérer à nouveau,
   // quand Groq est en rate limit avec un délai exploitable — null = pas de
   // limite en cours, le bouton Régénérer reste normalement actif.
@@ -234,8 +238,8 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       const data = await lireJson(res)
       if (res.ok) {
         setReplyText(data.reply || email.aiDraftReply || '')
-      } else if (data.limitReached) {
-        setReplyLimitInfo({ current: data.current, max: data.max })
+      } else if (data.limitReached || data.dailyCapReached) {
+        setReplyLimitInfo({ current: data.current, max: data.max, quotidien: !!data.dailyCapReached })
       } else if (data.error === 'rate_limit') {
         // retryAfterSeconds peut être null si Groq a changé son format de
         // message — dans ce cas on retombe sur le message générique plutôt
@@ -526,8 +530,10 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
           {replyLimitInfo && (
             <UsageLimitCard
-              title="Limite de réponses IA atteinte"
-              message={`Vous avez utilisé vos ${replyLimitInfo.max} réponses IA du mois. Passez à Pro pour continuer à en générer sans limite.`}
+              title={replyLimitInfo.quotidien ? 'Réponses IA du jour épuisées' : 'Limite de réponses IA atteinte'}
+              message={replyLimitInfo.quotidien
+                ? `Les ${replyLimitInfo.max} réponses IA du forfait Gratuit sont réparties sur le mois, pour que l’IA ne s’arrête jamais complètement. Le compteur remonte demain — ou passez à Pro pour ne plus y penser.`
+                : `Vous avez utilisé vos ${replyLimitInfo.max} réponses IA du mois. Passez à Pro pour continuer à en générer sans limite.`}
               current={replyLimitInfo.current}
               max={replyLimitInfo.max}
               compact

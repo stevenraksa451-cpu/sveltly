@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
 import { getPlan } from '@/lib/plans'
-import { resolveMonthlyUsage } from '@/lib/ai-usage'
+import { resolveMonthlyUsage, plafondQuotidien } from '@/lib/ai-usage'
 import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabel, ReplyLanguage, resolveReplyLanguage, replyLanguageInstruction } from '@/lib/tone'
 import { routeJson } from '@/lib/api-handler'
 
@@ -458,14 +458,32 @@ async function POSTInterne(req: NextRequest) {
   const monthlyLimit = plan.limits.aiRepliesPerMonth
   const { today, currentCount } = resolveMonthlyUsage(profile)
 
-  if (monthlyLimit !== null && currentCount >= monthlyLimit) {
-    // Limite atteinte : on garde un classement basique par mots-clés (gratuit,
+  // Le plafond du JOUR, pas celui du mois. Les 50 réponses se consommaient
+  // d'un bloc : sur une boîte active, c'était fait vers le 5e jour, et les 25
+  // suivants l'IA se taisait complètement. Le total ne change pas, seule la
+  // distribution — voir plafondQuotidien.
+  const plafondDuJour = monthlyLimit === null ? null : plafondQuotidien(monthlyLimit, today)
+
+  if (plafondDuJour !== null && currentCount >= plafondDuJour) {
+    // Plafond atteint : on garde un classement basique par mots-clés (gratuit,
     // pas d'appel Groq) plutôt que de bloquer complètement l'utilisateur.
     // degraded : ces résultats viennent du repli par mots-clés, pas de l'IA.
     // Sans ce marqueur, /api/emails les enregistrait comme une vraie analyse
     // et les emails concernés n'étaient PLUS JAMAIS réanalysés — figés avec
     // un résumé vide, même une fois le quota revenu.
-    return NextResponse.json({ results: buildFallback(filtered), limitReached: true, degraded: true })
+    //
+    // Les deux cas sont distingués, parce que l'utilisateur n'a pas la même
+    // chose à faire : le mois épuisé demande de passer à Pro ou d'attendre le
+    // mois suivant ; le plafond du jour se relève tout seul demain.
+    const moisEpuise = currentCount >= (monthlyLimit as number)
+    return NextResponse.json({
+      results: buildFallback(filtered),
+      limitReached: moisEpuise,
+      dailyCapReached: !moisEpuise,
+      current: currentCount,
+      max: monthlyLimit,
+      degraded: true,
+    })
   }
 
   // Incrément atomique côté base (fonction increment_ai_usage) plutôt qu'un

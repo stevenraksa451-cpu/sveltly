@@ -75,6 +75,31 @@ Les trois ne réagissent pas pareil à un refus, et c’est voulu : dans les
 réglages l’utilisateur a demandé une boîte, un refus doit se voir ; sur un
 chemin de connexion il a demandé à se connecter, et la connexion aboutit.
 
+**0. Le quota de 50 est RÉPARTI sur le mois, pas consommé d'un bloc.**
+`plafondQuotidien` (`lib/ai-usage.ts`) rend le plafond CUMULÉ autorisé à la
+date du jour : `ceil(50 × jour / joursDansLeMois)`. Le 1er → 2, le 5 → 9, le
+15 → 25, le dernier jour → 50.
+
+Pourquoi : consommées d'un bloc, les 50 réponses s'épuisaient vers le
+**5e jour** sur une boîte active, et l'IA se taisait les 25 suivants — soit
+trois quarts du mois de produit muet **avant** la décision d'achat. Le total
+en tokens est RIGOUREUSEMENT identique ; seule la distribution change.
+
+⚠️ **Aucune colonne ajoutée.** Le plafond se déduit de la date et du compteur
+mensuel existant. Un compteur quotidien aurait demandé une colonne de plus et
+une seconde remise à zéro à faire tomber juste, avec son fuseau et ses
+pièges.
+
+⚠️ **L'allocation non consommée s'accumule**, et c'est voulu : qui n'ouvre
+pas Sveltly pendant trois semaines retrouve le 21 un plafond de 35,
+utilisable d'un coup. Ce n'est pas « 2 par jour », c'est « 50 sur le mois,
+sans pouvoir tout brûler le premier jour ».
+
+Les deux épuisements sont **distingués côté client** (`dailyCapReached` vs
+`limitReached`) : le mois épuisé appelle un passage à Pro, le plafond du jour
+se relève demain. Les confondre reviendrait à vendre un abonnement à
+quelqu'un qui n'a qu'à revenir.
+
 **2. Le mode dégradé arrête BIEN PLUS que les brouillons.**
 Passé le quota mensuel, `/api/analyze` rend `buildFallback` : classement par
 mots-clés, `hasActionItem` forcé à false (aucune tâche), aucun `dailySummary`

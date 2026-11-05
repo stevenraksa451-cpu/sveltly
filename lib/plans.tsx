@@ -39,9 +39,9 @@ export const PLANS: Plan[] = [
     // trois endroits (tableau, corps de page, FAQ).
     features: [
       '1 boîte mail connectée',
-      '50 réponses IA par mois',
-      'Tri, résumés, tâches et planification à 7 jours — jusqu’à cette limite',
-      'Au-delà : tri simplifié par mots-clés, sans résumé ni tâche',
+      '50 réponses IA par mois, réparties sur le mois',
+      'Tri, résumés, tâches et planification à 7 jours',
+      'Une fois le quota du jour atteint : tri simplifié jusqu’au lendemain',
     ],
     limits: { mailboxes: 1, aiRepliesPerMonth: 50 },
   },

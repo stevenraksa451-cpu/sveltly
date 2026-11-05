@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
 import { getPlan } from '@/lib/plans'
-import { resolveMonthlyUsage } from '@/lib/ai-usage'
+import { resolveMonthlyUsage, plafondQuotidien } from '@/lib/ai-usage'
 import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabel, resolveReplyLanguage, replyLanguageInstruction } from '@/lib/tone'
 import { routeJson } from '@/lib/api-handler'
 
@@ -78,10 +78,18 @@ async function POSTInterne(req: NextRequest) {
   const monthlyLimit = plan.limits.aiRepliesPerMonth
   const { today, currentCount } = resolveMonthlyUsage(profile)
 
-  if (monthlyLimit !== null && currentCount >= monthlyLimit) {
+  // Même plafond glissant que /api/analyze — les deux comptent contre la
+  // même limite, ils doivent la lire de la même façon.
+  const plafondDuJour = monthlyLimit === null ? null : plafondQuotidien(monthlyLimit, today)
+
+  if (plafondDuJour !== null && currentCount >= plafondDuJour) {
+    const moisEpuise = currentCount >= (monthlyLimit as number)
     return NextResponse.json({
-      error: 'Limite mensuelle de réponses IA atteinte pour le plan gratuit.',
-      limitReached: true,
+      error: moisEpuise
+        ? 'Limite mensuelle de réponses IA atteinte pour le plan gratuit.'
+        : 'Vous avez utilisé les réponses IA disponibles aujourd’hui. Le compteur remonte demain.',
+      limitReached: moisEpuise,
+      dailyCapReached: !moisEpuise,
       current: currentCount,
       max: monthlyLimit,
     }, { status: 403 })

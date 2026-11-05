@@ -222,7 +222,7 @@ export const reponsesIa: StoryContent = {
   faq: [
     { q: 'Un email peut-il partir sans que je le voie ?', a: 'Non. Sveltly rédige des brouillons ; l’envoi demande une action de votre part à chaque fois. Aucun réglage ne permet de contourner ça.' },
     { q: 'Le brouillon peut-il inventer une information ?', a: 'La consigne est stricte : toute affirmation doit venir d’un élément présent dans le message reçu. Une information manquante est contournée plutôt que devinée. C’est aussi pourquoi la relecture reste nécessaire.' },
-    { q: 'Combien de réponses par mois ?', a: 'Cinquante sur le forfait gratuit, sans limite sur le Pro. Au-delà des cinquante, le tri continue par mots-clés plutôt que par IA ; les résumés, les tâches et la planification automatique s’arrêtent jusqu’au mois suivant, puisqu’ils sortent de la même analyse que les brouillons.' },
+    { q: 'Combien de réponses par mois ?', a: 'Cinquante sur le forfait gratuit, sans limite sur le Pro. Ces cinquante sont réparties sur le mois : le plafond remonte un peu chaque jour, pour que l’IA ne s’arrête jamais plus de quelques heures. Une fois le quota du jour atteint, le tri continue par mots-clés et les résumés, les tâches et la planification s’interrompent jusqu’au lendemain, puisqu’ils sortent de la même analyse que les brouillons.' },
     { q: 'Dans quelle langue sont écrites les réponses ?', a: 'Français, anglais, ou la langue du message reçu — au choix, dans vos réglages.' },
   ],
   related: ['/produit/resume-du-jour', '/tarifs', '/securite/donnees-gmail'],

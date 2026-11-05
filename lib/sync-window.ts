@@ -26,26 +26,37 @@ export const FENETRE_PREMIERE_SYNCHRO_JOURS = 7
  * fenêtre : une boîte très active peut accumuler beaucoup de messages en
  * sept jours.
  *
- * 60 ET NON 300, ET C'EST LE BUDGET GROQ QUI TRANCHE.
+ * 150, ET C'EST UN ARBITRAGE ENTRE DEUX COÛTS RÉELS.
  * Une analyse coûte ~1 529 tokens (4 587 mesurés pour un lot de 3). Le palier
  * gratuit Groq donne 200 000 tokens par JOUR — pour l'application entière,
  * une seule clé, tous comptes confondus.
  *
  *      300 emails × 1 529 = ~459 000 tokens, soit 2,3 jours de budget
- *                            dépensés par UN seul nouvel inscrit
+ *      150 emails × 1 529 = ~229 000 tokens, soit ~1,1 jour
  *       60 emails × 1 529 =  ~92 000 tokens, soit une demi-journée
  *
  * À 300, le deuxième inscrit d'une même semaine n'avait plus de produit : sa
  * synchro s'arrêtait sur la limite quotidienne, les emails restaient
  * `pending`, et l'attente se comptait en jours.
  *
+ * ⚠️ Le plafond est passé par 60 avant de se poser à 150, et c'est une
+ * correction de ma part : 60 avait été calibré sur un volume d'inscriptions
+ * supposé, pas mesuré. La consommation RÉELLE est de ~10 000 tokens par jour
+ * (159 analyses en 24 jours, tous comptes confondus), soit **5 % du budget**.
+ * Prudence payée avec la seule chose que le produit ne peut pas refaire : la
+ * première impression. L'utilisateur connectait sa boîte et en voyait une
+ * fraction.
+ *
+ * À remesurer si les inscriptions s'accélèrent — c'est la consommation
+ * quotidienne réelle qui tranche, pas l'intuition.
+ *
  * La fenêtre de 7 jours est conservée : les fournisseurs rendent les messages
  * du plus récent au plus ancien, donc sur une boîte active c'est le plafond
  * qui mord en premier et la fenêtre ne coûte rien de plus. Sur une boîte
- * calme — moins de 60 emails en une semaine — elle donne au contraire une
+ * calme — moins de 150 emails en une semaine — elle donne au contraire une
  * première impression plus complète, gratuitement.
  *
  * Les emails au-delà du plafond ne sont pas « perdus » : ils ne sont pas
  * synchronisés, et le resteront tant que la boîte n'est pas remise à zéro.
  */
-export const PLAFOND_PREMIERE_SYNCHRO = 60
+export const PLAFOND_PREMIERE_SYNCHRO = 150
