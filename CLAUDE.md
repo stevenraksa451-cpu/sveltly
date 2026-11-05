@@ -688,6 +688,31 @@ apparaît systématiquement, c'est un vrai défaut.
 
 ---
 
+## Sécurité des dépendances
+
+`npm audit` est passé de **12 vulnérabilités (2 critiques, 4 hautes)** à
+**8 (0 critique, 1 haute)**, par simples correctifs de patch dans le même
+majeur — aucune montée de version risquée.
+
+Les deux critiques touchaient le cœur du produit :
+
+- **DOMPurify** 3.4.13 → 3.4.17. C'est lui qui assainit le HTML des emails
+  (`components/inbox/EmailDetail.tsx`). Un contournement du nettoyage est
+  exactement le scénario contre lequel il est là. La défense en profondeur
+  tenait quand même — l'iframe n'a pas `allow-scripts` — mais on ne compte
+  pas sur la seconde barrière.
+- **Next** 15.5.26 → 15.5.29, empoisonnement de cache sur les pages SSG/ISR.
+  Le site en génère 61.
+
+⚠️ **Ce qui reste exige Next 16**, une montée MAJEURE : un `postcss` haut
+(XSS via `</style>` non échappé dans son sérialiseur, atteignable seulement
+avec du CSS non fiable — tout le CSS d'ici est de première main) et six
+`@typescript-eslint` modérés, qui ne tournent qu'au lint. À décider
+séparément, et à tester : `next lint` disparaît avec la 16, mais ce projet
+l'a déjà quitté pour ESLint en direct.
+
+---
+
 ## Chantiers ouverts
 
 - **Stripe** : aucune route `api/stripe/*`, pas de colonnes
