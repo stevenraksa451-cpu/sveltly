@@ -727,9 +727,19 @@ apparaît systématiquement, c'est un vrai défaut.
   domaine final diffère, sinon sitemap et balises canoniques pointent à côté.
 - **Renommage de marque** : `lib/brand.ts` ne gouverne que les pages marketing
   et la navbar. Le reste du projet contient encore « Sveltly » en dur.
-- **À faire relire par le propriétaire** : le délai de réponse annoncé sur
-  `/contact` (48 h ouvrées) et le support prioritaire Pro ne correspondent à
-  aucun mécanisme dans le code.
+- ~~**Délai de réponse et support prioritaire**~~ — **retirés**. Le site
+  annonçait « environ quarante-huit heures ouvrées » sur `/contact` et un
+  « support prioritaire » dans le forfait Pro. Rien ne tenait ni l'un ni
+  l'autre : pas de système de tickets, pas de file d'attente, aucun tri par
+  forfait. Les messages arrivent dans une boîte mail.
+
+  Annoncer un délai qu'on ne mesure pas est une promesse — exactement comme
+  annoncer une date pour Outlook. `/contact` dit maintenant qu'il n'y a pas
+  de délai annoncé, et la ligne « Support » de `/tarifs` dit « Par email »
+  des deux côtés, **parce que c'est la même chose**.
+
+  ⚠️ Si un jour un vrai mécanisme existe (file d'attente, étiquette qui trie
+  par forfait), la ligne peut revenir. Pas avant.
 
 ---
 

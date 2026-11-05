@@ -27,7 +27,13 @@ export default function Page() {
                 ci-dessous, votre logiciel de messagerie s’ouvrira avec l’objet déjà rempli.
               </p>
             ),
-            aside: 'Comptez environ quarante-huit heures ouvrées. Les utilisateurs du forfait Pro passent en priorité.',
+            // Annonçait « environ quarante-huit heures ouvrées » et « les
+            // utilisateurs Pro passent en priorité ». Rien ne tenait ni l'un
+            // ni l'autre : pas de système de tickets, pas de file d'attente,
+            // aucun tri par forfait — les messages arrivent dans une boîte
+            // mail, et c'est tout. Annoncer un délai qu'on ne mesure pas est
+            // une promesse, exactement comme une date pour Outlook.
+            aside: 'Les messages arrivent dans une boîte mail, lue par une personne. Pas de délai annoncé : il dépend du moment où vous écrivez, et nous préférons ne rien promettre que nous ne mesurons pas.',
           },
         ],
         faq: [

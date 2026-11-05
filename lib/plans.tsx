@@ -56,7 +56,10 @@ export const PLANS: Plan[] = [
       'Réponses IA illimitées',
       'Planification automatique sans limite de délai',
       'Synchronisation Google Calendar bidirectionnelle',
-      'Support prioritaire',
+      // « Support prioritaire » figurait ici. Retiré : aucun mécanisme ne le
+      // tenait — ni système de tickets, ni file d'attente, ni tri par forfait.
+      // Les messages arrivent dans une boîte mail. Une ligne de plus dans la
+      // colonne Pro ne vaut rien si elle ne décrit rien.
     ],
     limits: { mailboxes: null, aiRepliesPerMonth: null },
   },

@@ -39,7 +39,11 @@ const ROWS: { label: string; free: string; pro: string }[] = [
   { label: 'Tâches issues des emails', free: QUOTA_GRATUIT, pro: 'Sans limite' },
   { label: 'Planification automatique', free: '7 jours à l’avance, jusqu’à 50 réponses/mois', pro: 'Sans limite de délai' },
   { label: 'Synchronisation Google Calendar', free: '—', pro: 'Dans les deux sens' },
-  { label: 'Support', free: 'Par email', pro: 'Prioritaire' },
+  // Annonçait « Prioritaire » côté Pro. Rien ne le tenait : pas de système de
+  // tickets, pas de file d'attente, aucun tri par forfait. La ligne reste —
+  // le canal est une information utile — mais elle dit la même chose des deux
+  // côtés, parce que c'est la même chose.
+  { label: 'Support', free: 'Par email', pro: 'Par email' },
 ]
 
 export default function Page() {
