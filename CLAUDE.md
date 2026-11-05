@@ -199,7 +199,8 @@ lib/
   navigation.ts         SOURCE UNIQUE : navbar + pied de page + « voir aussi » + sitemap
   content/              contenu typé des pages marketing
   plans.tsx             prix et limites
-  time-saved.tsx        calcul du temps économisé
+  time-saved-calcul.ts  calcul du temps économisé (pur, testé)
+  time-saved.tsx        la note de méthode affichée, qui embarque <Brand />
 ```
 
 ### Navigation
@@ -822,7 +823,7 @@ l'a déjà quitté pour ESLint en direct.
 ```bash
 npx tsc --noEmit -p tsconfig.json   # types
 npm run lint                        # ESLint — doit rendre 0
-npm test                            # 51 tests, ~0,3 s, aucune dépendance
+npm test                            # 115 tests, ~0,2 s, aucune dépendance
 npm run build                       # build complet (21 pages marketing en statique)
 ```
 
@@ -886,12 +887,22 @@ distante de 34 px, décorative, avec repli sur les initiales).
 nativement. Ni Vitest, ni Jest, ni ts-node — la règle « ne rien ajouter sans
 demander » tient aussi ici.
 
-Quatre modules **purs** couverts : `lib/scheduling.ts` (qu'un rendez-vous
+Huit modules **purs** couverts : `lib/scheduling.ts` (qu'un rendez-vous
 Google ou avec invités ne soit JAMAIS déplacé), `lib/ai-usage.ts` (la remise à
-zéro mensuelle, jumelle du déclencheur SQL), `lib/tasks.ts` (jeu fermé de
-catégories, priorité héritée de l'email), `lib/providers.ts` (aucune phrase
-réelle ne nomme un fournisseur `planned`). Trois de ces invariants
+zéro mensuelle, jumelle du déclencheur SQL, et la répartition quotidienne du
+quota), `lib/tasks.ts` (jeu fermé de catégories, priorité héritée de l'email),
+`lib/providers.ts` (aucune phrase réelle ne nomme un fournisseur `planned`),
+`lib/dates.ts` (« aujourd'hui » est une date LOCALE), `lib/api-handler.ts`
+(un corps d'erreur reste parsable), `lib/lire-json.ts` (une réponse vide ou
+HTML ne fait pas lever le client) et `lib/time-saved-calcul.ts` (chaque seconde
+annoncée correspond à une action qui a eu lieu). **Cinq** de ces invariants
 correspondent à des bugs **déjà survenus**.
+
+⚠️ Un modèle CHIFFRÉ affiché à l'utilisateur doit être testable, donc vivre
+hors d'un fichier `.tsx` — le dépouillement de types de Node ne gère pas le
+JSX. C'est la raison de `lib/time-saved-calcul.ts`, que `lib/time-saved.tsx`
+réexporte : les imports existants n'ont pas changé. Ne pas créer
+`lib/time-saved.ts` à côté du `.tsx`, la résolution deviendrait ambiguë.
 
 ⚠️ **Les imports relatifs des tests portent l'extension `.ts`** — la résolution
 ESM de Node l'exige, d'où `allowImportingTsExtensions` dans `tsconfig.json`.
