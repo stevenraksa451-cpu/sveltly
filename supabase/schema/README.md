@@ -93,11 +93,11 @@ place du verrou — est en **SECURITY DEFINER**, avec `search_path` fixé et
 surtout `where id = (select auth.uid())`. Elle est donc correctement bornée
 à l'appelant, et exemptée du déclencheur par `current_user`.
 
-⚠️ Nuance restante : elle tronque le mois avec
-`date_trunc('month', ai_replies_reset_at)` — donc dans le fuseau de la
-session — alors que le déclencheur et `lib/ai-usage.ts` tronquent en **UTC**.
-Sans conséquence aujourd'hui (la fonction est exemptée), mais les deux
-pourraient diverger de quelques heures au basculement du 1er du mois.
+Elle tronque le mois avec `date_trunc('month', ai_replies_reset_at)`, sans
+aucun cast — et c'est la bonne façon de faire, parce que la colonne est de
+type **date**. C'est le DÉCLENCHEUR qui avait tort : il castait en
+timestamptz, ce qui faisait dépendre le mois du fuseau de la session.
+Corrigé par la migration `20261105000000`.
 
 ## Ce dossier
 

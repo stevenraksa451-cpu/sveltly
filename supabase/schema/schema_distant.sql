@@ -1,4 +1,4 @@
--- Schéma public de Sveltly, extrait le 2026-11-04 20:50
+-- Schéma public de Sveltly, extrait le 2026-11-05 16:07
 -- Généré par supabase/schema/EXTRAIRE_LE_SCHEMA.sql — ne pas éditer à la main.
 
 -- ─────────────────────────────────────────────────────────────
@@ -343,17 +343,13 @@ declare
   nouveau_mois timestamp;
 begin
   -- Tout ce qui n'est pas le navigateur d'un utilisateur connecté passe :
-  -- routes serveur (service_role), tâches d'administration (postgres), et
-  -- l'éditeur SQL de Supabase, qui reste le seul endroit où changer un
-  -- forfait tant qu'aucun paiement n'est branché.
+  -- routes serveur (service_role), administration (postgres), éditeur SQL.
   if current_user <> 'authenticated' then
     return new;
   end if;
 
   ---------------------------------------------------------------------------
   -- 1 · Le forfait ne bouge jamais depuis le client.
-  -- Vérifié avant d'écrire cette règle : AUCUN code de l'application n'écrit
-  -- `plan`. Ce verrou ne peut donc rien casser.
   ---------------------------------------------------------------------------
   if new.plan is distinct from old.plan then
     raise exception
@@ -365,14 +361,11 @@ begin
   ---------------------------------------------------------------------------
   -- 2 · La date de remise à zéro ne recule pas, et ne part pas dans le futur.
   --
-  -- lib/ai-usage.ts lit le quota ainsi : si le MOIS de `ai_replies_reset_at`
-  -- diffère du mois courant, le compteur est considéré comme remis à zéro.
-  -- La comparaison porte sur une différence, pas sur un ordre — déplacer la
-  -- date vers un mois PASSÉ ou vers un mois FUTUR produit donc exactement le
-  -- même résultat : un quota vide. Les deux sens doivent être fermés.
+  -- lib/ai-usage.ts teste une DIFFÉRENCE de mois, pas un ordre : une date
+  -- placée dans un mois passé et une date placée dans un mois futur vident
+  -- toutes les deux le quota. Les deux sens doivent être fermés.
   --
-  -- La seule écriture légitime est celle de `increment_ai_usage`, qui pose la
-  -- date du jour : elle avance, et jamais au-delà d'aujourd'hui.
+  -- Comparaisons de DATE à DATE, sans cast : voir l'en-tête.
   ---------------------------------------------------------------------------
   if old.ai_replies_reset_at is not null then
     if new.ai_replies_reset_at is null then
@@ -381,7 +374,7 @@ begin
         using errcode = 'insufficient_privilege';
     end if;
 
-    if new.ai_replies_reset_at::timestamptz < old.ai_replies_reset_at::timestamptz then
+    if new.ai_replies_reset_at < old.ai_replies_reset_at then
       raise exception
         'profiles.ai_replies_reset_at ne peut pas reculer (% -> %)',
         old.ai_replies_reset_at, new.ai_replies_reset_at
@@ -392,7 +385,7 @@ begin
   -- Un jour de marge : le serveur pose la date en UTC, et un client dans un
   -- fuseau en avance ne doit pas se faire refuser une écriture légitime.
   if new.ai_replies_reset_at is not null
-     and new.ai_replies_reset_at::timestamptz > now() + interval '1 day' then
+     and new.ai_replies_reset_at > ((now() at time zone 'UTC')::date + 1) then
     raise exception
       'profiles.ai_replies_reset_at ne peut pas être placée dans le futur (%)',
       new.ai_replies_reset_at
@@ -402,21 +395,14 @@ begin
   ---------------------------------------------------------------------------
   -- 3 · Le compteur ne baisse QUE lors d'un changement de mois.
   --
-  -- C'est la règle qui permet de poser ce verrou SANS connaître le corps de
-  -- `increment_ai_usage` — fonction écrite directement dans Supabase, absente
-  -- de ce dépôt. Qu'elle soit SECURITY DEFINER (exemptée par `current_user`
-  -- plus haut) ou SECURITY INVOKER (elle arrive ici comme `authenticated`),
-  -- elle ne fait jamais que deux choses : incrémenter, ou repartir de zéro en
-  -- changeant de mois. Les deux passent. Toute autre baisse est refusée.
-  --
-  -- Le mois est tronqué en UTC pour coller exactement à getUTCMonth() de
-  -- lib/ai-usage.ts : sur un décalage de fuseau, la base et l'application
-  -- doivent voir le même mois, sinon l'une autoriserait ce que l'autre
-  -- considère comme un mois différent.
+  -- C'est ce qui permet de tenir sans connaître le corps de
+  -- `increment_ai_usage` : qu'elle soit SECURITY DEFINER (exemptée par
+  -- `current_user`) ou SECURITY INVOKER, elle ne fait jamais que deux choses
+  -- — incrémenter, ou repartir de zéro en changeant de mois.
   ---------------------------------------------------------------------------
   if coalesce(new.ai_replies_count, 0) < coalesce(old.ai_replies_count, 0) then
-    ancien_mois  := date_trunc('month', (old.ai_replies_reset_at::timestamptz) at time zone 'UTC');
-    nouveau_mois := date_trunc('month', (new.ai_replies_reset_at::timestamptz) at time zone 'UTC');
+    ancien_mois  := date_trunc('month', old.ai_replies_reset_at);
+    nouveau_mois := date_trunc('month', new.ai_replies_reset_at);
 
     if ancien_mois is null or nouveau_mois is null or ancien_mois = nouveau_mois then
       raise exception

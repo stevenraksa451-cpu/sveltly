@@ -133,8 +133,31 @@ compteur :
   ⚠️ Les deux sens comptent : `lib/ai-usage.ts` teste une DIFFÉRENCE de mois,
   pas un ordre — un mois passé et un mois futur vident tous les deux le quota.
 
-Le mois est tronqué en UTC côté base pour coller à `getUTCMonth()` côté
-application : sur un décalage de fuseau, les deux doivent voir le même mois.
+⚠️ **`ai_replies_reset_at` est une colonne `date`, pas un timestamp — ne
+jamais la caster.** La première version du déclencheur écrivait
+`date_trunc('month', (ai_replies_reset_at::timestamptz) at time zone 'UTC')`,
+en croyant « tronquer en UTC pour coller à `getUTCMonth()` ». Le raisonnement
+reposait sur une hypothèse jamais vérifiée.
+
+Une date n'a pas de fuseau. La caster force PostgreSQL à inventer une heure,
+et il prend celle de la SESSION — ce qui déplace la date, donc parfois le
+mois. Mesuré sur la base réelle :
+
+```
+date 2026-11-01, session UTC           -> 2026-11-01   (novembre)
+date 2026-11-01, session Europe/Paris  -> 2026-10-01   (OCTOBRE)
+date 2026-11-01, sans cast             -> 2026-11-01   (novembre)
+```
+
+Supabase tourne en UTC, donc rien ne divergeait — c'était une bombe à
+retardement, pas une panne. Corrigé par la migration `20261105000000` : on
+compare les dates entre elles, sans cast. `increment_ai_usage` procédait déjà
+ainsi ; les deux lisent enfin le mois de la même façon, ce que l'ajout d'un
+cast croyait justement garantir.
+
+Vérifié après correction dans **trois fuseaux de session** (UTC,
+Europe/Paris, America/Montreal) : les trois tentatives bloquées, l'écriture
+légitime passe.
 
 ---
 
