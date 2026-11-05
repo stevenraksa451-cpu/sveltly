@@ -719,19 +719,20 @@ l'a déjà quitté pour ESLint en direct.
   `stripe_customer_id` / `current_period_end`. Le paiement en ligne est annoncé
   comme non branché sur `/tarifs` et `/contact`. Demande les clés avant
   d'implémenter.
-- **Historique des migrations désaccordé** (le schéma, lui, est désormais
-  dans le dépôt : `supabase/schema/schema_distant.sql`). 14 migrations
-  distantes sans fichier local, 4 fichiers locaux absents de l'historique
-  distant, **0 qui concordent** — l'éditeur SQL n'écrit rien dans la table
-  d'historique. Cela bloque `db push` et `db pull`, rien d'autre.
+- ~~**Historique des migrations désaccordé**~~ — **réconcilié**. Il y avait
+  14 migrations distantes sans fichier local et 4 fichiers locaux absents de
+  l'historique distant, zéro qui concordait. `db push` répond maintenant
+  « Remote database is up to date », et le flux normal est rétabli.
 
-  ⚠️ La réparation que propose la CLI marque tout sans rien vérifier.
-  Contrôler chaque migration avant de la déclarer appliquée.
+  ⚠️ La réparation que propose la CLI **marque tout sans rien vérifier**.
+  Chaque migration a donc été contrôlée par son EFFET en base avant d'être
+  déclarée appliquée — la colonne, la table ou le déclencheur qu'elle crée.
+  C'est la seule façon honnête de remplir une table d'historique.
 
-  **`npx supabase db query --linked -f <fichier.sql>`** exécute du SQL sur le
-  projet lié via l'API de gestion : ni Docker, ni mot de passe, ni
-  copier-coller. C'est la voie normale pour appliquer une migration et pour
-  inspecter la base. Voir `supabase/schema/README.md` — qui raconte aussi les
+  **`npx supabase db query --linked`** exécute du SQL sur le projet lié via
+  l'API de gestion : ni Docker, ni mot de passe. `db pull` et `db dump`
+  exigent toujours Docker, mais ce n'est plus gênant — l'instantané du schéma
+  est dans le dépôt. Voir `supabase/schema/README.md`, qui raconte aussi les
   **trois tests faux d'affilée** par lesquels le verrou de facturation a
   semblé inopérant.
 

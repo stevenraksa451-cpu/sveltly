@@ -12,46 +12,55 @@ fonctions et déclencheurs. Généré — ne pas l'éditer à la main.
 | Déclencheurs | 2 |
 | Tables **sans** RLS | **0** |
 
-## Le régénérer
+## Le flux normal
 
 ```bash
+npx supabase db push                                        # appliquer les migrations
 npx supabase db query --linked -f supabase/schema/EXTRAIRE_LE_SCHEMA.sql
+npx supabase db query --linked "select …"                   # inspecter
 ```
 
-La requête ne lit que les catalogues système : elle ne modifie rien.
+`db push` fonctionne depuis que les deux historiques concordent (voir plus
+bas). Il n'y a plus de copier-coller à faire dans le tableau de bord — le
+fichier `APPLIQUER_CES_MIGRATIONS.sql` qui servait à ça a été supprimé.
 
-## ⚠️ `supabase db query --linked` — la commande qui change tout
+## ⚠️ `supabase db query --linked`
 
-Elle exécute du SQL sur le projet lié **via l'API de gestion** : pas de
-Docker, pas de mot de passe de base, pas de copier-coller dans le tableau de
-bord.
+Exécute du SQL sur le projet lié **via l'API de gestion** : pas de Docker,
+pas de mot de passe de base, pas de copier-coller.
 
-Elle n'était pas dans la liste de sous-commandes consultée en premier — la
-sortie était tronquée à `reset`, et `query` vient après. Conséquence : une
-marche à suivre manuelle entière (extraire à la main, recoller le résultat)
-a été écrite pour un obstacle qui n'existait pas. **Relire la liste complète
-d'une CLI avant de conclure qu'une capacité manque.**
+Elle n'apparaissait pas dans la liste de sous-commandes consultée en premier
+— la sortie était tronquée à `reset`, et `query` vient après. Conséquence :
+une marche à suivre manuelle entière a été écrite pour un obstacle qui
+n'existait pas. **Relire la liste complète d'une CLI avant de conclure qu'une
+capacité manque.**
 
-Ce qui reste vrai : `db pull` et `db dump` exigent Docker, et `db pull` refuse
-en plus de tourner tant que les historiques divergent.
+`db pull` et `db dump` exigent toujours Docker : ils lancent `pg_dump` dans
+un conteneur. Ce n'est plus gênant — l'instantané est dans le dépôt, et
+`db query` couvre l'inspection.
 
-```bash
-npx supabase db query --linked -f supabase/migrations/<fichier>.sql   # appliquer
-npx supabase db query --linked "select …"                             # inspecter
-```
+## L'historique des migrations, et comment il a été réconcilié
 
-## État des migrations
+Il y avait **14 migrations distantes sans fichier local** (antérieures à ce
+dépôt) et **4 fichiers locaux absents de l'historique distant** — zéro qui
+concordait. Les quatre locales étaient pourtant bien appliquées : elles
+l'avaient été par l'éditeur SQL, qui n'écrit rien dans la table d'historique.
 
-`npx supabase migration list` : 14 migrations distantes sans fichier local
-(antérieures à ce dépôt), 4 fichiers locaux absents de l'historique distant,
-**0 qui concordent**. Les quatre locales sont pourtant bien appliquées et
-vérifiées en base — l'éditeur SQL n'écrit rien dans la table d'historique.
+La CLI propose une réparation toute faite devant ce conflit. **Elle marque
+tout sans rien vérifier.** Chaque migration a donc été contrôlée par son
+EFFET en base avant d'être déclarée appliquée :
 
-Ce désaccord n'empêche plus rien d'important : le schéma est dans le dépôt,
-et `db query` applique les migrations. Il bloque seulement `db push` et
-`db pull`. Pour en sortir, il faut Docker — et **d'abord** vérifier chaque
-migration avant de la déclarer appliquée : la réparation que propose la CLI
-marquerait tout sans rien contrôler.
+| Migration | Vérifiée par |
+|---|---|
+| `20261001000000` | colonne `tasks.completed_at` |
+| `20261002000000` | colonne `tasks.source_label` |
+| `20261012000000` | table `email_analyses` |
+| `20261022000000` | les 2 déclencheurs sur `profiles` |
+
+Puis les 14 orphelines sont passées en `reverted` — rien n'est défait en
+base, ces lignes ne portent qu'un numéro de version, jamais de SQL — et les
+4 locales en `applied`. Les deux historiques concordent, `db push` répond
+« Remote database is up to date ».
 
 ## Vérifier un verrou : trois tests faux d'affilée
 
@@ -71,10 +80,6 @@ C'est le mode d'emploi de toute vérification future sur cette base :
    old.plan` était faux, et le déclencheur a laissé passer **à juste titre**.
    Tester sur un profil réellement en `free`.
 
-Résultat une fois le test correct : `plan`, `ai_replies_count` et
-`ai_replies_reset_at` tous les trois **bloqués**, et l'écriture légitime
-(`full_name`) passe.
-
 Pour que le test ne puisse rien écrire quelle que soit l'issue, l'envelopper
 dans un bloc `DO` dont chaque sous-bloc lève — y compris en cas de succès —
 et terminer par un `raise exception`. Ne PAS se fier à `begin … rollback` :
@@ -86,14 +91,9 @@ cas l'`UPDATE` serait validé.
 `increment_ai_usage` — invisible depuis ce dépôt pendant toute la mise en
 place du verrou — est en **SECURITY DEFINER**, avec `search_path` fixé et
 surtout `where id = (select auth.uid())`. Elle est donc correctement bornée
-à l'appelant, et exemptée du déclencheur par `current_user`. Le compteur
-continue d'avancer, ce que le test confirme.
+à l'appelant, et exemptée du déclencheur par `current_user`.
 
-Sa logique correspond exactement à la règle écrite à l'aveugle : même mois →
-incrément ; mois différent → repart à `p_n` **et** déplace `ai_replies_reset_at`.
-C'est précisément la seule baisse que le déclencheur autorise.
-
-⚠️ Nuance restante : la fonction tronque le mois avec
+⚠️ Nuance restante : elle tronque le mois avec
 `date_trunc('month', ai_replies_reset_at)` — donc dans le fuseau de la
 session — alors que le déclencheur et `lib/ai-usage.ts` tronquent en **UTC**.
 Sans conséquence aujourd'hui (la fonction est exemptée), mais les deux
