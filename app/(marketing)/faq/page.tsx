@@ -97,7 +97,9 @@ export default function Page() {
                 </p>
                 <p>
                   <strong>Puis-je exporter mes données ?</strong><br />
-                  Pas encore en un clic. Écrivez-nous et nous vous les transmettons.
+                  Oui, depuis vos réglages, en un bouton. Un fichier JSON avec votre profil, vos boîtes,
+                  vos tâches, vos événements, vos contacts, vos réponses envoyées et toutes les analyses
+                  faites sur vos emails. Immédiat, sans demande à formuler.
                 </p>
               </>
             ),
@@ -106,7 +108,7 @@ export default function Page() {
             heading: 'Le produit est-il fini ?',
             body: (
               <p>
-                Non. Sveltly vient d’être lancé. Le paiement en ligne manque, l’export de données aussi,
+                Non. Sveltly vient d’être lancé. Le paiement en ligne manque,
                 {' '}{PROVIDERS_PLANNED_LABEL} n’est pas branché. Ces manques sont signalés là où ils devraient
                 se trouver, plutôt que passés sous silence.
               </p>

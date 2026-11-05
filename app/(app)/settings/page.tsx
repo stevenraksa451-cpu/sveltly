@@ -357,13 +357,20 @@ function SettingsContent() {
     if (!user) return
     setExportingData(true)
     try {
-      const [profileRes, mailboxesRes, tasksRes, eventsRes, contactsRes, repliesRes] = await Promise.all([
+      // ⚠️ `email_analyses` fait partie de l'export, et ce n'est pas un
+      // détail : la table garde les résumés, les points clés, les brouillons
+      // rédigés et les rendez-vous détectés. Ce sont des données PERSONNELLES
+      // dérivées des emails de l'utilisateur — le droit à la portabilité
+      // (RGPD art. 20) porte sur elles autant que sur ses tâches. Elles
+      // manquaient, et l'export était donc incomplet sans que rien ne le dise.
+      const [profileRes, mailboxesRes, tasksRes, eventsRes, contactsRes, repliesRes, analysesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('mailboxes').select('email, provider, is_connected, created_at').eq('user_id', user.id),
         supabase.from('tasks').select('*').eq('user_id', user.id),
         supabase.from('calendar_events').select('title, date, start_time, end_time, description, created_at').eq('user_id', user.id),
         supabase.from('contacts').select('email, reply_tone, created_at').eq('user_id', user.id),
         supabase.from('reply_history').select('body, sent_at, was_ai').eq('user_id', user.id),
+        supabase.from('email_analyses').select('*').eq('user_id', user.id),
       ])
 
       const payload = {
@@ -375,6 +382,10 @@ function SettingsContent() {
         calendarEvents: eventsRes.data || [],
         contacts: contactsRes.data || [],
         replyHistory: repliesRes.data || [],
+        // Résumés, points clés, brouillons et rendez-vous détectés. Le corps
+        // des emails n'y figure pas — il n'est jamais stocké, il est relu
+        // depuis Gmail à chaque synchro (voir lib/email-analysis-store.ts).
+        emailAnalyses: analysesRes.data || [],
       }
 
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })

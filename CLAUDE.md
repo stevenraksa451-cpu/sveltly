@@ -685,8 +685,21 @@ apparaît systématiquement, c'est un vrai défaut.
   **trois tests faux d'affilée** par lesquels le verrou de facturation a
   semblé inopérant.
 
-- **Export de données** : absent, signalé sur
-  `/securite/controle-de-vos-donnees`.
+- ~~**Export de données**~~ — **il existait déjà**, dans Réglages → Sécurité →
+  Vos données. Le site affirmait le contraire à trois endroits (`/faq` deux
+  fois, la FAQ de `/securite/controle-de-vos-donnees`), et envoyait
+  l'utilisateur écrire un email alors qu'un bouton faisait le travail.
+
+  La règle d'honnêteté du contenu vaut **dans les deux sens** : sous-annoncer
+  une fonctionnalité qui existe est une erreur au même titre qu'en promettre
+  une qui n'existe pas. Et celle-ci n'est pas un agrément — le droit à la
+  portabilité (RGPD art. 20) s'applique dès le premier utilisateur européen.
+
+  ⚠️ `email_analyses` manquait à l'export : résumés, points clés, brouillons
+  rédigés et rendez-vous détectés sont des **données personnelles dérivées**
+  des emails de l'utilisateur, et relèvent de la portabilité autant que ses
+  tâches. Ajoutées. Le corps des emails, lui, n'y figure pas — il n'est jamais
+  stocké.
 - **Outlook** : le code est écrit, l'application Azure manque. Voir
   **`OUTLOOK.md`** pour la marche à suivre complète. Résumé : créer
   l'inscription Azure, poser `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET`,

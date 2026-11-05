@@ -235,7 +235,7 @@ export const controleDeVosDonnees: StoryContent = {
     },
   ],
   faq: [
-    { q: 'Puis-je exporter mes données avant de partir ?', a: 'Il n’existe pas encore de bouton d’export en un clic. Si vous en avez besoin, écrivez-nous et nous vous transmettrons vos données.' },
+    { q: 'Puis-je exporter mes données avant de partir ?', a: 'Oui, depuis Réglages → Sécurité → Vos données, en un bouton. Vous récupérez un fichier JSON contenant votre profil, vos boîtes connectées, vos tâches, vos événements, vos contacts, vos réponses envoyées et toutes les analyses faites sur vos emails — résumés, points clés, brouillons. Aucune demande à faire, aucun délai : c’est immédiat.' },
     { q: 'La suppression est-elle immédiate ?', a: 'Oui. Il n’y a ni période de grâce ni délai de rétractation côté application.' },
     { q: 'Que deviennent mes jetons Google ?', a: 'Ils sont supprimés avec le compte. Vous pouvez aussi révoquer l’accès depuis Google au préalable, les deux chemins mènent au même endroit.' },
   ],
