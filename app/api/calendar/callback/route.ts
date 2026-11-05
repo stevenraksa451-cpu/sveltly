@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken, decryptStrict } from '@/lib/token-crypto'
+import { routeJson } from '@/lib/api-handler'
 
 function redirectWithStatus(origin: string, status: 'connected' | 'error', message?: string) {
   const url = new URL('/settings', origin)
@@ -14,7 +15,7 @@ function redirectWithStatus(origin: string, status: 'connected' | 'error', messa
   return NextResponse.redirect(url)
 }
 
-export async function GET(req: NextRequest) {
+async function GETInterne(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
   const state = req.nextUrl.searchParams.get('state')
   const oauthError = req.nextUrl.searchParams.get('error')
@@ -95,3 +96,9 @@ export async function GET(req: NextRequest) {
 
   return redirectWithStatus(req.url, 'connected')
 }
+
+// Emballé par routeJson. Ce callback est atteint par une NAVIGATION du
+// navigateur : lui faire rendre du JSON afficherait du texte brut à l’écran.
+// Il redirige donc vers les réglages avec un message, comme pour toutes ses
+// autres erreurs. Voir lib/api-handler.ts.
+export const GET = routeJson(GETInterne, { surErreur: (req) => redirectWithStatus(req.url, 'error', 'erreur inattendue') })

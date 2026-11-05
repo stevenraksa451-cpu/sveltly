@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '@/lib/token-crypto'
 import { boiteAutorisee } from '@/lib/mailbox-quota'
+import { routeJson } from '@/lib/api-handler'
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const { accessToken, providerToken, refreshToken } = await req.json()
   if (!accessToken || !providerToken) {
     return NextResponse.json({ error: 'accessToken ou providerToken manquant' }, { status: 400 })
@@ -62,3 +63,8 @@ export async function POST(req: NextRequest) {
   }
   return NextResponse.json({ ok: true })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

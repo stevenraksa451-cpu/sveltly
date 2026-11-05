@@ -42,3 +42,4 @@ next-env.d.ts
 
 # journaux de serveur local (rebuild/vérifications)
 .srv.log
+.build.log

@@ -13,6 +13,7 @@ import { getCachedEmails, setCachedEmails, CACHE_DURATION } from '@/lib/email-ca
 import { createGoogleCalendarEvent } from '@/lib/google-calendar-sync'
 import { resolveTaskCategory, resolveTaskPriority, resolveTaskDueDate, insertTaskSafely } from '@/lib/tasks'
 import { loadAnalyses, applyStoredAnalysis, saveAnalyses } from '@/lib/email-analysis-store'
+import { routeJson } from '@/lib/api-handler'
 
 // L'analyse IA + planification/tâches/archivage tourne maintenant après la
 // réponse au client (voir after() dans GET plus bas) mais DANS la même
@@ -647,7 +648,7 @@ async function analyzeEmailsInBatches(
   return { analysisById, degradedIds, stoppedForDailyLimit: false }
 }
 
-export async function GET(req: NextRequest) {
+async function GETInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -1170,3 +1171,8 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ emails })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const GET = routeJson(GETInterne)

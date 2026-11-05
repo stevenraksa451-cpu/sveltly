@@ -6,8 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveDayArrangement, ArrangeableEvent } from '@/lib/scheduling'
+import { routeJson } from '@/lib/api-handler'
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -65,3 +66,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ moves, hasConflicts: moves.length > 0 })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

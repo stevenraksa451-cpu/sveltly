@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { tryAcrossMailboxes } from '@/lib/gmail-mailbox'
 import { tryAcrossOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
+import { routeJson } from '@/lib/api-handler'
 
-export async function GET(
+async function GETInterne(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; attachmentId: string }> }
 ) {
@@ -69,3 +70,8 @@ export async function GET(
     },
   })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const GET = routeJson(GETInterne)

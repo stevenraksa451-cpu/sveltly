@@ -4,6 +4,7 @@ import Groq from 'groq-sdk'
 import { getPlan } from '@/lib/plans'
 import { resolveMonthlyUsage } from '@/lib/ai-usage'
 import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabel, ReplyLanguage, resolveReplyLanguage, replyLanguageInstruction } from '@/lib/tone'
+import { routeJson } from '@/lib/api-handler'
 
 // Construit le bloc de consignes de ton injecté dans le prompt système — SEULEMENT
 // pour les tons réellement utilisés par les emails de CE lot précis, plutôt que de
@@ -423,7 +424,7 @@ function enforceActionQuality(result: any) {
   return result
 }
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -622,3 +623,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ results: buildFallback(filtered), degraded: true })
   }
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

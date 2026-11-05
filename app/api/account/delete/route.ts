@@ -1,13 +1,14 @@
 // app/api/account/delete/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { routeJson } from '@/lib/api-handler'
 
 // Supprime définitivement le compte de l'appelant authentifié — jamais un id
 // fourni par le client, toujours celui résolu depuis son propre token.
 // supabase.auth.admin.deleteUser() nécessite la clé service-role (jamais
 // exposée au navigateur), d'où cette route serveur dédiée — voir le TODO
 // qu'elle remplace dans app/(app)/settings/page.tsx (handleDeleteAccount).
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -56,3 +57,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

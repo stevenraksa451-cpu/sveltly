@@ -7,8 +7,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '@/lib/token-crypto'
+import { routeJson } from '@/lib/api-handler'
 
-export async function GET(req: NextRequest) {
+async function GETInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -48,3 +49,8 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}` })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const GET = routeJson(GETInterne)

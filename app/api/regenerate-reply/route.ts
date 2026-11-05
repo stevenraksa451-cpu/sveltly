@@ -8,6 +8,7 @@ import Groq from 'groq-sdk'
 import { getPlan } from '@/lib/plans'
 import { resolveMonthlyUsage } from '@/lib/ai-usage'
 import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabel, resolveReplyLanguage, replyLanguageInstruction } from '@/lib/tone'
+import { routeJson } from '@/lib/api-handler'
 
 // Extrait le délai d'attente d'un message d'erreur Groq de type "Please try
 // again in 7m13.728s." ou "Please try again in 45.2s." — la partie minutes
@@ -48,7 +49,7 @@ ${TONE_SHARED_RULES}
 ## FORMAT DE RÉPONSE
 Retourne UNIQUEMENT un JSON valide : {"reply": "texte de la réponse ici"}`
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -178,3 +179,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'La régénération a échoué, réessayez.' }, { status: 502 })
   }
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

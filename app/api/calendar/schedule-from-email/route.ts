@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { Priority } from '@/types'
 import { createGoogleCalendarEvent, updateGoogleCalendarEvent } from '@/lib/google-calendar-sync'
+import { routeJson } from '@/lib/api-handler'
 
 // Copie l’événement vers le vrai Google Calendar, comme le font déjà
 // /api/calendar/events, /api/calendar/apply-arrangement et la planification
@@ -65,7 +66,7 @@ async function pousserVersGoogle(
   return ligne
 }
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const { title, date, startTime, endTime, sourceSubject, sourceEmailId, priority, forceSlot } = await req.json()
   const eventPriority: Priority = priority === 'urgent' || priority === 'important' ? priority : 'normal'
 
@@ -192,3 +193,8 @@ export async function POST(req: NextRequest) {
     },
   })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createGoogleCalendarEvent, deleteGoogleCalendarEvent } from '@/lib/google-calendar-sync'
 import { resolveScheduling, ArrangeableEvent } from '@/lib/scheduling'
 import { Priority } from '@/types'
+import { routeJson } from '@/lib/api-handler'
 
 function getUserClient(req: NextRequest) {
   const accessToken = req.headers.get('authorization')?.replace('Bearer ', '')
@@ -22,7 +23,7 @@ function getUserClient(req: NextRequest) {
   )
 }
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const supabase = getUserClient(req)
   if (!supabase) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
@@ -141,7 +142,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ event: inserted })
 }
 
-export async function DELETE(req: NextRequest) {
+async function DELETEInterne(req: NextRequest) {
   const supabase = getUserClient(req)
   if (!supabase) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
@@ -189,3 +190,9 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)
+export const DELETE = routeJson(DELETEInterne)

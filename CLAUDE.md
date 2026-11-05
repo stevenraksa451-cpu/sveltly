@@ -341,6 +341,50 @@ retransformer en liste plate : c'est l'ordre qui tranche les cas ambigus
 
 ---
 
+## Routes API : toutes emballées dans `routeJson`
+
+`lib/api-handler.ts` enveloppe **les 18 gestionnaires** de `app/api`. Une
+nouvelle route sans son `export const POST = routeJson(POSTInterne)` se repère
+d'un coup d'œil — et doit l'avoir.
+
+**Le défaut, reproduit sans modifier une ligne de code :**
+
+```
+curl -X POST /api/save-token -H 'Content-Type: application/json' -d 'pas-du-json'
+→ 500, aucun Content-Type, corps VIDE
+→ côté client : SyntaxError: Unexpected end of JSON input
+```
+
+Plusieurs routes faisaient `await req.json()` sans protection ; un corps
+malformé suffisait. Et ce n'était pas le seul chemin : **n'importe quel
+`throw` inattendu** produit la même page vide. Le client lève alors sur le
+parsing, le bouton reste en « Envoi… », et le vrai problème n'est jamais
+affiché — il est remplacé par une erreur qui ne parle de rien.
+
+Après correction, la même requête rend `400 {"error":"Requête illisible."}`.
+
+Trois règles portées par le fichier :
+
+- **Le message renvoyé est générique.** `err.message` peut contenir un
+  fragment de requête SQL, un chemin serveur ou un bout de jeton. Le détail
+  va dans les journaux (`❌ POST /api/… : …`), jamais dans la réponse.
+- **Un corps JSON malformé rend 400, pas 500** : c'est le client qui a tort.
+- **Les deux callbacks OAuth redirigent** au lieu de rendre du JSON — ils
+  sont atteints par une navigation, du JSON s'afficherait en texte brut.
+  C'est l'option `surErreur`.
+
+⚠️ Le fichier importe `NextRequest` en **`import type`** et rend un
+`Response.json()` standard, pas un `NextResponse.json()`. Sans cela le
+lanceur de tests de Node échoue sur `next/server`
+(`ERR_MODULE_NOT_FOUND`) — et ces neuf tests sont précisément ce qui garantit
+qu'un corps d'erreur reste parsable.
+
+Reste ouvert : un 502/504 de l'hébergeur rend du HTML, hors de portée de ce
+filet. Les 12 `await res.json()` côté client ne sont toujours pas protégés
+contre ça.
+
+---
+
 ## Mesure et SEO
 
 - `lib/perf.ts` chronomètre chaque action (`timed` / `startAction`) et observe

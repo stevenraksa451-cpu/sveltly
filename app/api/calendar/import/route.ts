@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken, encryptToken } from '@/lib/token-crypto'
 import { marquerCalendrierDeconnecte } from '@/lib/google-calendar-sync'
+import { routeJson } from '@/lib/api-handler'
 
 async function refreshAccessToken(refreshToken: string): Promise<string | null> {
   try {
@@ -29,7 +30,7 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
   }
 }
 
-export async function GET(req: NextRequest) {
+async function GETInterne(req: NextRequest) {
   const accessToken = req.headers.get('authorization')?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
@@ -164,3 +165,8 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ imported: toInsert.length })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const GET = routeJson(GETInterne)

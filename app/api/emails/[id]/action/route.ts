@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { tryAcrossMailboxes } from '@/lib/gmail-mailbox'
 import { tryAcrossOutlookMailboxes, GRAPH } from '@/lib/outlook-mailbox'
+import { routeJson } from '@/lib/api-handler'
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function POSTInterne(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
@@ -107,3 +108,8 @@ async function actionOutlook(
   }
   return NextResponse.json({ ok: true, labelIds: lu ? ['INBOX'] : ['INBOX', 'UNREAD'] })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)

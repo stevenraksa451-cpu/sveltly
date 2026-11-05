@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isFixedEvent } from '@/lib/scheduling'
 import { createGoogleCalendarEvent, updateGoogleCalendarEvent } from '@/lib/google-calendar-sync'
+import { routeJson } from '@/lib/api-handler'
 
 interface MoveInput { id: string; startTime: string; endTime: string }
 interface NewEventInput {
@@ -25,7 +26,7 @@ interface NewEventInput {
   sourceEmailId?: string
 }
 
-export async function POST(req: NextRequest) {
+async function POSTInterne(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const accessToken = authHeader?.replace('Bearer ', '')
   if (!accessToken) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
@@ -160,3 +161,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ updated, newEvent: insertedEvent, syncWarnings })
 }
+
+// Emballé par routeJson : un throw inattendu rend du JSON, jamais une
+// réponse vide que res.json() ferait exploser côté client.
+// Voir lib/api-handler.ts.
+export const POST = routeJson(POSTInterne)
