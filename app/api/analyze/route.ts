@@ -168,7 +168,14 @@ const EMAIL_CHARS_FOR_RETRY = 600
 
 // Emails générés par Sveltly lui-même (digest quotidien, notifications système) —
 // jamais envoyés au pipeline IA, ça n'a aucun sens d'y répondre.
-const SYSTEM_SENDERS = ['onboarding@resend.dev', 'digest@sveltly.app']
+//
+// ⚠️ `digest@sveltly.app` visait un domaine qui n'est pas celui du projet
+// (SITE_URL vaut sveltly.fr). Les deux formes restent listées : la .app parce
+// qu'un ancien digest a pu en partir, la .fr parce que c'est celle qui servira.
+// Le jour où le domaine final est acheté, cette liste et SITE_URL de
+// lib/brand.ts doivent bouger ENSEMBLE — sinon Sveltly se met à analyser ses
+// propres emails et à facturer à l'utilisateur une « réponse IA » pour eux.
+const SYSTEM_SENDERS = ['onboarding@resend.dev', 'digest@sveltly.app', 'digest@sveltly.fr']
 
 // Extrait le délai d'attente d'un message d'erreur Groq de type "Please try
 // again in 7m13.728s." ou "Please try again in 45.2s." — même regex que

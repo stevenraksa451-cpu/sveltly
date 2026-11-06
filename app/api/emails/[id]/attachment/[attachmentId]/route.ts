@@ -54,8 +54,15 @@ async function GETInterne(
   if (!result) {
     return NextResponse.json({ error: 'Aucune boîte mail connectée' }, { status: 400 })
   }
+  // Message GÉNÉRIQUE, jamais celui de Google. `result.data.error.message`
+  // vient de l'API Gmail et peut porter l'identifiant interne du message, un
+  // libellé de périmètre OAuth ou un fragment de requête — le renvoyer au
+  // navigateur contredit la règle portée par lib/api-handler.ts, qui tient
+  // justement parce qu'elle ne souffre pas d'exception. Le détail va au
+  // journal, où il sert au diagnostic sans être exposé.
   if (result.data.error) {
-    return NextResponse.json({ error: result.data.error.message }, { status: 400 })
+    console.error('❌ GET /api/emails/[id]/attachment :', result.data.error.message)
+    return NextResponse.json({ error: 'Pièce jointe indisponible.' }, { status: 400 })
   }
 
   const buffer = Buffer.from(

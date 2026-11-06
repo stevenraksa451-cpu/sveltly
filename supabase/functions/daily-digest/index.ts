@@ -1,4 +1,37 @@
 // supabase/functions/daily-digest/index.ts
+//
+// ⚠️⚠️ CETTE FONCTION NE PEUT PAS FONCTIONNER EN L'ÉTAT. NE PAS LA DÉPLOYER
+// EN CROYANT LIVRER LE RÉSUMÉ QUOTIDIEN. Trois obstacles, dont un de fond :
+//
+//   1. ELLE LIT UNE TABLE QUE L'APPLICATION N'ÉCRIT JAMAIS.
+//      `public.emails` existe dans le schéma, mais aucun fichier de app/ ni
+//      de lib/ n'y insère quoi que ce soit : les emails sont lus en direct
+//      chez Gmail/Graph à chaque synchro, et seul le RÉSULTAT de l'analyse
+//      est conservé (table `email_analyses`). La requête ci-dessous rend
+//      donc toujours 0 ligne, et la boucle passe au suivant sans rien
+//      envoyer. C'est le vrai blocage, et il ne se règle pas ici : il faut
+//      décider de PERSISTER des métadonnées d'emails (expéditeur, objet,
+//      priorité). Cette décision change la nature des données conservées et
+//      impose une mise à jour de la politique de confidentialité — voir la
+//      règle sur `email_analyses` dans CLAUDE.md.
+//
+//   2. L'EXPÉDITEUR EST L'ADRESSE DE TEST DE RESEND.
+//      `onboarding@resend.dev` ne délivre qu'au propriétaire du compte
+//      Resend. Il faut un domaine vérifié chez Resend (SPF + DKIM) avant
+//      qu'un seul utilisateur reçoive quoi que ce soit.
+//
+//   3. RIEN NE L'APPELLE.
+//      Aucune tâche planifiée n'existe. Il faut un cron (pg_cron ou un
+//      planificateur externe) qui frappe l'URL toutes les heures avec
+//      l'en-tête x-cron-secret.
+//
+// Tant que les trois ne sont pas levés, l'interrupteur correspondant dans
+// Réglages → Notifications affiche « Bientôt » et ne se manipule pas.
+//
+// Ce qui est DÉJÀ correct et ne doit pas régresser : l'authentification par
+// `x-cron-secret` (la fonction est publique, verify_jwt = false, donc ce
+// secret est sa SEULE porte), et l'échappement HTML de tout ce qui vient
+// d'un expéditeur externe.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Resend } from 'https://esm.sh/resend@3'
 
@@ -8,6 +41,12 @@ const supabase = createClient(
 )
 const resend = new Resend(Deno.env.get('RESEND_API_KEY')!)
 const CRON_SECRET = Deno.env.get('CRON_SECRET')!
+// Le lien du digest pointait vers https://sveltly.app — un domaine qui n'est
+// pas celui du projet (SITE_URL vaut https://sveltly.fr dans lib/brand.ts).
+// Chaque destinataire aurait reçu un lien mort. Paramétrable par variable
+// d'environnement pour que le jour du changement de domaine, il n'y ait
+// qu'un endroit à toucher ici.
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://sveltly.fr'
 
 // Échappe le HTML avant interpolation — sender_name, sender_email et subject
 // viennent d'emails REÇUS, donc potentiellement écrits par n'importe quel
@@ -96,7 +135,7 @@ Deno.serve(async (req) => {
       from: 'Sveltly <onboarding@resend.dev>',
       to: authUser.user.email,
       subject: `${emails.length} emails non traités vous attendent`,
-      html: `<ul>${rows}</ul><p><a href="https://sveltly.app/inbox">Ouvrir Sveltly</a></p>`,
+      html: `<ul>${rows}</ul><p><a href="${SITE_URL}/inbox">Ouvrir Sveltly</a></p>`,
     })
 
     if (sendError) {

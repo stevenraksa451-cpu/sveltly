@@ -806,17 +806,32 @@ function SettingsContent() {
 
                 <div className={styles.divider} />
 
+                {/* ⚠️ C'était un interrupteur, éteint par défaut. Il ne
+                    commandait rien : `auto_decline_outside_hours` était écrit
+                    en base et relu par AUCUN fichier du projet.
+
+                    Et le comportement qu'il décrivait est déjà celui de
+                    Sveltly, sans condition : findFreeSlot ne cherche qu'entre
+                    workStart et workEnd, et fits() refuse tout créneau qui en
+                    sort (lib/scheduling.ts). Un rendez-vous hors
+                    disponibilités n'est donc JAMAIS posé automatiquement,
+                    que l'interrupteur soit allumé ou éteint.
+
+                    Le laisser éteint par défaut disait donc l'inverse de la
+                    vérité : l'utilisateur croyait devoir l'activer pour être
+                    protégé. C'est la même correction que la ligne « Support »
+                    de /tarifs, qui dit la même chose des deux côtés parce que
+                    c'est la même chose — ici, on énonce la règle au lieu de
+                    la déguiser en option. */}
                 <div className={styles.prefRow}>
                   <div>
-                    <p className={styles.prefLabel}>Refuser automatiquement hors disponibilités</p>
-                    <p className={styles.prefDesc}>Les rendez-vous proposés en dehors de vos heures de disponibilité sont signalés en conflit plutôt qu’ajoutés</p>
+                    <p className={styles.prefLabel}>Hors de vos disponibilités</p>
+                    <p className={styles.prefDesc}>
+                      Un rendez-vous qui tomberait en dehors de ces heures n’est jamais posé
+                      automatiquement : il vous est signalé en conflit. Ce n’est pas une option,
+                      c’est la règle.
+                    </p>
                   </div>
-                  <button
-                    className={`${styles.toggle} ${autoDeclineOutsideHours ? styles.toggleOn : ''}`}
-                    onClick={() => setAutoDeclineOutsideHours(!autoDeclineOutsideHours)}
-                  >
-                    <span className={styles.toggleThumb} />
-                  </button>
                 </div>
               </div>
 
@@ -1045,39 +1060,39 @@ function SettingsContent() {
                   </button>
                 </div>
                 <div className={styles.divider} />
-                <div className={styles.prefRow}>
-                  <div>
-                    <p className={styles.prefLabel}>Résumé par email</p>
-                    <p className={styles.prefDesc}>Envoie un récapitulatif de vos emails non traités chaque jour, à l’heure de votre choix</p>
-                  </div>
-                  <button
-                    className={`${styles.toggle} ${emailNotifs ? styles.toggleOn : ''}`}
-                    onClick={() => setEmailNotifs(!emailNotifs)}
-                  >
-                    <span className={styles.toggleThumb} />
-                  </button>
-                </div>
+                {/* ⚠️ Cet interrupteur était ACTIF et allumé par défaut, et
+                    promettait un email quotidien que personne n'a jamais pu
+                    recevoir. Trois raisons, toutes dans le code :
 
-                {emailNotifs && (
-                  <>
-                    <div className={styles.divider} />
-                    <div className={styles.prefRow}>
-                      <div>
-                        <p className={styles.prefLabel}>Heure d’envoi</p>
-                        <p className={styles.prefDesc}>Selon votre fuseau horaire, réglé dans l’onglet Agenda</p>
-                      </div>
-                      <select
-                        className={styles.selectInput}
-                        value={digestHour}
-                        onChange={e => setDigestHour(parseInt(e.target.value, 10))}
-                      >
-                        {Array.from({ length: 24 }, (_, h) => (
-                          <option key={h} value={h}>{h.toString().padStart(2, '0')}:00</option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                )}
+                      · supabase/functions/daily-digest lit la table
+                        `public.emails`, que l'application n'écrit JAMAIS
+                        (rien dans app/ ni lib/ n'y insère) — la requête rend
+                        toujours 0 ligne et la fonction passe au suivant ;
+                      · elle envoie depuis `onboarding@resend.dev`, l'adresse
+                        de test de Resend, qui ne délivre qu'au propriétaire
+                        du compte Resend ;
+                      · aucune tâche planifiée n'appelle la fonction.
+
+                    Un réglage allumé par défaut qui ne produit rien est la
+                    version la plus coûteuse du mensonge produit : l'utilisateur
+                    ne découvre le manque qu'en constatant l'absence, et il
+                    conclut que le produit est cassé. La préférence reste
+                    stockée (rien n'est perdu le jour où ça marche), mais elle
+                    n'est plus pilotable tant que l'envoi n'existe pas.
+                    Pas de date annoncée : « Bientôt » est une intention, une
+                    échéance serait une promesse. */}
+                <div className={`${styles.prefRow} ${styles.prefRowSoon}`}>
+                  <div>
+                    <p className={styles.prefLabel}>
+                      Résumé par email
+                      <span className={styles.soonPill}>Bientôt</span>
+                    </p>
+                    <p className={styles.prefDesc}>
+                      Un récapitulatif quotidien de vos emails non traités. L’envoi n’est pas
+                      encore branché — rien n’est expédié aujourd’hui.
+                    </p>
+                  </div>
+                </div>
 
                 <div className={styles.divider} />
                 <div className={styles.prefRow}>

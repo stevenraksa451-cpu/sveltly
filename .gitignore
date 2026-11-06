@@ -22,9 +22,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files — jamais commités, contiennent les clés Supabase/Groq/chiffrement
-.env
-.env*.local
+# env files — jamais commités, contiennent les clés Supabase/Groq/chiffrement.
+# ⚠️ .env + .env*.local ne couvraient PAS .env.production ni .env.development :
+# il suffisait d'un fichier nommé ainsi pour commiter la clé service-role et
+# TOKEN_ENCRYPTION_KEY. Le motif large ferme le trou ; l'exemple reste suivi.
+.env*
+!.env.example
 
 # typescript
 *.tsbuildinfo

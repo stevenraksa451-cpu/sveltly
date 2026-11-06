@@ -15,11 +15,19 @@
 .date {
   font-size: var(--text-sm);
   color: var(--text-muted);
-  text-transform: capitalize;
+  /* PAS text-transform: capitalize — il met une majuscule à CHAQUE mot.
+     toLocaleDateString('fr-FR', { weekday, day, month }) rend
+     « vendredi 6 novembre » ; capitalize en faisait « Vendredi 6 Novembre »,
+     avec une majuscule fautive à « Novembre ». En français les noms de mois
+     et de jours s'écrivent en minuscule — seule l'initiale de la ligne se
+     capitalise. C'est exactement ce que fait ::first-letter. */
+  text-transform: none;
   padding: 0 var(--card-pad);
   margin-bottom: 12px;
   flex-shrink: 0;
 }
+.date::first-letter { text-transform: uppercase; }
+
 
 .timeline {
   display: flex;
