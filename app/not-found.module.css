@@ -1,0 +1,112 @@
+/* app/not-found.module.css
+   Largeurs et couleurs viennent des tokens --mk-* portés par .mk et .mkc
+   (voir styles/marketing.css). Aucune valeur de largeur en dur ici : c'est
+   la règle du site public, et une 404 n'y fait pas exception. */
+
+.wrap {
+  max-width: var(--mk-max);
+  margin: 0 auto;
+  padding-inline: var(--mk-gutter);
+  padding-block: clamp(72px, 12vh, 140px);
+  /* min-height pour que le pied de page ne remonte pas au milieu de l'écran
+     sur un grand moniteur : cette page a peu de contenu. */
+  min-height: 58vh;
+}
+
+.code {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--mk-text-muted, var(--text-muted));
+  margin: 0 0 12px;
+}
+
+.titre {
+  /* La mesure est portée par le TITRE lui-même : `ch` se calcule sur la
+     police de l'élément qui le porte, donc un max-width en ch posé sur le
+     conteneur écraserait un titre de cette taille. Piège documenté dans
+     CLAUDE.md. */
+  max-width: 18ch;
+  margin: 0 0 20px;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: var(--mk-ink, var(--color-ink));
+}
+
+.lede {
+  max-width: var(--mk-measure);
+  margin: 0 0 44px;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--mk-text-secondary, var(--text-secondary));
+}
+
+/* Liste à filets, pas une grille de cartes : la règle du site public veut
+   qu'une liste de sous-pages se lise comme une liste (voir HubList). */
+.sorties {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--mk-border, var(--border));
+  max-width: var(--mk-measure);
+}
+
+.sortie {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--mk-border, var(--border));
+  text-decoration: none;
+  transition: background 160ms ease, padding-left 160ms ease;
+}
+
+.sortie:hover,
+.sortie:focus-visible {
+  background: var(--mk-bg-subtle, var(--bg-subtle));
+  padding-left: 12px;
+}
+
+.sortieLabel {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--mk-ink, var(--color-ink));
+}
+
+.sortieDesc {
+  font-size: var(--text-sm);
+  color: var(--mk-text-muted, var(--text-muted));
+}
+
+.apres {
+  margin: 36px 0 0;
+  font-size: var(--text-sm);
+  color: var(--mk-text-muted, var(--text-muted));
+}
+
+.lien {
+  color: var(--mk-accent, var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 880px) {
+  .wrap { padding-block: clamp(48px, 9vh, 88px); }
+  .titre { max-width: 100%; }
+}
+
+/* `.sortie` sert aussi à un <button> dans app/error.tsx (le bouton
+   « Réessayer », qui ne peut pas être un lien : il appelle reset()).
+   Sans cette remise à zéro, il hériterait du style natif du navigateur —
+   fond gris, bordure, texte centré, police différente — au milieu d'une
+   liste de liens. */
+button.sortie {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--mk-border, var(--border));
+  font: inherit;
+  cursor: pointer;
+}

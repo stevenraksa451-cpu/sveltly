@@ -188,6 +188,8 @@ défilement, ce qui **casse la barre de navigation en `position: sticky`**.
 ```
 app/
   page.tsx              landing (hero + sections, navbar + SiteFooter)
+  not-found.tsx         404 du site ENTIER (hors groupe de routes)
+  error.tsx             frontière d’erreur de rendu
   (marketing)/          21 pages vitrine — groupe de routes, layout commun
   (app)/                espace connecté : dashboard, inbox, tasks, calendar, settings
   api/                  routes serveur (emails, analyze, calendar, mailboxes…)
@@ -690,6 +692,79 @@ la mesure** : s'il n'apparaît pas à tous les coups, c'est l'artefact. S'il
 apparaît systématiquement, c'est un vrai défaut.
 
 ---
+
+## Les pages d’erreur vivent à la RACINE de `app/`
+
+`app/not-found.tsx` et `app/error.tsx` ne peuvent pas vivre dans
+`(marketing)/` : un groupe de routes ne capture pas les URL inconnues du
+site. Le chrome de la vitrine (classe `mkc`, barre, pied de page) y est donc
+remonté à la main — c’est la seule duplication du layout marketing, et elle
+est voulue.
+
+Sans eux, Next servait ses écrans par défaut : « 404: This page could not be
+found. » et « Application error: a client-side exception has occurred », en
+**anglais**, sans navigation ni issue, sur un site intégralement en français.
+
+Deux règles qui s’y appliquent comme partout :
+
+- `error.tsx` n’affiche **jamais** `error.message` — il peut porter un chemin
+  serveur ou un fragment de jeton. Il montre `error.digest`, qui est aussi
+  dans les journaux serveur et permet de relier les deux. Même règle que
+  `lib/api-handler.ts`.
+- Les couleurs passent par `var(--mk-*, var(--token-app))` : avec un repli sur
+  la palette de l’application, la page reste lisible même si
+  `styles/marketing.css` n’est pas chargée.
+
+## Deux réglages promettaient ce que le code ne fait pas
+
+Trouvés en vérifiant, champ par champ, que CHAQUE préférence écrite par
+Réglages est relue quelque part. La méthode vaut d’être refaite après tout
+ajout de réglage :
+
+```bash
+# pour chaque colonne écrite par app/(app)/settings/page.tsx
+grep -rl "<colonne>" --include=*.ts --include=*.tsx app lib components supabase \
+  | grep -v "settings/page.tsx"
+```
+
+Deux colonnes ne sortaient aucun fichier :
+
+**`email_digest_enabled` / `digest_send_hour`** — « Résumé par email », actif et
+**allumé par défaut**, avec un sélecteur d’heure. Rien ne pouvait partir :
+`supabase/functions/daily-digest` lit `public.emails`, table que
+l’application n’écrit JAMAIS (les emails sont lus en direct chez Gmail, seul le
+RÉSULTAT d’analyse est conservé) ; l’expéditeur est l’adresse de test de
+Resend ; aucune tâche planifiée n’appelle la fonction. Les trois obstacles
+sont écrits en tête de ce fichier.
+
+**`auto_decline_outside_hours`** — « Refuser automatiquement hors
+disponibilités », interrupteur **éteint** par défaut, relu par personne. Et le
+comportement décrit est déjà celui de Sveltly, **sans condition** :
+`findFreeSlot` ne cherche qu’entre `workStart` et `workEnd`, et `fits()` refuse
+tout créneau qui en sort. Éteint par défaut, il disait donc l’inverse de la
+vérité.
+
+⚠️ **Un réglage allumé par défaut qui ne produit rien est la forme la plus
+coûteuse du mensonge produit** : l’utilisateur ne découvre le manque qu’en
+constatant l’absence, et il en conclut que le produit est cassé. Un réglage
+qui déguise une règle permanente en option est le même défaut à l’envers : il
+fait croire qu’il faut l’activer pour être protégé.
+
+Dans les deux cas la ligne RESTE visible — cacher ce qui manque est
+précisément ce que la règle d’honnêteté interdit. L’une porte une pastille
+« Bientôt » sans date, l’autre énonce la règle.
+
+## Les noms de mois s’écrivent en minuscule
+
+`text-transform: capitalize` met une majuscule à **chaque mot**.
+`toLocaleDateString('fr-FR', { weekday, day, month })` rend
+« vendredi 6 novembre » ; la règle CSS en faisait « Vendredi 6 **N**ovembre ».
+
+La bonne forme est `::first-letter`, qui ne touche que l’initiale de la
+ligne. Corrigé sur les deux endroits MULTI-MOTS (`AgendaTimeline`,
+`EventList`). Les deux autres `capitalize` du dépôt portent sur un mot
+unique (titre de mois, pastille de catégorie) : le résultat y est identique,
+ils restent.
 
 ## Pièges connus
 
