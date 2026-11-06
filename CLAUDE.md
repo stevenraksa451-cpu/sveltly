@@ -520,8 +520,26 @@ nouvel inscrit**, et le deuxième inscrit de la semaine n’avait plus de
 produit : sa synchro s’arrêtait sur la limite quotidienne et ses emails
 restaient `pending` pendant des jours.
 
-Le plafond est donc à **60** (`lib/sync-window.ts`, partagé avec Outlook qui en
-portait une copie), soit ~92 000 tokens. La **fenêtre reste à 7 jours** : les
+Le plafond est à **150** (`lib/sync-window.ts`, partagé avec Outlook qui en
+portait une copie), soit **~229 000 tokens par inscrit**.
+
+⚠️ **Ce chiffre dépasse le budget quotidien de 200 000 tokens.** C'est assumé
+et documenté dans `lib/sync-window.ts` : le plafond est passé par 60, calibré
+sur un volume d'inscriptions *supposé*, alors que la consommation réelle
+mesurée est de ~10 000 tokens/jour (159 analyses en 24 jours), soit **5 % du
+budget**. La prudence se payait sur la seule chose qu'un produit ne peut pas
+refaire : la première impression.
+
+La contrepartie à ne pas perdre de vue **le jour du lancement public** : un
+seul nouvel inscrit dont la boîte contient 131 emails ou plus sur 7 jours
+épuise la journée pour TOUT LE MONDE, et sa propre synchro s'arrête en
+chemin, emails `pending`. Tant que les inscriptions se comptent sur les
+doigts d'une main, c'est sans effet. Au-delà, deux leviers, dans cet ordre :
+passer Groq en palier payant (le budget cesse d'être la contrainte), ou
+redescendre le plafond. **Surveiller la consommation quotidienne réelle est
+ce qui tranche, pas l'intuition** — dans les deux sens.
+
+La **fenêtre reste à 7 jours** : les
 deux fournisseurs rendent les messages du plus récent au plus ancien, donc
 sur une boîte active c’est le plafond qui mord en premier et la fenêtre ne
 coûte rien de plus — et côté Outlook elle s’applique à CHAQUE synchro, faute
