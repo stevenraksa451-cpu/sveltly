@@ -17,11 +17,30 @@ export const BRAND_TAGLINE = 'Votre boîte mail, allégée.'
 export const BRAND_DESCRIPTION =
   'Sveltly trie vos emails, en résume l’essentiel, prépare vos réponses et place vos rendez-vous. Vous gardez la main sur tout.'
 
-export const BRAND_EMAIL = 'support@sveltly.fr'
+// ⚠️ LE DOMAINE N'EST ÉCRIT QUE DANS CE FICHIER.
+//
+// Il valait `sveltly.fr` tant qu'aucun domaine n'était acheté. Le domaine
+// réel est `sveltly.com` depuis le 8 novembre 2026.
+//
+// Ces trois constantes sont la source unique : SITE_URL alimente les balises
+// canoniques, l'Open Graph, le JSON-LD, le sitemap et le robots.txt ;
+// BRAND_EMAIL et PRIVACY_EMAIL alimentent l'aide, les réglages, la
+// facturation et les deux pages légales.
+//
+// Les URL de redirection OAuth, elles, ne sont PAS ici : elles se déduisent
+// de `req.nextUrl.origin` (routes serveur) et de `window.location.origin`
+// (pages d'authentification), donc elles suivent le domaine qui sert
+// réellement l'application. Il n'y a qu'à les déclarer côté Google.
+export const BRAND_EMAIL = 'support@sveltly.com'
 
-// Base utilisée pour les métadonnées Open Graph et le sitemap. À ajuster le
-// jour où un nom de domaine définitif est branché.
-export const SITE_URL = 'https://sveltly.fr'
+// Adresse dédiée aux demandes RGPD (accès, rectification, effacement,
+// portabilité). Distincte du support, et c'est volontaire : une demande
+// d'exercice de droits a un délai légal d'un mois, elle ne doit pas se perdre
+// dans la file du support. Elle était écrite en dur dans trois fichiers,
+// donc invisible depuis ici le jour d'un changement de domaine.
+export const PRIVACY_EMAIL = 'privacy@sveltly.com'
+
+export const SITE_URL = 'https://sveltly.com'
 
 // Appels à l'action, identiques partout pour que le vocabulaire du produit
 // reste constant d'une page à l'autre.

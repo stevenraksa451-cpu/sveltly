@@ -4,6 +4,7 @@ import { useState, ReactNode } from 'react'
 import AppLayout from '@/components/layout/AppLayout'
 import Brand from '@/components/ui/Brand'
 import styles from './help.module.css'
+import { BRAND_EMAIL } from '@/lib/brand'
 
 const FAQ = [
   {
@@ -64,7 +65,7 @@ export default function HelpPage() {
               <p className={styles.bannerDesc}>Notre équipe répond sous 24h</p>
             </div>
           </div>
-          <a href="mailto:support@sveltly.fr" className={styles.bannerBtn}>
+          <a href={`mailto:${BRAND_EMAIL}`} className={styles.bannerBtn}>
             Contacter le support
           </a>
         </div>

@@ -12,6 +12,7 @@ import styles from '@/components/legal/LegalLayout.module.css'
 // qu'Outlook n'est pas branché. Décrire un service inexistant dans un contrat
 // qu'on fait accepter est le pire endroit du site pour se tromper.
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
+import { BRAND_EMAIL } from '@/lib/brand'
 
 export default function TermsContent() {
   return (
@@ -136,7 +137,7 @@ export default function TermsContent() {
           content: (
             <p>
               Vous pouvez supprimer votre compte à tout moment en nous contactant à{' '}
-              <a href="mailto:support@sveltly.fr">support@sveltly.fr</a>. Nous nous réservons le droit de suspendre ou
+              <a href={`mailto:${BRAND_EMAIL}`}>{BRAND_EMAIL}</a>. Nous nous réservons le droit de suspendre ou
               résilier un compte en cas de violation manifeste des présentes CGU.
             </p>
           ),
@@ -160,7 +161,7 @@ export default function TermsContent() {
           content: (
             <p>
               Pour toute question relative aux présentes CGU, contactez-nous à{' '}
-              <a href="mailto:support@sveltly.fr">support@sveltly.fr</a>.
+              <a href={`mailto:${BRAND_EMAIL}`}>{BRAND_EMAIL}</a>.
             </p>
           ),
         },

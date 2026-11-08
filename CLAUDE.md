@@ -891,8 +891,35 @@ l'a déjà quitté pour ESLint en direct.
   revient à chaque rafraîchissement condamne la boîte au premier roulement —
   elle se déconnecterait silencieusement quelques jours plus tard. Voir
   `refreshOutlookToken`.
-- **`SITE_URL`** dans `lib/brand.ts` vaut `https://sveltly.fr` — à ajuster si le
-  domaine final diffère, sinon sitemap et balises canoniques pointent à côté.
+- ~~**`SITE_URL`**~~ — **le domaine est acheté** : `sveltly.com`, depuis le
+  8 novembre 2026. `lib/brand.ts` porte les trois constantes qui en
+  dépendent (`SITE_URL`, `BRAND_EMAIL`, `PRIVACY_EMAIL`) et c'est leur
+  SEULE déclaration côté Next.
+
+  ⚠️ Neuf fichiers écrivaient `support@sveltly.fr` / `privacy@sveltly.fr`
+  en dur alors que `BRAND_EMAIL` existait déjà — pages légales, aide,
+  réglages, facturation. Un changement de domaine les aurait laissées fausses
+  **en silence** : une adresse morte ne lève aucune erreur, ne casse aucun
+  test, et ne se voit qu'au premier message qui n'arrive jamais. Les deux
+  adresses sont maintenant importées partout, et `PRIVACY_EMAIL` est séparée
+  du support **parce qu'une demande RGPD a un délai légal d'un mois** et ne
+  doit pas se noyer dans la file du support.
+
+  `SYSTEM_SENDERS` (`/api/analyze`) **déduit** `digest@` de `SITE_URL` au
+  lieu de l'écrire : sinon Sveltly analyserait ses propres emails et
+  facturerait une « réponse IA » pour eux. Les anciennes formes `.fr` et
+  `.app` restent listées — les garder ne coûte rien, les retirer risquerait
+  de facturer un vieux message de test.
+
+  **Une seule copie échappe à la source unique** : `supabase/functions/daily-digest`
+  tourne sous Deno, hors du bundle Next, et ne peut donc pas importer
+  `lib/brand.ts`. Elle lit la variable d'environnement `SITE_URL`, avec
+  `https://sveltly.com` en repli. À changer à la main le jour venu.
+
+  Les URL de redirection OAuth, elles, n'ont RIEN demandé : elles se déduisent
+  de `req.nextUrl.origin` et de `window.location.origin`, donc elles suivent
+  le domaine qui sert réellement l'application. Il reste à les **déclarer**
+  dans la console Google Cloud.
 - **Renommage de marque** : `lib/brand.ts` ne gouverne que les pages marketing
   et la navbar. Le reste du projet contient encore « Sveltly » en dur.
 - ~~**Délai de réponse et support prioritaire**~~ — **retirés**. Le site

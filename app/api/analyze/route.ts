@@ -5,6 +5,7 @@ import { getPlan } from '@/lib/plans'
 import { resolveMonthlyUsage, plafondQuotidien } from '@/lib/ai-usage'
 import { Tone, TONE_LABEL, TONE_INSTRUCTIONS, TONE_SHARED_RULES, resolveToneLabel, ReplyLanguage, resolveReplyLanguage, replyLanguageInstruction } from '@/lib/tone'
 import { routeJson } from '@/lib/api-handler'
+import { SITE_URL } from '@/lib/brand'
 
 // Construit le bloc de consignes de ton injecté dans le prompt système — SEULEMENT
 // pour les tons réellement utilisés par les emails de CE lot précis, plutôt que de
@@ -169,13 +170,22 @@ const EMAIL_CHARS_FOR_RETRY = 600
 // Emails générés par Sveltly lui-même (digest quotidien, notifications système) —
 // jamais envoyés au pipeline IA, ça n'a aucun sens d'y répondre.
 //
-// ⚠️ `digest@sveltly.app` visait un domaine qui n'est pas celui du projet
-// (SITE_URL vaut sveltly.fr). Les deux formes restent listées : la .app parce
-// qu'un ancien digest a pu en partir, la .fr parce que c'est celle qui servira.
-// Le jour où le domaine final est acheté, cette liste et SITE_URL de
-// lib/brand.ts doivent bouger ENSEMBLE — sinon Sveltly se met à analyser ses
-// propres emails et à facturer à l'utilisateur une « réponse IA » pour eux.
-const SYSTEM_SENDERS = ['onboarding@resend.dev', 'digest@sveltly.app', 'digest@sveltly.fr']
+// Le domaine réel est `sveltly.com` (acheté le 8 novembre 2026). `digest@`
+// en est DÉDUIT plutôt qu'écrit : si SITE_URL change encore, cette liste
+// suit toute seule. Sans ça, Sveltly se mettrait à analyser ses propres
+// emails — et à facturer à l'utilisateur une « réponse IA » pour eux.
+//
+// Les deux anciennes formes restent listées : `.fr` et `.app` ont figuré
+// dans ce fichier, et rien ne garantit qu'aucun digest n'en soit parti vers
+// une boîte de test. Les garder ne coûte rien ; les retirer risquerait de
+// facturer un vieux message.
+const DOMAINE = new URL(SITE_URL).hostname.replace(/^www\./, '')
+const SYSTEM_SENDERS = [
+  'onboarding@resend.dev',
+  `digest@${DOMAINE}`,
+  'digest@sveltly.fr',
+  'digest@sveltly.app',
+]
 
 // Extrait le délai d'attente d'un message d'erreur Groq de type "Please try
 // again in 7m13.728s." ou "Please try again in 45.2s." — même regex que

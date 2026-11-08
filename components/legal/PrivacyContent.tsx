@@ -13,6 +13,7 @@ import styles from '@/components/legal/LegalLayout.module.css'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import { IconUser, IconMail, IconTrash, IconInfo, IconCheck } from '@/components/legal/icons'
 import { IconBrain, IconLock, IconLink, IconShield } from '@/components/landing/icons'
+import { BRAND_EMAIL, PRIVACY_EMAIL } from '@/lib/brand'
 
 export default function PrivacyContent() {
   return (
@@ -45,7 +46,7 @@ export default function PrivacyContent() {
                 <Brand /> est actuellement développé et édité à titre individuel par Steven Rakotomandimby. Le service n’est
                 pas encore exploité au sein d’une société immatriculée ; cette page sera mise à jour avec les mentions
                 légales complètes dès que ce sera le cas. Pour toute question relative à vos données personnelles, vous
-                pouvez écrire directement à <a href="mailto:privacy@sveltly.fr">privacy@sveltly.fr</a>.
+                pouvez écrire directement à <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>.
               </p>
             </>
           ),
@@ -139,7 +140,7 @@ export default function PrivacyContent() {
               Vos données sont conservées tant que votre compte existe. Vous pouvez supprimer votre compte vous-même,
               à tout moment, depuis Réglages → Zone de danger : cette action entraîne la suppression immédiate et
               définitive de l’ensemble des données associées (emails indexés, tâches, événements, jetons de connexion).
-              Pour toute question, contactez <a href="mailto:support@sveltly.fr">support@sveltly.fr</a>.
+              Pour toute question, contactez <a href={`mailto:${BRAND_EMAIL}`}>{BRAND_EMAIL}</a>.
             </p>
           ),
         },
@@ -152,7 +153,7 @@ export default function PrivacyContent() {
               Conformément au RGPD, vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation et
               de portabilité de vos données, ainsi que du droit de retirer votre consentement à tout moment (notamment
               en déconnectant votre boîte mail depuis les réglages). Pour exercer ces droits, écrivez à{' '}
-              <a href="mailto:privacy@sveltly.fr">privacy@sveltly.fr</a>. Vous pouvez également introduire une réclamation
+              <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>. Vous pouvez également introduire une réclamation
               auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">cnil.fr</a>).
             </p>
           ),

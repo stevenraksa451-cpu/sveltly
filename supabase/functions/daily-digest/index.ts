@@ -41,12 +41,15 @@ const supabase = createClient(
 )
 const resend = new Resend(Deno.env.get('RESEND_API_KEY')!)
 const CRON_SECRET = Deno.env.get('CRON_SECRET')!
-// Le lien du digest pointait vers https://sveltly.app — un domaine qui n'est
-// pas celui du projet (SITE_URL vaut https://sveltly.fr dans lib/brand.ts).
-// Chaque destinataire aurait reçu un lien mort. Paramétrable par variable
-// d'environnement pour que le jour du changement de domaine, il n'y ait
-// qu'un endroit à toucher ici.
-const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://sveltly.fr'
+// Le lien du digest pointait vers https://sveltly.app, un domaine qui n'a
+// jamais été celui du projet : chaque destinataire aurait reçu un lien mort.
+// Le domaine réel est https://sveltly.com depuis le 8 novembre 2026.
+//
+// ⚠️ Une fonction Edge ne peut PAS importer lib/brand.ts (elle tourne sous
+// Deno, hors du bundle Next). Ce domaine est donc la SEULE copie du projet,
+// et elle doit suivre SITE_URL à la main. La variable d'environnement est là
+// pour qu'un changement se fasse sans redéploiement de la fonction.
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://sveltly.com'
 
 // Échappe le HTML avant interpolation — sender_name, sender_email et subject
 // viennent d'emails REÇUS, donc potentiellement écrits par n'importe quel

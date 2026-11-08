@@ -16,6 +16,7 @@ import { LIVE_PROVIDERS } from '@/lib/providers'
 import { TONES, TONE_LABEL, TONE_EXAMPLE, REPLY_LANGUAGES, REPLY_LANGUAGE_LABEL, REPLY_LANGUAGE_DESC, ReplyLanguage } from '@/lib/tone'
 import styles from './settings.module.css'
 import { lireJson } from '@/lib/lire-json'
+import { BRAND_EMAIL } from '@/lib/brand'
 
 const TABS: { id: string; label: string; icon: JSX.Element; danger?: boolean }[] = [
   { id: 'account', label: 'Compte', icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> },
@@ -313,7 +314,7 @@ function SettingsContent() {
   // une fois la route en place. En attendant, on redirige vers le support plutôt
   // que de simuler un bouton qui ne ferait rien (même choix que PlanCards).
   function handleManagePayment() {
-    window.location.href = `mailto:support@sveltly.fr?subject=${encodeURIComponent('Mettre à jour mon moyen de paiement')}`
+    window.location.href = `mailto:${BRAND_EMAIL}?subject=${encodeURIComponent('Mettre à jour mon moyen de paiement')}`
   }
 
   // TODO: brancher sur le portail client Stripe ou une route dédiée d'annulation
@@ -322,7 +323,7 @@ function SettingsContent() {
       "Annuler votre abonnement Pro ? Vous conserverez l’accès Pro jusqu’à la fin de la période déjà payée, puis votre compte repassera automatiquement au forfait Gratuit."
     )
     if (!confirmed) return
-    window.location.href = `mailto:support@sveltly.fr?subject=${encodeURIComponent('Annuler mon abonnement Pro')}`
+    window.location.href = `mailto:${BRAND_EMAIL}?subject=${encodeURIComponent('Annuler mon abonnement Pro')}`
   }
 
   const [exportingData, setExportingData] = useState(false)

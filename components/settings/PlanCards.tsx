@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { PLANS, formatPrice, getPlan } from '@/lib/plans'
 import UsageLimitCard from '@/components/ui/UsageLimitCard'
 import styles from './PlanCards.module.css'
+import { BRAND_EMAIL } from '@/lib/brand'
 
 // Premier jour du mois suivant, au format "1er novembre" — la date à
 // laquelle le compteur de réponses IA se réinitialise réellement (voir
@@ -53,7 +54,7 @@ export default function PlanCards() {
   // support plutôt que de simuler un bouton "payer" qui ne ferait rien.
   function handlePlanClick(planId: string) {
     const subject = planId === 'free' ? 'Repasser au plan Gratuit' : 'Passer au plan ' + getPlan(planId).name
-    window.location.href = `mailto:support@sveltly.fr?subject=${encodeURIComponent(subject)}`
+    window.location.href = `mailto:${BRAND_EMAIL}?subject=${encodeURIComponent(subject)}`
   }
 
   return (

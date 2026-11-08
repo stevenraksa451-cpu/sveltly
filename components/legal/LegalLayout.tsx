@@ -10,6 +10,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 import styles from './LegalLayout.module.css'
+import { PRIVACY_EMAIL } from '@/lib/brand'
 
 export interface LegalSection {
   id: string
@@ -119,7 +120,7 @@ export default function LegalLayout({
           ))}
 
           <div className={styles.footer}>
-            <p>Une question sur cette page ? Écrivez à <a href="mailto:privacy@sveltly.fr">privacy@sveltly.fr</a>.</p>
+            <p>Une question sur cette page ? Écrivez à <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>.</p>
           </div>
         </main>
       </div>
