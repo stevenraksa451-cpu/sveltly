@@ -784,6 +784,50 @@ ligne. Corrigé sur les deux endroits MULTI-MOTS (`AgendaTimeline`,
 unique (titre de mois, pastille de catégorie) : le résultat y est identique,
 ils restent.
 
+## Mise en production — ce qui est branché, et le piège qui a coûté le plus
+
+**Sveltly est en ligne sur `https://sveltly.com` depuis le 8 novembre 2026**
+(Vercel, branche `master`). Vérifié sur le domaine réel : les six en-têtes
+de sécurité et la CSP, la canonique, les 23 URL du sitemap, le
+`Disallow: /api/`, la 404 personnalisée, 26 pages sans un lien cassé, et la
+chaîne complète inscription → connexion Google → tableau de bord.
+
+Les URI de redirection sont déclarées côté Google pour `sveltly.com` comme
+pour `localhost` — testé en interrogeant directement l'écran de consentement
+Google, qui rend `redirect_uri_mismatch` quand une URI n'est pas enregistrée.
+
+### ⚠️ La liste blanche Supabase est à correspondance EXACTE, et elle échoue en silence
+
+Deux pannes d'affilée sont venues du même écran, *Authentication → URL
+Configuration*, et **aucune des deux n'a produit le moindre message d'erreur** :
+
+1. `Site URL` restée sur `http://localhost:3000` → après la connexion Google,
+   le navigateur affichait « ce site est inaccessible ». Rien ne tournait sur
+   le port 3000. Tant qu'un serveur local tourne, le défaut est invisible.
+2. `Site URL` corrigée mais `Redirect URLs` vide → la connexion renvoyait sur
+   la **page d'accueil**. Supabase refuse un `redirect_to` absent de la liste
+   et **retombe sur `Site URL` sans rien dire**.
+
+`Site URL` n'autorise AUCUNE de ses sous-pages : la correspondance porte sur
+l'URL entière, chemin compris. Les quatre entrées nécessaires sont exactement
+celles que le code demande, et rien d'autre :
+
+```
+https://sveltly.com/auth/callback          login, register, onboarding
+https://sveltly.com/auth/reset-password    mot de passe oublié
+http://localhost:3000/auth/callback        développement
+http://localhost:3000/auth/reset-password  développement
+```
+
+**Toute nouvelle valeur de `redirectTo` dans le code doit être ajoutée ici**,
+sinon elle tombera sur la page d'accueil sans que rien ne le signale.
+
+Le diagnostic qui tranche en cinq secondes : taper `/dashboard` à la main. Si
+le tableau de bord s'affiche, la session est valide et seule la redirection
+est en cause — `app/auth/callback` n'envoie JAMAIS vers `/`, uniquement vers
+`/dashboard` ou `/auth/callback/client`. Atterrir sur l'accueil prouve donc
+que le callback n'a pas été atteint du tout.
+
 ## Pièges connus
 
 - **Seuils adaptatifs** : 880 px partout (gabarits, pied de page) sauf la
