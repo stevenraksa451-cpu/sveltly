@@ -9,6 +9,7 @@ import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './InboxSidePanel.module.css'
 import { isoLocal } from '@/lib/dates'
 import { lireJson } from '@/lib/lire-json'
+import { useRaccourcis } from '@/hooks/useRaccourcis'
 
 // La plupart des pièces jointes (images, PDF courts) pèsent quelques
 // centaines de Ko — toujours afficher en Mo les arrondissait systématiquement
@@ -157,6 +158,11 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
   //    l'opération idempotente ; `ignoreDuplicates` garantit en plus qu'on ne
   //    réécrit jamais une tâche existante — donc qu'on ne décoche jamais une
   //    tâche déjà terminée.
+  // T depuis ici : handleAddTask et taskAdded vivent dans ce composant, qui
+  // est remonte a chaque changement d'email. Le garde `taskAdded` evite
+  // qu'une frappe repetee cree deux fois la meme tache.
+  useRaccourcis({ tache: () => { if (!taskAdded) handleAddTask() } })
+
   async function handleAddTask() {
     const { data: { session } } = await supabase.auth.getSession()
     const user = session?.user
@@ -296,17 +302,10 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
         </div>
       )}
 
-      {/* Contact */}
-      <div className={styles.card}>
-        <div className={styles.cardTitle}>Contact</div>
-        <div className={styles.contactRow}>
-          <div className={styles.contactAvatar}>{email.sender.charAt(0).toUpperCase()}</div>
-          <div>
-            <p className={styles.contactName}>{email.sender}</p>
-            <a href={`mailto:${email.senderEmail}`} className={styles.contactEmail}>{email.senderEmail}</a>
-          </div>
-        </div>
-      </div>
+      {/* Le bloc « Contact » vivait ici : avatar, nom et adresse de
+          l'expéditeur. Il répétait mot pour mot l'en-tête du lecteur, visible
+          en même temps à trente centimètres à gauche et en plus gros. Un
+          panneau latéral sert à montrer ce qu'on ne voit pas ailleurs. */}
 
       {/* Résumé de l'email par l'IA */}
       <div className={styles.card}>
@@ -332,10 +331,9 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
           </>
         )}
 
-        <div className={styles.summaryMeta}>
-          <span>{new Date(email.receivedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
-          <PriorityBadge priority={display.priority} size="sm" />
-        </div>
+        {/* La date et le badge de priorité étaient répétés ici, sous le
+            résumé. Ils sont dans l'en-tête de l'email, une seule fois, et
+            c'est leur place : ils décrivent le message, pas son résumé. */}
 
         <button className={styles.taskBtn} onClick={handleAddTask} disabled={taskAdded}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -396,10 +394,11 @@ export default function InboxSidePanel({ email, onArchive, onToggleRead, loading
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
           {email.isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
         </button>
-        <button className={styles.actionRow} onClick={onArchive} disabled={loading}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-          {isArchived ? 'Désarchiver' : 'Archiver'}
-        </button>
+        {/* « Archiver » était ici ET dans la barre d'actions du lecteur, les
+            deux visibles en même temps. Seul celui du lecteur reste : il est
+            sur le chemin de l'œil, et il porte maintenant son raccourci.
+            « Marquer comme lu » n'existe nulle part ailleurs — il reste
+            donc, et le bloc avec lui. */}
       </div>
 
     </div>

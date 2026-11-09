@@ -15,13 +15,23 @@ interface AppLayoutProps {
   // app/(app)/dashboard/layout.tsx) — pas ici : document.title en impératif
   // se fait écraser par la gestion interne du <title> du App Router.
   hideTitle?: boolean
+  // Colle le contenu aux bords : retire la gouttière de 28 px ET la
+  // contrainte de largeur --content-max. Réservé aux pages dont la mise en
+  // page EST l'écran — la boîte de réception et ses trois panneaux pleine
+  // hauteur. Une page de contenu doit garder la gouttière, sinon son texte
+  // court d'un bord à l'autre d'un écran large et devient illisible.
+  //
+  // Prop plutôt que marge négative dans la page : un `margin: -28px` ne
+  // défait pas le max-width, et se décale en silence le jour où la gouttière
+  // change. Ici, les deux valeurs restent déclarées à UN seul endroit.
+  flush?: boolean
 }
 
-export default function AppLayout({ children, title, subtitle, hideTitle }: AppLayoutProps) {
+export default function AppLayout({ children, title, subtitle, hideTitle, flush }: AppLayoutProps) {
   return (
     <>
       <Header title={title} subtitle={subtitle} hideTitle={hideTitle} />
-      <main className={styles.content}>
+      <main className={`${styles.content} ${flush ? styles.flush : ''}`}>
         {children}
       </main>
     </>

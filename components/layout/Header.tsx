@@ -28,9 +28,30 @@ export default function Header({ title, subtitle, hideTitle }: HeaderProps) {
 
   // Cmd+K (Mac) / Ctrl+K (Windows-Linux) ouvre la recherche depuis n'importe
   // quelle page connectée — Header est monté sur toutes via AppLayout.
+  //
+  // `/` l'ouvre aussi, convention des outils au clavier (Gmail, GitHub,
+  // Superhuman). La recherche vivant ici et non dans la boîte de réception,
+  // ce raccourci est posé ICI plutôt que dans useRaccourcis : le dupliquer
+  // donnerait deux écouteurs qui ouvrent la même palette.
+  //
+  // ⚠️ `/` ne doit PAS être capté depuis un champ de saisie — sinon il
+  // devient impossible d'écrire une date ou une URL dans le brouillon de
+  // réponse. Ctrl+K, lui, est capté partout : il sert justement à quitter ce
+  // qu'on est en train de faire.
   useEffect(() => {
+    function dansUnChamp(cible: EventTarget | null): boolean {
+      const el = cible as HTMLElement | null
+      if (!el || !el.tagName) return false
+      const t = el.tagName.toUpperCase()
+      return t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || el.isContentEditable
+    }
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        openSearch()
+        return
+      }
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey && !dansUnChamp(e.target)) {
         e.preventDefault()
         openSearch()
       }

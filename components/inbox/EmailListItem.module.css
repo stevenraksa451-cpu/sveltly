@@ -1,66 +1,86 @@
+/* Ligne de liste — dense et plate, façon Superhuman.
+   Les lignes ne sont plus des blocs arrondis espacés de 2 px sur fond de
+   carte : elles se touchent, séparées par un filet, et la sélection se lit
+   à un aplat très pâle plus un liseré à gauche. */
+
 .item {
   position: relative;
   display: flex;
   gap: 10px;
   width: 100%;
-  padding: 12px 14px;
-  border-radius: var(--radius);
+  padding: 10px 14px 10px 16px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-light);
   text-align: left;
   transition: background var(--transition);
 }
 .item:hover { background: var(--bg-subtle); }
-/* Ligne sélectionnée : fond indigo très pâle ET liseré de 2 px à gauche.
-   Le fond seul ne suffit pas — sur une liste dense, il se confond avec le
-   survol de la ligne voisine. */
+
 .selected { background: var(--accent-light); }
+/* Liseré plein à gauche : sur une liste sans écart, c'est lui qui dit
+   « cette ligne-ci », bien plus vite qu'un changement de fond seul. */
 .selected::after {
   content: '';
   position: absolute;
   left: 0;
-  top: 4px;
-  bottom: 4px;
+  top: 0;
+  bottom: 0;
   width: 2px;
-  border-radius: 0 2px 2px 0;
   background: var(--accent);
 }
 
+/* Pastille de non-lu : collée au bord gauche, dans la gouttière de 16 px
+   réservée pour elle. */
 .unreadDot {
   position: absolute;
-  left: 4px;
-  top: 18px;
-  width: 6px;
-  height: 6px;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--accent);
-}
-
-.avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  flex-shrink: 0;
 }
 
 .content { flex: 1; min-width: 0; }
-.topRow { display: flex; justify-content: space-between; gap: 8px; }
-.sender { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
-.time { font-size: 0.68rem; color: var(--text-muted); flex-shrink: 0; }
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sender {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* La graisse porte le non-lu, pas une couleur de plus : c'est le signal le
+   plus lisible en balayage rapide, et il survit au daltonisme. */
+.senderUnread { font-weight: 650; color: var(--text-primary); }
+
+.time {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  /* Chiffres de même largeur : sans ça, « 11:15 » et « 9 nov. » décalent la
+     colonne de droite d'une ligne à l'autre. */
+  font-variant-numeric: tabular-nums;
+}
 
 .subject {
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin-top: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.subjectUnread { color: var(--text-primary); font-weight: 500; }
 
 .bottomRow {
   display: flex;
@@ -68,6 +88,9 @@
   justify-content: space-between;
   gap: 8px;
   margin-top: 2px;
+  /* Hauteur réservée même quand l'aperçu est vide : sinon une ligne sans
+     aperçu est plus courte que ses voisines et la liste ondule. */
+  min-height: 15px;
 }
 
 .preview {
@@ -79,4 +102,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-

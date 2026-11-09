@@ -1,0 +1,27 @@
+/* components/inbox/SenderAvatar.module.css */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Carré à coins très arrondis plutôt que cercle : c'est la forme que
+     prennent Superhuman et Notion pour une pastille d'identité, et elle
+     supporte bien un logo carré, contrairement au cercle qui en rogne les
+     angles. */
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* `contain` et non `cover` : un favicon rectangulaire ne doit pas être
+   recadré, sinon on perd justement ce qui le rend reconnaissable. Le fond
+   coloré de la pastille remplit ce qui reste. */
+.favicon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
