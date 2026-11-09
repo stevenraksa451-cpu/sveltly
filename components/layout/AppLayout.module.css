@@ -18,13 +18,3 @@
     padding: 16px;
   }
 }
-
-/* Voir la prop `flush` d'AppLayout : la page occupe l'écran entier, sans
-   gouttière ni largeur maximale. `overflow: hidden` parce qu'une page flush
-   gère son propre défilement colonne par colonne — sinon la page entière
-   défile ET chaque panneau défile, et on obtient deux barres imbriquées. */
-.flush {
-  padding: 0;
-  max-width: none;
-  overflow: hidden;
-}

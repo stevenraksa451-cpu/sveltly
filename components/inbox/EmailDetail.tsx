@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 // components/inbox/EmailDetail.tsx
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import DOMPurify from 'dompurify'
 import { Email } from '@/types'
 import { supabase } from '@/lib/supabase'
@@ -12,9 +12,6 @@ import ConflictPlanCard from '@/components/calendar/ConflictPlanCard'
 import styles from './EmailDetail.module.css'
 import { isoLocal } from '@/lib/dates'
 import { lireJson } from '@/lib/lire-json'
-import { reecrireImages, compterImagesDistantes } from '@/lib/email-html'
-import Kbd from '@/components/ui/Kbd'
-import { useRaccourcis } from '@/hooks/useRaccourcis'
 
 export default function EmailDetail({ email, onClose, onArchive }: { email: Email; onClose: () => void; onArchive?: () => void }) {
   const isArchived = email.labelIds?.includes('INBOX') === false
@@ -96,41 +93,15 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
     return () => clearTimeout(timeout)
   }, [rateLimitSeconds])
 
-  // R depuis EmailDetail et non depuis la page : showReply vit ici, et le
-  // composant est remonte a chaque changement d'email (key={selected.id}).
-  // Remonter cet etat d'un cran juste pour un raccourci serait un
-  // remaniement, pas une ligne.
-  useRaccourcis({ reponseIA: () => setShowReply(v => !v) })
-
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [iframeHeight, setIframeHeight] = useState(200)
 
-  // Images distantes BLOQUÉES par défaut : les charger annonce à l'expéditeur
-  // que le message a été ouvert, quand, et depuis quelle adresse IP.
-  // L'utilisateur les affiche d'un clic, et elles passent alors par /api/img.
-  // Voir lib/email-html.ts pour le raisonnement complet — notamment pourquoi
-  // elles ne s'affichaient PAS du tout avant : c'était notre propre CSP.
-  const [imagesAffichees, setImagesAffichees] = useState(false)
-
-  // DOMPurify D'ABORD, réécriture ENSUITE. La réécriture n'est pas un
-  // nettoyage de sécurité : elle suppose l'entrée déjà assainie.
-  const assaini = useMemo(
-    () =>
-      email.bodyHtml
-        ? DOMPurify.sanitize(email.bodyHtml, {
-            ADD_ATTR: ['target'],
-            FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
-          })
-        : null,
-    [email.bodyHtml]
-  )
-
-  const nbImagesDistantes = useMemo(() => (assaini ? compterImagesDistantes(assaini) : 0), [assaini])
-
-  const cleanHtml = useMemo(
-    () => (assaini ? reecrireImages(assaini, imagesAffichees ? 'charger' : 'bloquer') : null),
-    [assaini, imagesAffichees]
-  )
+  const cleanHtml = email.bodyHtml
+    ? DOMPurify.sanitize(email.bodyHtml, {
+        ADD_ATTR: ['target'],
+        FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
+      })
+    : null
 
   useEffect(() => {
     const iframe = iframeRef.current
@@ -341,28 +312,6 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
       {/* Corps */}
       <div className={styles.body}>
-        {/* Barre d'images : affichée SEULEMENT s'il y a quelque chose à
-            masquer. La poser sur un email sans image serait du bruit, et la
-            poser après acceptation reviendrait à redemander un choix déjà
-            fait. Elle dit POURQUOI, pas seulement QUOI : « images masquées »
-            tout court se lit comme une panne. */}
-        {cleanHtml && nbImagesDistantes > 0 && !imagesAffichees && (
-          <div className={styles.imagesBar}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 15l5-5 4 4 3-3 6 6" />
-              <line x1="3" y1="3" x2="21" y2="21" />
-            </svg>
-            <span className={styles.imagesBarText}>
-              {nbImagesDistantes === 1
-                ? 'Une image masquée — la charger signalerait l’ouverture à l’expéditeur'
-                : `${nbImagesDistantes} images masquées — les charger signalerait l’ouverture à l’expéditeur`}
-            </span>
-            <button type="button" className={styles.imagesBarBtn} onClick={() => setImagesAffichees(true)}>
-              Afficher les images
-            </button>
-          </div>
-        )}
         {cleanHtml ? (
           <iframe
             ref={iframeRef}
@@ -399,21 +348,14 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
       {/* Actions */}
       <div className={styles.actions}>
-        {/* Bouton PRINCIPAL de l'écran : c'est l'action que le produit
-            existe pour rendre facile. Les deux autres restent secondaires et
-            discrètes — un écran où trois boutons crient aussi fort n'en
-            propose aucun. */}
         <button
-          className={`${styles.actionBtnPrimary} ${showReply ? styles.actionBtnPrimaryOpen : ''}`}
+          className={`${styles.actionBtn} ${showReply ? styles.actionBtnActive : ''}`}
           onClick={() => setShowReply(!showReply)}
-          title={showReply ? 'Masquer la réponse (R)' : 'Réponse IA (R)'}
-          aria-keyshortcuts="r"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           {showReply ? 'Masquer la réponse' : 'Réponse IA'}
-          <Kbd onDark>R</Kbd>
         </button>
 
         <button
@@ -428,20 +370,13 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
           {email.autoScheduled ? 'Ajouté automatiquement' : eventSaved ? 'Ajouté à l’agenda' : 'Ajouter à l’agenda'}
         </button>
 
-        <button
-          className={styles.actionBtn}
-          onClick={onArchive}
-          disabled={!onArchive}
-          title={isArchived ? 'Désarchiver (E)' : 'Archiver (E)'}
-          aria-keyshortcuts="e"
-        >
+        <button className={styles.actionBtn} onClick={onArchive} disabled={!onArchive}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <polyline points="21 8 21 21 3 21 3 8"/>
             <rect x="1" y="3" width="22" height="5"/>
             <line x1="10" y1="12" x2="14" y2="12"/>
           </svg>
           {isArchived ? 'Désarchiver' : 'Archiver'}
-          <Kbd>E</Kbd>
         </button>
       </div>
 

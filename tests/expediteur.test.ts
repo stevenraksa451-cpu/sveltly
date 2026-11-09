@@ -1,14 +1,12 @@
-// lib/expediteur.ts sert à AFFICHER la liste d'emails : initiales, couleur,
-// date, aperçu. Chaque fonction y corrige un défaut constaté à l'écran sur de
-// vrais emails — ces cas-là sont figés ici, nommément.
+// lib/expediteur.ts sert a AFFICHER un expediteur : initiales, couleur,
+// domaine. Chaque fonction y corrige un defaut constate a l'ecran sur de
+// vrais emails - ces cas-la sont figes ici, nommement.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   initialesExpediteur,
   domaineExpediteur,
   couleurExpediteur,
-  dateCourte,
-  nettoyerApercu,
 } from '../lib/expediteur.ts'
 
 // --- Initiales ---------------------------------------------------------------
@@ -88,73 +86,4 @@ test('la couleur est toujours une paire fond/encre exploitable', () => {
   const { fond, encre } = couleurExpediteur('X')
   assert.match(fond, /^hsl\(\d+ \d+% \d+%\)$/)
   assert.match(encre, /^hsl\(\d+ \d+% \d+%\)$/)
-})
-
-// --- Date --------------------------------------------------------------------
-
-test('aujourd’hui affiche l’heure, cette année le jour, avant l’année', () => {
-  const maintenant = new Date(2026, 10, 9, 14, 0, 0)
-
-  const ceMatin = new Date(2026, 10, 9, 11, 15, 0)
-  assert.equal(dateCourte(ceMatin.toISOString(), maintenant), '11:15')
-
-  const plusTot = new Date(2026, 10, 2, 9, 0, 0)
-  assert.match(dateCourte(plusTot.toISOString(), maintenant), /^2 nov/)
-
-  const anDernier = new Date(2025, 10, 9, 9, 0, 0)
-  assert.equal(dateCourte(anDernier.toISOString(), maintenant), '09/11/2025')
-})
-
-test('la comparaison porte sur la date LOCALE, pas UTC', () => {
-  // 23h50 heure locale le 9 : c'est « aujourd'hui », même si l'UTC est au 10.
-  const maintenant = new Date(2026, 10, 9, 23, 55, 0)
-  const tard = new Date(2026, 10, 9, 23, 50, 0)
-  assert.equal(dateCourte(tard.toISOString(), maintenant), '23:50')
-})
-
-test('une date illisible ne casse pas la ligne', () => {
-  assert.equal(dateCourte('pas-une-date'), '')
-})
-
-// --- Aperçu ------------------------------------------------------------------
-
-test('le cas réel « 80 Bonjour Steven, de n » perd son parasite de tête', () => {
-  assert.equal(nettoyerApercu('80 Bonjour Steven, de n'), 'Bonjour Steven, de n')
-})
-
-test('plusieurs parasites de tête tombent ensemble', () => {
-  assert.equal(nettoyerApercu('  600 | • 80px — Bonjour'), 'Bonjour')
-})
-
-test('un nombre AU MILIEU du texte est conservé', () => {
-  // On ne nettoie que la TÊTE : « 21,60 € » est une information.
-  assert.equal(nettoyerApercu('Un reçu de 21 euros a été reçu'), 'Un reçu de 21 euros a été reçu')
-})
-
-test('les balises et entités disparaissent', () => {
-  assert.equal(nettoyerApercu('<p>Bonjour&nbsp;Marine</p>'), 'Bonjour Marine')
-  assert.equal(nettoyerApercu('Tom &amp; Jerry'), 'Tom & Jerry')
-  assert.equal(nettoyerApercu('caf&#233;'), 'café')
-})
-
-test('les liens bruts sont retirés', () => {
-  assert.equal(
-    nettoyerApercu('Voir ici https://exemple.fr/tres/long/lien?utm=1 merci'),
-    'Voir ici merci'
-  )
-  assert.equal(nettoyerApercu('Rendez-vous sur www.exemple.fr aujourd’hui'), 'Rendez-vous sur aujourd’hui')
-})
-
-test('les invisibles de mise en page des emailings sont retirés', () => {
-  assert.equal(nettoyerApercu('Bon​jour﻿'), 'Bonjour')
-})
-
-test('les espaces multiples sont réduits et les bords coupés', () => {
-  assert.equal(nettoyerApercu('  Bonjour    Marine  \n\n  '), 'Bonjour Marine')
-})
-
-test('un aperçu vide ou entièrement parasite rend une chaîne vide', () => {
-  assert.equal(nettoyerApercu(''), '')
-  assert.equal(nettoyerApercu('   |  •  — '), '')
-  assert.equal(nettoyerApercu('<img alt="">'), '')
 })

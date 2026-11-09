@@ -111,30 +111,10 @@
 .planLimitBanner svg { flex-shrink: 0; }
 
 /* Corps */
-/* ⚠️ PAS d'overflow ici. `.container` défile déjà (voir en haut du fichier) :
-   avec les deux, le corps de l'email obtenait sa propre barre de défilement
-   imbriquée dans celle du panneau — deux ascenseurs côte à côte, et une
-   molette qui s'arrête au bord du cadre au lieu de continuer la page.
-   Le contenu de l'email défile avec le panneau du lecteur, point. */
-/* ⚠️ `flex: 1 0 auto`, et les trois valeurs comptent.
-   - `1` : sur un email court, le corps occupe l'espace libre et la barre
-     d'actions reste en bas plutôt que de remonter sous deux lignes de texte.
-   - `0` (flex-shrink) : le corps ne doit JAMAIS être comprimé. Avec le `1`
-     par défaut, un email long était écrasé dans la hauteur disponible et,
-     faute d'overflow, son texte se peignait PAR-DESSUS la barre d'actions —
-     « Learn more here… » s'affichait à travers les boutons.
-   - `auto` : la base est la hauteur réelle du contenu, qui pousse la barre
-     vers le bas et fait défiler `.container`.
-   C'est cette combinaison qui permet de supprimer l'overflow imbriqué sans
-   casser la mise en page. */
 .body {
   padding: 24px;
-  /* Hauteur NATURELLE : le corps pousse ce qui suit, et c'est .container qui
-     défile. En flex:1 il était comprimé et son texte se peignait PAR-DESSUS
-     la barre d'actions ; en flex:1 0 auto il remplissait l'écran et poussait
-     cette barre sous la ligne de flottaison. La barre étant désormais
-     collante (voir .actions), il n'a plus rien à remplir. */
-  flex: 0 0 auto;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .bodyText {
@@ -144,23 +124,13 @@
   white-space: pre-line;
 }
 
-/* Barre d'actions COLLANTE en bas du lecteur.
-   Le corps de l'email n'a plus sa propre barre de défilement : c'est le
-   panneau entier qui défile. Sans `sticky`, les actions suivraient le texte
-   et sortiraient de l'écran sur tout email un peu long — il faudrait
-   descendre jusqu'au bas du message pour pouvoir archiver. Collées, on garde
-   le défilement unique demandé ET des actions toujours atteignables.
-   Le fond OPAQUE est indispensable : le texte passe dessous. */
+/* Actions — état d'origine, non affecté par les blocs ouverts en dessous */
 .actions {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
   display: flex;
   gap: 6px;
   padding: 12px 24px;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
   flex-wrap: wrap;
 }
 
@@ -529,68 +499,3 @@
   border: none;
   background: transparent;
 }
-
-/* --- Bouton principal de la barre d'actions ------------------------------
-   « Réponse IA » est l'action que le produit existe pour rendre facile.
-   Les trois boutons étaient au même niveau visuel : rien ne disait par où
-   commencer. Celui-ci prend l'aplat indigo, les deux autres restent en
-   secondaire — c'est la règle d'un seul élément saturé cliquable à l'écran,
-   la même que sur la vitrine. */
-.actionBtnPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  transition: background var(--transition), border-color var(--transition);
-}
-.actionBtnPrimary:hover { background: var(--accent-hover, var(--accent)); }
-
-/* Panneau ouvert : le bouton devient un interrupteur enfoncé plutôt qu'un
-   appel à l'action — l'action est faite, le panneau est là. */
-.actionBtnPrimaryOpen {
-  background: transparent;
-  color: var(--accent);
-  border-color: var(--border);
-}
-.actionBtnPrimaryOpen:hover { background: var(--accent-light); }
-
-/* --- Barre « Images masquées » -------------------------------------------
-   Discrète et en haut du corps, comme dans tous les clients mail : c'est une
-   information sur ce qui suit, pas une alerte. */
-.imagesBar {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  background: var(--bg-subtle);
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-}
-
-.imagesBarText {
-  flex: 1;
-  min-width: 0;
-  line-height: 1.4;
-}
-
-.imagesBarBtn {
-  flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--accent);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  transition: background var(--transition);
-}
-.imagesBarBtn:hover { background: var(--accent-light); }

@@ -1,27 +1,17 @@
-/* Panneau plat, pas une pile de cartes.
-   Les blocs étaient des cartes blanches bordées, arrondies et ombrées,
-   espacées de 14 px sur le gris : trois petits objets flottants dans une
-   colonne de 300 px, soit plus de bords que de contenu. Ils deviennent des
-   SECTIONS d'un même panneau, séparées par un filet d'un pixel. */
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 14px;
   overflow-y: auto;
-  height: 100%;
 }
 
 .card {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-light);
-  border-radius: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card-sm);
   padding: 16px 18px;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
-/* Le dernier bloc ne porte pas de filet : il n'y a rien à séparer en dessous,
-   et le trait flotterait au milieu du vide restant. */
-.panel > .card:last-child { border-bottom: none; }
 
 .cardTitle {
   display: flex;

@@ -83,23 +83,15 @@
    avec un filet et une ombre tres douce — pas un pave indigo plein.
    L'indigo plein etait l'element le plus sature de l'ecran : il attirait
    l'oeil vers la page ou on se trouve deja, au lieu du contenu. */
-/* État actif NET : fond indigo très pâle, encre et icône indigo, graisse
-   semi-grasse. L'ancienne version posait une carte blanche ombrée sur le
-   gris de la barre — sur un fond déjà clair, l'écart était si faible que
-   deux entrées pouvaient sembler sélectionnées en même temps, et qu'on ne
-   savait pas laquelle. La couleur tranche, l'ombre ne tranchait pas. */
 .active {
-  background: var(--accent-light);
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: none;
-  border: 1px solid transparent;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-weight: var(--weight-strong);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
   /* Compense le filet pour que l'entree active ne saute pas d'un pixel. */
   padding: 9px 13px;
 }
-/* L'icône suit l'encre : une icône restée grise à côté d'un libellé indigo
-   donne l'impression d'un état à moitié appliqué. */
-.active svg { color: var(--accent); }
 .collapsed .active { padding: 9px; }
 
 /* Liseré indigo a gauche : il dit « vous etes ici » sans repeindre toute la

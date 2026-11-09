@@ -4,7 +4,6 @@ import { memo, useCallback } from 'react'
 import { Email } from '@/types'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import SenderAvatar from './SenderAvatar'
-import { dateCourte, nettoyerApercu } from '@/lib/expediteur'
 import styles from './EmailListItem.module.css'
 
 // memo + onSelect(id) plutôt qu'un onClick déjà fermé sur l'email : la liste
@@ -19,29 +18,29 @@ function EmailListItem({ email, selected, onSelect }: {
   selected: boolean
   onSelect: (id: string) => void
 }) {
-  // Initiales, couleur, date et aperçu : toute la logique est dans
-  // lib/expediteur.ts, qui est testé. Ici il ne reste que du rendu.
-  const time = dateCourte(email.receivedAt)
-  const apercu = nettoyerApercu(email.preview)
+  const time = new Date(email.receivedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
   const handleClick = useCallback(() => onSelect(email.id), [onSelect, email.id])
 
   return (
     <button className={`${styles.item} ${selected ? styles.selected : ''}`} onClick={handleClick}>
       {!email.isRead && <span className={styles.unreadDot} />}
-      <SenderAvatar nom={email.sender} adresse={email.senderEmail} taille={32} />
+      {/* Logo du domaine de l'expéditeur, repli sur des initiales colorées.
+          Remplace un rond indigo uniforme portant les deux premières lettres,
+          qui donnait « A- » sur « Aides - CDJ » : le calcul prenait le
+          premier caractère de chaque mot, tiret compris. Voir SenderAvatar
+          et lib/expediteur.ts. */}
+      <SenderAvatar nom={email.sender} adresse={email.senderEmail} taille={34} />
       <div className={styles.content}>
         <div className={styles.topRow}>
-          <span className={`${styles.sender} ${!email.isRead ? styles.senderUnread : ''}`}>{email.sender}</span>
+          <span className={styles.sender}>{email.sender}</span>
           <span className={styles.time}>{time}</span>
         </div>
-        <p className={`${styles.subject} ${!email.isRead ? styles.subjectUnread : ''}`}>{email.subject}</p>
+        <p className={styles.subject}>{email.subject}</p>
         <div className={styles.bottomRow}>
-          {/* L'aperçu nettoyé peut être VIDE — un email qui n'est qu'une
-              image, ou dont le snippet n'était que des parasites. On ne rend
-              alors rien plutôt qu'une ligne fantôme : PriorityBadge garde sa
-              place grâce au `justify-content` du conteneur. */}
-          {apercu && <p className={styles.preview}>{apercu}</p>}
-          <PriorityBadge priority={email.priority} size="sm" />
+          <p className={styles.preview}>{email.preview}</p>
+          {(email.priority === 'urgent' || email.priority === 'important') && (
+            <PriorityBadge priority={email.priority} size="sm" />
+          )}
         </div>
       </div>
     </button>

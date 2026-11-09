@@ -61,20 +61,6 @@ const MENU_ITEMS = [
   },
 ]
 
-/**
- * Une entrée est active si l'URL EST sa cible, ou en est une sous-page.
- *
- * `pathname.startsWith(href)` tout court compare des chaînes, pas des
- * chemins : `/tasks` serait actif sur une future page `/tasks-archive`, et
- * DEUX entrées paraîtraient sélectionnées en même temps. Exiger le `/`
- * suivant ferme le cas. Aucun chevauchement n'existe aujourd'hui — c'est
- * précisément pour ça qu'il faut le poser maintenant, tant que c'est gratuit.
- */
-function estActif(pathname: string, href: string): boolean {
-  const cible = href.split('?')[0]
-  return pathname === cible || pathname.startsWith(cible + '/')
-}
-
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
@@ -203,7 +189,7 @@ export default function Sidebar() {
           <Link
             key={href}
             href={href}
-            className={`${styles.link} ${estActif(pathname, href) ? styles.active : ''}`}
+            className={`${styles.link} ${pathname.startsWith(href) ? styles.active : ''}`}
             title={!showExpanded ? label : undefined}
           >
             <span className={styles.icon}>{icon}</span>
@@ -217,7 +203,7 @@ export default function Sidebar() {
           <Link
             key={href}
             href={href}
-            className={`${styles.link} ${estActif(pathname, href) ? styles.active : ''}`}
+            className={`${styles.link} ${pathname.startsWith(href) ? styles.active : ''}`}
             title={!showExpanded ? label : undefined}
           >
             <span className={styles.icon}>{icon}</span>

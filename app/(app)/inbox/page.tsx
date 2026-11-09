@@ -9,7 +9,6 @@ import InboxSidePanel from '@/components/inbox/InboxSidePanel'
 import { supabase } from '@/lib/supabase'
 import { useEmails } from '@/hooks/useEmails'
 import { estNewsletter } from '@/lib/categories-email'
-import { useRaccourcis } from '@/hooks/useRaccourcis'
 import styles from './inbox.module.css'
 
 type Tab = 'inbox' | 'archived'
@@ -28,12 +27,10 @@ function InboxContent() {
     let list = emails.filter((e: any) =>
       tab === 'inbox' ? e.labelIds?.includes('INBOX') !== false : !e.labelIds?.includes('INBOX')
     )
-
-    // « Newsletters » est le SEUL filtre qui les montre. Partout ailleurs,
-    // elles sortent de la liste — y compris de « Non lus », « Urgent » et
-    // « Important », sans quoi une promo classée urgente par erreur
-    // reviendrait par la fenêtre. C'est tout l'intérêt de la catégorie :
-    // sortir du champ de vision ce qu'on ne traite pas.
+    // « Newsletters » est le SEUL filtre qui les montre. Partout ailleurs
+    // elles sortent de la liste, y compris de Non lus, Urgent et Important —
+    // sans quoi une promo classée urgente par erreur reviendrait par la
+    // fenêtre, et la catégorie ne servirait à rien.
     if (filter === 'newsletters') list = list.filter(estNewsletter)
     else list = list.filter((e: any) => !estNewsletter(e))
 
@@ -54,9 +51,9 @@ function InboxContent() {
   const counts = useMemo(() => {
     let urgent = 0, important = 0, unread = 0, newsletters = 0
     for (const e of emails as any[]) {
-      // Les compteurs doivent dire ce que le filtre AFFICHERA, sinon
-      // « Non lus 12 » mène à une liste de trois : les newsletters sont donc
-      // exclues des trois autres compteurs, exactement comme de leurs listes.
+      // Un compteur doit annoncer ce que son filtre AFFICHERA : les
+      // newsletters sont donc exclues des trois autres, exactement comme de
+      // leurs listes. Sinon « Non lus 12 » mènerait à une liste de trois.
       if (estNewsletter(e)) { newsletters++; continue }
       if (e.priority === 'urgent') urgent++
       else if (e.priority === 'important') important++
@@ -68,20 +65,6 @@ function InboxContent() {
   // Identité stable : c'est ce qui permet au memo d'EmailListItem de tenir —
   // une fonction recréée ici à chaque rendu re-rendrait toutes les lignes.
   const handleSelect = useCallback((id: string) => setSelectedId(id), [])
-
-  // J / K : déplacement dans la liste FILTRÉE, pas dans `emails`. Se déplacer
-  // dans la liste complète ferait sauter la sélection sur un email que
-  // l'utilisateur ne voit pas — et le panneau afficherait un message absent
-  // de la colonne de gauche.
-  const deplacer = useCallback((pas: 1 | -1) => {
-    if (filtered.length === 0) return
-    const i = filtered.findIndex((e: any) => e.id === effectiveSelectedId)
-    // Rien de sélectionné : J prend le premier, K le dernier.
-    const cible = i === -1
-      ? (pas === 1 ? 0 : filtered.length - 1)
-      : Math.min(filtered.length - 1, Math.max(0, i + pas))
-    setSelectedId(filtered[cible].id)
-  }, [filtered, effectiveSelectedId])
 
   async function handleAction(action: 'archive' | 'unarchive' | 'markUnread' | 'markRead') {
     if (!selected) return
@@ -114,38 +97,8 @@ function InboxContent() {
     setActionLoading(false)
   }
 
-  // Raccourcis clavier. `reponseIA` et `tache` ne sont pas câblés ici : les
-  // deux vivent dans l'état interne d'EmailDetail et d'InboxSidePanel, qui
-  // sont remontés à chaque changement d'email (key={selected.id}). Les
-  // piloter depuis la page demanderait de remonter cet état d'un cran —
-  // un remaniement réel, pas une ligne. Ils sont donc gérés là où ils
-  // vivent, par un écouteur propre à chacun de ces deux composants.
-  useRaccourcis({
-    suivant: () => deplacer(1),
-    precedent: () => deplacer(-1),
-    archiver: () => {
-      if (!selected) return
-      handleAction(selected.labelIds?.includes('INBOX') === false ? 'unarchive' : 'archive')
-    },
-    basculerLu: () => {
-      if (!selected) return
-      handleAction(selected.isRead ? 'markUnread' : 'markRead')
-    },
-    fermer: () => setSelectedId(null),
-  })
-
-  // hideTitle + flush : « Boîte de réception » s'affichait TROIS fois sur le
-  // même écran — titre de page, onglet de la liste, et entrée de la barre
-  // latérale. Le <h1> reste dans le DOM en sr-only, pour les lecteurs d'écran
-  // et la structure du document ; à l'écran, c'est l'onglet qui nomme la vue.
-  //
-  // Le sous-titre part avec : « Gérez vos emails au même endroit » ne dit
-  // rien que l'écran ne montre déjà.
-  //
-  // flush retire la gouttière de 28 px et la largeur maximale — les trois
-  // panneaux vont d'un bord à l'autre (voir components/layout/AppLayout.tsx).
   return (
-    <AppLayout title="Boîte de réception" hideTitle flush>
+    <AppLayout title="Boîte de réception" subtitle="Gérez vos emails au même endroit">
       <div className={styles.layout}>
 
         {/* Liste */}
@@ -172,8 +125,8 @@ function InboxContent() {
             <button className={`${styles.filterBtn} ${styles.important} ${filter === 'important' ? styles.filterBtnActive : ''}`} onClick={() => setFilter('important')}>
               Important {counts.important > 0 && <span className={styles.filterCount}>{counts.important}</span>}
             </button>
-            {/* Newsletters : la seule entrée qui AJOUTE des emails à la vue
-                au lieu d'en retirer. Tous les autres filtres les excluent. */}
+            {/* Seule entrée qui AJOUTE des emails à la vue au lieu d'en
+                retirer : tous les autres filtres les excluent. */}
             <button className={`${styles.filterBtn} ${filter === 'newsletters' ? styles.filterBtnActive : ''}`} onClick={() => setFilter('newsletters')}>
               Newsletters {counts.newsletters > 0 && <span className={styles.filterCount}>{counts.newsletters}</span>}
             </button>
@@ -183,11 +136,11 @@ function InboxContent() {
             {loading && emails.length === 0 ? (
               [...Array(5)].map((_, i) => <div key={i} className={`${styles.skeletonItem} skeleton`} />)
             ) : filtered.length === 0 ? (
-              // ⚠️ Un « Aucun email ici » sec, sur une boîte dont TOUT est
-              // classé newsletter, se lit comme une panne — c'est exactement
-              // ce qui arrive sur une boîte neuve, majoritairement faite de
-              // notifications et de promotions. On dit alors où ils sont
-              // partis, et on y emmène.
+              // Cet état vient AVEC le classement, il n'est pas décoratif :
+              // une boîte neuve est majoritairement faite de notifications et
+              // de promotions, donc « Tous » peut légitimement être vide
+              // alors que des emails sont arrivés. Un « Aucun email ici » sec
+              // se lirait comme une panne. On dit où ils sont partis.
               <div className={styles.empty}>
                 {filter !== 'newsletters' && counts.newsletters > 0 ? (
                   <>

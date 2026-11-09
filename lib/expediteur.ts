@@ -1,6 +1,10 @@
 // lib/expediteur.ts
-// Tout ce qui sert à AFFICHER un expéditeur et un email dans la liste :
-// initiales, couleur, domaine, date courte, nettoyage de l'aperçu.
+// Tout ce qui sert a AFFICHER un expediteur : initiales, couleur, domaine.
+//
+// Le fichier a aussi porte un formatage de date et un nettoyage d'apercu,
+// retires avec la refonte visuelle de la liste : ils ne servaient plus a
+// personne, et une fonction exportee que rien n'appelle finit par etre
+// reprise sans etre relue.
 //
 // Fonctions pures, sans React ni DOM, donc testables par `node --test` —
 // c'est la raison du fichier séparé. Chacune corrige un défaut qu'on voyait
@@ -98,96 +102,4 @@ export function couleurExpediteur(nom: string): { fond: string; encre: string } 
     fond: `hsl(${teinte} 62% 94%)`,
     encre: `hsl(${teinte} 52% 36%)`,
   }
-}
-
-/**
- * Date de liste, au format attendu d'un client mail :
- *   aujourd'hui        -> « 11:15 »
- *   cette année        -> « 9 nov. »
- *   année précédente   -> « 09/11/2025 »
- *
- * L'ancienne version rendait toujours « 9 nov. », y compris pour un email
- * reçu il y a dix minutes et pour un email de l'an dernier — deux
- * informations très différentes, affichées pareil.
- *
- * Comparaison sur la date LOCALE (getFullYear/getMonth/getDate), jamais en
- * UTC : voir lib/dates.ts, même règle et même raison.
- */
-export function dateCourte(iso: string, maintenant: Date = new Date()): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-
-  const memeJour =
-    d.getFullYear() === maintenant.getFullYear() &&
-    d.getMonth() === maintenant.getMonth() &&
-    d.getDate() === maintenant.getDate()
-  if (memeJour) {
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-  }
-
-  if (d.getFullYear() === maintenant.getFullYear()) {
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-  }
-
-  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
-
-/**
- * Nettoie l'aperçu avant troncature.
- *
- * Gmail rend un `snippet` construit sur le corps BRUT : il y traîne des
- * restes de balises, des textes alternatifs d'images, des compteurs de
- * tracking et des entités HTML. Cas réel relevé à l'écran :
- *
- *   « 80 Bonjour Steven, de n »
- *
- * Le « 80 » est la largeur d'une image, pas un mot. Afficher ça donne
- * l'impression que le produit lit mal les emails — alors qu'il recopie
- * fidèlement ce que Gmail lui donne.
- *
- * Ordre volontaire : on enlève les balises AVANT de décoder les entités,
- * sinon un `&lt;script&gt;` décodé redeviendrait une balise à retirer. Le
- * résultat ne sert qu'à du texte (jamais à du HTML), mais l'ordre inverse
- * serait un piège pour la prochaine personne qui y touche.
- */
-export function nettoyerApercu(brut: string): string {
-  if (!brut) return ''
-  let t = brut
-
-  t = t.replace(/<[^>]*>/g, ' ')
-
-  // Entités les plus fréquentes dans un email, puis les numériques.
-  const ENTITES: Record<string, string> = {
-    '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"',
-    '&#39;': '’', '&apos;': '’', '&zwnj;': '', '&shy;': '', '&ensp;': ' ', '&emsp;': ' ',
-  }
-  t = t.replace(/&[a-z]+;|&#\d+;/gi, e => {
-    const connu = ENTITES[e.toLowerCase()]
-    if (connu !== undefined) return connu
-    const num = /^&#(\d+);$/.exec(e)
-    if (num) {
-      const code = Number(num[1])
-      // Les caractères de contrôle et les invisibles ne doivent pas revenir.
-      return code >= 32 && code !== 127 ? String.fromCodePoint(code) : ' '
-    }
-    return ' '
-  })
-
-  // Liens bruts : ils occupent la moitié d'un aperçu sans rien en dire.
-  t = t.replace(/\bhttps?:\/\/\S+/gi, ' ')
-  t = t.replace(/\bwww\.\S+/gi, ' ')
-
-  // Invisibles de mise en page des emailings (jointeurs, espaces nulles).
-  t = t.replace(/[​-‍﻿­]/g, '')
-
-  // Parasites de TÊTE uniquement : dimensions d'images, puces, séparateurs.
-  // Répété tant que ça mord — « 80 600 | Bonjour » doit tomber entièrement.
-  let avant
-  do {
-    avant = t
-    t = t.replace(/^[\s|•·–—*_=>+#:,.\-]+/, '')
-    t = t.replace(/^\d{1,4}(?:px)?(?=\s|$)/i, '')
-  } while (t !== avant)
-
-  return t.replace(/\s+/g, ' ').trim()
 }
