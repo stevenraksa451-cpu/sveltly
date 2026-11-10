@@ -499,3 +499,33 @@
   border: none;
   background: transparent;
 }
+
+/* Retour à la liste — téléphone uniquement.
+   Masqué par défaut : sur grand écran la liste est visible à gauche, donc
+   « Tous les emails » n'aurait rien à ramener. Le seuil de 760 px est celui
+   où app/(app)/inbox/inbox.module.css bascule sur une seule colonne : les
+   deux doivent changer au MÊME pixel, sinon il existe une largeur où la
+   liste est masquée et le bouton pour y revenir aussi. */
+.backBtn {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .backBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 4px;
+    padding: 6px 10px 6px 6px;
+    margin-left: -6px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--accent);
+    background: transparent;
+    /* Cible tactile d'au moins 40 px de haut : en dessous, on vise et on
+       rate, et c'est le seul chemin de retour de l'écran. */
+    min-height: 40px;
+  }
+  .backBtn:active { background: var(--accent-light); }
+}

@@ -120,17 +120,35 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ⚠️ LA ZONE TACTILE FAIT 40 px, LA PISTE VISIBLE EN FAIT TOUJOURS 4.
+   L'élément <input> mesurait 4 px de haut : au doigt on le ratait une fois
+   sur deux, et c'est le seul contrôle que cette section invite à manipuler.
+   On ne grossit pas le trait pour autant — la hauteur part sur l'INPUT, qui
+   devient transparent, et la piste est peinte par ::-*-track. Le dessin ne
+   change pas, la cible décuple. */
 .slider {
   width: 100%;
   appearance: none;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.25);
+  height: 40px;
+  background: transparent;
   outline: none;
   cursor: pointer;
 }
+.slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+}
+.slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+}
 .slider::-webkit-slider-thumb {
   appearance: none;
+  /* WebKit aligne le pouce sur le HAUT de la piste dès qu'on peint
+     ::-webkit-slider-runnable-track. (4 − 18) / 2 = −7 le recentre. */
+  margin-top: -7px;
   width: 18px;
   height: 18px;
   border-radius: 50%;

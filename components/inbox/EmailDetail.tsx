@@ -269,6 +269,18 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
 
       {/* Header */}
       <div className={styles.header}>
+        {/* Retour à la liste — visible UNIQUEMENT sur téléphone (voir le
+            bloc @media du module). Sur grand écran, la liste est juste à
+            gauche et ce bouton n'aurait rien à fermer ; sous 760 px elle est
+            masquée, et sans lui on resterait enfermé dans le lecteur.
+            C'est aussi ce qui fait enfin servir la prop `onClose` : elle
+            était déclarée et reçue depuis le début, mais rien ne l'appelait. */}
+        <button type="button" className={styles.backBtn} onClick={onClose}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Tous les emails
+        </button>
         <div className={styles.headerTop}>
           <div className={styles.senderRow}>
             <div className={styles.avatar}>

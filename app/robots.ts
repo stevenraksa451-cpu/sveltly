@@ -16,7 +16,7 @@ export default function robots(): MetadataRoute.Robots {
       // quota de l'APPLICATION (voir le budget de tokens dans CLAUDE.md).
       // L'exclusion n'est pas une mesure de sécurité, c'est une mesure de
       // coût : un robot poli ne va pas dépenser le budget d'analyse.
-      disallow: ['/api/', '/dashboard', '/inbox', '/tasks', '/calendar', '/settings', '/auth/', '/onboarding/'],
+      disallow: ['/api/', '/banc-mobile.html', '/dashboard', '/inbox', '/tasks', '/calendar', '/settings', '/auth/', '/onboarding/'],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   }

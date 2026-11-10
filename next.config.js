@@ -28,7 +28,22 @@ const CSP_PROD = [
 // site, pas seulement les pages HTML.
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
+  // ⚠️ X-Frame-Options EN PRODUCTION SEULEMENT, et la protection ne baisse
+  // pas pour autant : `frame-ancestors 'none'` de la CSP ci-dessus fait le
+  // même travail et c'est elle que les navigateurs modernes appliquent —
+  // X-Frame-Options n'est que le garde-fou hérité pour les plus anciens.
+  //
+  // En développement, l'en-tête empêchait de mettre le site dans une iframe,
+  // donc de le TESTER à une largeur de téléphone : la fenêtre de Chrome
+  // pilotée à distance est maximisée et refuse de se redimensionner, et une
+  // iframe de 390 px est la seule façon de faire réellement déclencher les
+  // media queries. Le rendu mobile est resté invérifiable pendant tout le
+  // développement à cause de ça.
+  //
+  // Même motif que la CSP juste en dessous : ce qui protège l'utilisateur
+  // reste en production, ce qui ne gêne que l'outillage s'arrête à la porte
+  // du développement.
+  ...(isProd ? [{ key: 'X-Frame-Options', value: 'DENY' }] : []),
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },

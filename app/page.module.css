@@ -451,7 +451,7 @@
 
 .stepsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--card-gap);
   list-style: none;
   margin: 0;
@@ -618,7 +618,7 @@
 }
 
 @media (max-width: 880px) {
-  .stepsGrid { grid-template-columns: 1fr; }
+  .stepsGrid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ==========================================================================
@@ -743,7 +743,7 @@
    au lieu de traiter chaque fonctionnalité de façon égale. */
 .bentoGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -1073,24 +1073,24 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .bentoGrid { grid-template-columns: repeat(2, 1fr); }
+  .bentoGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bentoBig { grid-column: span 2; }
-  .stepsGrid { grid-template-columns: 1fr; }
+  .stepsGrid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 640px) {
-  .bentoBig { grid-template-columns: 1fr; }
+  .bentoBig { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 900px) {
 }
 
 @media (max-width: 768px) {
-  .hero { grid-template-columns: 1fr; padding: 60px 20px; gap: 40px; }
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 60px 20px; gap: 40px; }
   .howSection { padding: 60px 20px; }
   .features { padding: 60px 20px; }
   .faqSection { padding: 60px 20px; }
-  .bentoGrid { grid-template-columns: 1fr; }
+  .bentoGrid { grid-template-columns: minmax(0, 1fr); }
   .bentoBig, .bentoMed { grid-column: span 1; }
   .ctaBanner { padding: 60px 20px; }
 }
@@ -1289,5 +1289,5 @@
 
 @media (max-width: 768px) {
   .pricing { padding: 60px 20px; }
-  .planGrid { grid-template-columns: 1fr; }
+  .planGrid { grid-template-columns: minmax(0, 1fr); }
 }

@@ -102,3 +102,39 @@
   text-underline-offset: 2px;
 }
 .emptyLink:hover { opacity: 0.8; }
+
+/* ==========================================================================
+   TÉLÉPHONE — une colonne à la fois
+   ==========================================================================
+   Sous 760 px, la boîte restait sur DEUX colonnes : une liste de 280 px et
+   un lecteur qui sortait de l'écran. On voyait la moitié gauche d'un email
+   qu'on ne pouvait ni lire ni fermer. La règle @media existante ne masquait
+   que le panneau IA et laissait les deux autres colonnes côte à côte.
+
+   Un téléphone montre donc UNE vue : la liste, et le lecteur à la place dès
+   qu'un email est ouvert. C'est le comportement de tous les clients mail
+   mobiles, et il n'a rien d'exotique — ce qui manquait, c'est de distinguer
+   « aucun email choisi » de « premier email affiché par défaut ».
+
+   ⚠️ La classe .detailOuverte est posée par page.tsx sur `selectedId`, PAS
+   sur l'email effectivement affiché : sur grand écran le premier email de la
+   liste est sélectionné d'office, et sans cette distinction le téléphone
+   aurait ouvert un lecteur que personne n'a demandé, dès le chargement.
+   =========================================================================== */
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    /* La hauteur reste celle de l'écran : chaque vue défile pour elle-même,
+       sinon la liste et le lecteur s'empilent sur une page de 3 000 px. */
+    height: calc(100vh - var(--header-height));
+  }
+
+  .listCol { border-right: none; }
+
+  /* Par défaut : la liste occupe l'écran, le lecteur attend. */
+  .detailCol { display: none; }
+
+  /* Un email est ouvert : le lecteur prend toute la place. */
+  .detailOuverte .listCol { display: none; }
+  .detailOuverte .detailCol { display: flex; border-right: none; }
+}

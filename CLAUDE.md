@@ -855,6 +855,65 @@ est en cause — `app/auth/callback` n'envoie JAMAIS vers `/`, uniquement vers
 `/dashboard` ou `/auth/callback/client`. Atterrir sur l'accueil prouve donc
 que le callback n'a pas été atteint du tout.
 
+## Tester le rendu TÉLÉPHONE — `public/banc-mobile.html`
+
+Le mobile est resté invérifiable pendant tout le développement, et la raison
+était bête : la fenêtre de Chrome pilotée à distance est **maximisée et
+refuse de se redimensionner**. Chaque passe se concluait par « je n'ai pas pu
+le voir ».
+
+Une **iframe a son propre viewport** : les media queries s'y déclenchent pour
+de vrai. `public/banc-mobile.html` charge donc n'importe quelle page du site
+dans trois iframes — 360, 390 et 768 px — et expose `mesurer()` en console.
+
+⚠️ `X-Frame-Options: DENY` l'interdisait. Il est devenu **production
+seulement** (next.config.js), et la protection ne baisse pas : la CSP de
+production porte `frame-ancestors 'none'`, qui fait le même travail et que
+les navigateurs modernes appliquent en priorité. Vérifié après coup : l'en-tête
+est bien de retour sur le build de production.
+
+### La mesure qui ment
+
+`html` et `body` portent `overflow-x: clip` (voir plus bas). Donc
+`scrollWidth > clientWidth` **ne détecte JAMAIS un débordement** : le contenu
+n'est pas poussé hors de l'écran, il est **coupé en silence**. C'est comme ça
+que la grille bento a pu perdre la moitié de son texte sur un téléphone sans
+que rien ne le signale.
+
+La bonne sonde parcourt les éléments et compare `getBoundingClientRect().right`
+au viewport, **en excluant uniquement les ancêtres en `overflow-x: auto/scroll`**
+— jamais `body` ni `html`, sinon leur `clip` rend la sonde aveugle et tout
+paraît propre. Deux faux positifs ont été écartés comme ça (`/settings` et
+`/tasks`, dont les barres d'onglets défilent volontairement).
+
+### ⚠️ `grid-template-columns: 1fr` est un piège
+
+`1fr` vaut `minmax(auto, 1fr)`, et ce `auto` est un **plancher** : la colonne
+ne peut pas descendre sous la largeur min-content de son contenu. Avec du
+texte en `nowrap` ou une maquette dense dedans, la colonne pousse la grille
+hors de l'écran. Mesuré sur l'accueil à 390 px : **grille de 341 px, colonne
+de 420 px**.
+
+`minmax(0, 1fr)` retire le plancher. Les 9 déclarations de
+`app/page.module.css` sont corrigées. Le commentaire de `.bentoBig`
+documentait déjà ce piège pour sa grille INTERNE — il manquait sur les
+grilles externes, qui sont précisément celles que le téléphone casse.
+
+### La boîte de réception montre UNE colonne au téléphone
+
+Sous 760 px, elle restait sur deux colonnes : une liste de 280 px et un
+lecteur qui sortait de l'écran. La règle existante ne masquait que le
+panneau IA.
+
+`.detailOuverte` est posée par `page.tsx` sur **`selectedId`**, pas sur
+l'email effectivement affiché : sur grand écran le premier de la liste est
+sélectionné d'office, et sans cette distinction le téléphone aurait ouvert un
+lecteur que personne n'a demandé, dès le chargement.
+
+Le bouton « Tous les emails » (`EmailDetail`) n'existe qu'en dessous de ce
+même seuil, et il fait enfin servir la prop `onClose` — déclarée et reçue
+depuis toujours, appelée par personne.
+
 ## Pièges connus
 
 - **Seuils adaptatifs** : 880 px partout (gabarits, pied de page) sauf la

@@ -99,7 +99,13 @@ function InboxContent() {
 
   return (
     <AppLayout title="Boîte de réception" subtitle="Gérez vos emails au même endroit">
-      <div className={styles.layout}>
+      {/* `selectedId` et non `effectiveSelectedId` : sur grand écran, le
+          premier email de la liste est sélectionné d'office pour que le
+          lecteur ne soit pas vide. Sur téléphone, où une seule colonne tient
+          à l'écran, ce choix par défaut ouvrirait un email que personne n'a
+          demandé — la liste serait masquée dès le chargement. La classe ne
+          se pose donc que sur un choix EXPLICITE de l'utilisateur. */}
+      <div className={`${styles.layout} ${selectedId ? styles.detailOuverte : ''}`}>
 
         {/* Liste */}
         <div className={styles.listCol}>

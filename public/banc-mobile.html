@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Banc d'essai mobile — Sveltly</title>
+<style>
+  /* Banc d'essai pour vérifier le rendu à une largeur de téléphone.
+     Une iframe a son PROPRE viewport : les media queries du site s'y
+     déclenchent pour de vrai, contrairement à une simple mise à l'échelle.
+     Réservé au développement — X-Frame-Options reste posé en production,
+     donc cette page n'y fonctionnerait pas (voir next.config.js). */
+  body { margin: 0; background: #2A2A2A; font: 13px system-ui, sans-serif; color: #EEE; }
+  .barre { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #1A1A1A; }
+  .barre input { flex: 1; padding: 5px 8px; border-radius: 5px; border: 1px solid #444; background: #222; color: #EEE; }
+  .barre button { padding: 5px 10px; border-radius: 5px; border: 1px solid #444; background: #333; color: #EEE; cursor: pointer; }
+  .barre button.actif { background: #4F46E5; border-color: #4F46E5; }
+  .scene { display: flex; gap: 16px; padding: 16px; overflow-x: auto; align-items: flex-start; }
+  .appareil { flex-shrink: 0; }
+  .etiquette { margin: 0 0 6px; font-size: 11px; color: #AAA; }
+  iframe { border: 1px solid #555; background: #FFF; display: block; }
+</style>
+</head>
+<body>
+  <div class="barre">
+    <input id="url" value="/" />
+    <button onclick="charger()">Charger</button>
+    <span id="etat"></span>
+    <span style="color:#F59E0B;font-size:11px">outil de developpement — inerte en production (X-Frame-Options)</span>
+  </div>
+  <div class="scene" id="scene"></div>
+
+<script>
+// Trois largeurs réelles : le plus petit téléphone encore courant, un
+// téléphone moderne, et la tablette. 360 est le cas qui casse en premier.
+var APPAREILS = [
+  { nom: 'iPhone SE / petit Android — 360 px', w: 360, h: 760 },
+  { nom: 'iPhone 14 / Pixel — 390 px', w: 390, h: 800 },
+  { nom: 'Tablette — 768 px', w: 768, h: 900 },
+]
+
+function charger() {
+  var chemin = document.getElementById('url').value || '/'
+  var scene = document.getElementById('scene')
+  scene.innerHTML = ''
+  APPAREILS.forEach(function (a) {
+    var bloc = document.createElement('div')
+    bloc.className = 'appareil'
+    var p = document.createElement('p')
+    p.className = 'etiquette'
+    p.textContent = a.nom
+    var f = document.createElement('iframe')
+    f.width = a.w
+    f.height = a.h
+    f.src = chemin
+    bloc.appendChild(p)
+    bloc.appendChild(f)
+    scene.appendChild(bloc)
+  })
+  document.getElementById('etat').textContent = chemin
+}
+
+// Mesure le débordement horizontal de chaque iframe — c'est le défaut le
+// plus fréquent et le plus invisible sur un écran large.
+function mesurer() {
+  var res = []
+  document.querySelectorAll('iframe').forEach(function (f, i) {
+    try {
+      var d = f.contentDocument
+      if (!d || !d.documentElement) { res.push({ largeur: APPAREILS[i].w, etat: 'pas encore chargee' }); return }
+      var sw = d.documentElement.scrollWidth
+      var cw = d.documentElement.clientWidth
+      res.push({
+        largeur: APPAREILS[i].w,
+        scrollWidth: sw,
+        clientWidth: cw,
+        deborde: sw > cw + 1,
+        depassementPx: Math.max(0, sw - cw),
+      })
+    } catch (e) { res.push({ largeur: APPAREILS[i].w, etat: 'inaccessible : ' + e.message }) }
+  })
+  return res
+}
+window.mesurer = mesurer
+
+charger()
+</script>
+</body>
+</html>
