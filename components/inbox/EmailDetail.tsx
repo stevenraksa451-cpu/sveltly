@@ -361,7 +361,10 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
       {/* Actions */}
       <div className={styles.actions}>
         <button
-          className={`${styles.actionBtn} ${showReply ? styles.actionBtnActive : ''}`}
+          // Plein tant que le panneau est FERMÉ (c'est l'invitation), puis
+          // interrupteur enfoncé une fois ouvert — le bouton plein devient
+          // alors « Envoyer », dans le panneau. Voir le module CSS.
+          className={`${styles.actionBtn} ${showReply ? styles.actionBtnActive : styles.actionBtnPrimary}`}
           onClick={() => setShowReply(!showReply)}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -154,10 +154,38 @@
   border-color: var(--text-muted);
 }
 
+/* « Réponse IA » est l'action pour laquelle ce produit existe. Les trois
+   boutons de la barre avaient exactement le même poids — filet gris, fond
+   transparent, encre secondaire : rien ne disait par où commencer, et le
+   geste central se cachait entre « Ajouter à l'agenda » et « Archiver ».
+   Il prend donc l'aplat indigo, les deux autres restent en secondaire. */
+.actionBtnPrimary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+.actionBtnPrimary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  /* ⚠️ On REDÉCLARE la couleur d'encre : `.actionBtn:hover` la repasse en
+     --text-primary, ce qui donnerait du texte sombre sur de l'indigo plein.
+     Les deux règles ont la même spécificité, et celle-ci vient après — mais
+     mieux vaut l'écrire que de compter dessus. */
+  color: var(--on-accent);
+}
+
+/* État « panneau ouvert » : le bouton redevient un interrupteur enfoncé.
+   ⚠️ Il ne doit PAS rester plein à ce moment-là : le panneau de réponse est
+   alors visible et porte son propre bouton « Envoyer », lui aussi en aplat.
+   Deux boutons saturés sur le même écran se disputeraient l'attention, et
+   celui qui compte est celui qui envoie. Un seul élément saturé à la fois —
+   la même règle que sur la vitrine. */
 .actionBtnActive {
   background: var(--accent-light);
   color: var(--accent);
   border-color: var(--accent-muted);
+  font-weight: 500;
 }
 
 .actionBtnSaved {
