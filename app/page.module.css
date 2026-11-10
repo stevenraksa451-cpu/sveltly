@@ -707,21 +707,6 @@
 
 /* Les touches sont l'image de la section : grandes, et c'est tout ce qu'il
    y a à regarder de ce côté. */
-.speedKeys {
-  display: flex;
-  gap: 10px;
-  font-size: 2rem;
-}
-.speedKeys kbd {
-  min-width: 68px;
-  height: 68px;
-  font-size: 1.5rem;
-  border-radius: var(--mk-radius-lg);
-  border-bottom-width: 4px;
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(165, 180, 252, 0.34);
-  box-shadow: 0 10px 30px -12px rgba(129, 140, 248, 0.6);
-}
 
 .speedFoot {
   margin: clamp(32px, 4vw, 48px) 0 0;
@@ -743,7 +728,6 @@
 
 @media (max-width: 880px) {
   .speedInner { grid-template-columns: minmax(0, 1fr); }
-  .speedKeys kbd { min-width: 54px; height: 54px; font-size: 1.25rem; }
 }
 
 /* FEATURES */

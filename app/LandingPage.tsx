@@ -12,13 +12,14 @@ import '@/styles/marketing.css'
 import Brand from '@/components/ui/Brand'
 import ImpactCalculator from '@/components/landing/ImpactCalculator'
 import Reveal from '@/components/landing/Reveal'
-import Kbd from '@/components/ui/Kbd'
 import Navbar from '@/components/landing/nav/Navbar'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import ScrollProgress from '@/components/landing/ScrollProgress'
 import ProviderMarks from '@/components/landing/ProviderMarks'
 import { PROVIDERS_LIVE_LABEL } from '@/lib/providers'
 import ProductPreview from '@/components/landing/ProductPreview'
+import SearchPaletteMock from '@/components/landing/SearchPaletteMock'
+import { VignetteAgenda, VignetteTaches, VignetteFocus, VignetteCloison } from '@/components/landing/FeatureVignettes'
 import HeroWord from '@/components/landing/HeroWord'
 import HeroAmbience from '@/components/landing/HeroAmbience'
 import PricingSection from '@/components/landing/PricingSection'
@@ -54,14 +55,14 @@ const HOURS_GIVEN_BACK = Math.round(BASELINE_EMAIL_HOURS * SAVINGS_RATIO)
 // plutôt que dans ce tableau, pour ne pas forcer des visuels différents
 // dans une structure de données commune.
 const SMALL_FEATURES = [
-  { number: '03', icon: <IconCalendar />, title: 'Agenda automatique', desc: 'Les rendez-vous et réunions mentionnés dans vos emails sont détectés, avec leur date et leur heure. L’ajout automatique à l’agenda s’active dans les réglages ; sinon, un bouton vous le propose email par email.' },
-  { number: '04', icon: <IconCheckSquare />, title: 'Tâches automatiques', desc: <><Brand /> repère les actions à faire dans vos emails et les transforme en tâches, classées et prêtes à traiter — sans que vous ayez à les recopier.</> },
-  { number: '06', icon: <IconFocus />, title: 'Zéro distraction', desc: 'Une interface pensée pour aller à l’essentiel. Pas de notifications inutiles, pas de complexité. Juste vos emails, organisés.' },
+  { number: '03', icon: <IconCalendar />, vignette: <VignetteAgenda />, title: 'Agenda automatique', desc: 'Les rendez-vous et réunions mentionnés dans vos emails sont détectés, avec leur date et leur heure. L’ajout automatique à l’agenda s’active dans les réglages ; sinon, un bouton vous le propose email par email.' },
+  { number: '04', icon: <IconCheckSquare />, vignette: <VignetteTaches />, title: 'Tâches automatiques', desc: <><Brand /> repère les actions à faire dans vos emails et les transforme en tâches, classées et prêtes à traiter — sans que vous ayez à les recopier.</> },
+  { number: '06', icon: <IconFocus />, vignette: <VignetteFocus />, title: 'Zéro distraction', desc: 'Une interface pensée pour aller à l’essentiel. Pas de notifications inutiles, pas de complexité. Juste vos emails, organisés.' },
   // "Chiffrement de bout en bout" retiré : le produit ne l'implémente pas et
   // ne peut pas l'implémenter — les emails doivent être lisibles côté serveur
   // pour être analysés. Remplacé par ce qui est réellement en place (voir la
   // section #securite et components/landing/nav/navConfig.tsx).
-  { number: '07', icon: <IconLock />, title: 'Vos données restent privées', desc: 'Données cloisonnées compte par compte, jetons de connexion chiffrés au repos. Le contenu analysé passe par notre prestataire d’IA, qui s’interdit contractuellement de l’utiliser pour entraîner ses modèles — et par personne d’autre.' },
+  { number: '07', icon: <IconLock />, vignette: <VignetteCloison />, title: 'Vos données restent privées', desc: 'Données cloisonnées compte par compte, jetons de connexion chiffrés au repos. Le contenu analysé passe par notre prestataire d’IA, qui s’interdit contractuellement de l’utiliser pour entraîner ses modèles — et par personne d’autre.' },
 ]
 
 // Cibles des entrées du menu "Solutions". Volontairement factuel : chaque
@@ -354,6 +355,11 @@ export default function LandingPage() {
                 <span className={styles.featureNumber}>{f.number}</span>
                 <h3 className={styles.featureTitle}>{f.title}</h3>
                 <p className={styles.featureDesc}>{f.desc}</p>
+                {/* Ces quatre tuiles n'avaient qu'une icone et du texte, a
+                    cote de trois voisines portant un apercu d’interface :
+                    elles se lisaient comme des cartes inachevees. Chaque
+                    vignette montre le MECANISME decrit juste au-dessus. */}
+                {f.vignette}
               </Reveal>
             ))}
           </div>
@@ -382,10 +388,13 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            <div className={styles.speedKeys} aria-hidden="true">
-              <Kbd size="lg" onDark>⌘</Kbd>
-              <Kbd size="lg" onDark>K</Kbd>
-            </div>
+            {/* Deux touches ⌘K flottaient ici, seules, dans une moitié de
+                section vide. Elles nommaient le raccourci sans rien montrer
+                de ce qu'il ouvre. La palette en marche, elle, démontre la
+                phrase d'à côté : trois natures de résultats, arrivées sans
+                attente. Le ⌘K n'a pas disparu — il est passé DANS le champ,
+                là où il se trouve réellement dans l'application. */}
+            <SearchPaletteMock />
           </div>
 
           <p className={styles.speedFoot}>

@@ -1,0 +1,264 @@
+/* components/landing/FeatureVignettes.module.css
+   Voir FeatureVignettes.tsx. Deux règles du projet s'appliquent partout ici :
+   le keyframe 100 % est identique au 0 % (sinon la boucle saute d'une image),
+   et seules `opacity`/`transform` sont animées (jamais une propriété de mise
+   en page, qui pousserait le reste de la carte à chaque tour).
+
+   Les quatre boucles partagent la même durée — 9 s, celle de ProductPreview
+   et de la palette de recherche. À des durées différentes, les vignettes
+   repartiraient chacune à son rythme et la grille clignoterait sans fin ;
+   à la même, elles respirent ensemble. */
+
+.vignette {
+  /* `.bentoSmall` est un flex colonne en `align-items: center` : sans
+     `align-self: stretch`, la vignette se réduit à la largeur de son contenu
+     et flotte au milieu d'une carte deux fois plus large. */
+  align-self: stretch;
+  width: 100%;
+  /* `margin-top: auto` plutôt qu'une valeur fixe : les quatre descriptions
+     n'ont pas la même longueur, et sans ça les vignettes se posaient à
+     quatre hauteurs différentes. Collées en bas, la rangée se lit comme un
+     système plutôt que comme quatre cartes assemblées au hasard. */
+  margin-top: auto;
+  /* Les diagrammes se lisent de gauche à droite ; la carte, elle, centre son
+     texte. Sans cette remise à zéro, les heures de l'agenda et les libellés
+     de tâche partiraient se centrer chacun de leur côté. */
+  text-align: left;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--mk-border-light, rgba(0, 0, 0, 0.07));
+  background: var(--mk-bg-subtle, #FAFAF9);
+  font-size: 0.7rem;
+  /* Contient les translations : rien ne doit dépasser du cadre pendant une
+     sortie. */
+  overflow: hidden;
+}
+
+/* ===========================================================================
+   03 · AGENDA — un créneau se pose
+   =========================================================================== */
+
+.dayCol { position: relative; display: flex; flex-direction: column; gap: 9px; }
+
+.slotRow { display: flex; align-items: center; gap: 8px; }
+
+.hour {
+  width: 30px;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  color: var(--mk-text-muted, #78716C);
+  font-variant-numeric: tabular-nums;
+}
+
+.slotLine {
+  flex: 1;
+  height: 1px;
+  background: var(--mk-border-light, rgba(0, 0, 0, 0.08));
+}
+
+/* Posé en absolu sur la 2e ligne : il ne participe pas au flux, donc son
+   arrivée ne déplace rien. */
+.placedEvent {
+  position: absolute;
+  left: 38px;
+  right: 0;
+  top: 17px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--mk-accent-light, #EEF2FF);
+  animation: poseCreneau 9s cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes poseCreneau {
+  0%        { opacity: 0; transform: translateY(-9px); }
+  12%, 88%  { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(-9px); }
+}
+
+.placedBar {
+  width: 2px;
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--mk-accent, #4F46E5);
+  flex-shrink: 0;
+}
+
+.placedText {
+  font-size: 0.64rem;
+  font-weight: 500;
+  color: var(--mk-accent, #4F46E5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===========================================================================
+   04 · TÂCHES — la phrase devient une tâche
+   =========================================================================== */
+
+.quote {
+  margin: 0 0 10px;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--mk-text-muted, #78716C);
+  font-style: italic;
+}
+
+/* Le fragment que l'IA retient. Il est surligné en permanence — c'est la
+   TÂCHE qui apparaît, pas le surlignage : deux choses qui s'allument l'une
+   après l'autre, c'est déjà deux animations. */
+.highlight {
+  background: var(--mk-accent-light, #EEF2FF);
+  color: var(--mk-accent, #4F46E5);
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.taskRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: var(--mk-bg-card, #FFFFFF);
+  border: 1px solid var(--mk-border-light, rgba(0, 0, 0, 0.07));
+  animation: naissanceTache 9s cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes naissanceTache {
+  0%        { opacity: 0; transform: translateY(6px); }
+  18%, 88%  { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(6px); }
+}
+
+.checkbox {
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  background: var(--mk-accent, #4F46E5);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.taskText { flex: 1; font-size: 0.66rem; color: var(--mk-ink, #1C1917); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.taskDue { font-size: 0.6rem; color: var(--mk-text-muted, #78716C); flex-shrink: 0; }
+
+/* ===========================================================================
+   06 · ZÉRO DISTRACTION — le bruit s'en va, l'essentiel reste
+   =========================================================================== */
+
+.noiseStack { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; min-height: 21px; }
+
+/* Les trois pastilles de bruit s'effacent en décalé (délai posé dans le TSX)
+   et reviennent avant la fin du cycle. C'est la SEULE pièce mobile : la
+   ligne conservée, elle, ne bouge jamais — c'est tout le propos. */
+.noise {
+  font-size: 0.6rem;
+  padding: 3px 7px;
+  border-radius: 99px;
+  color: var(--mk-text-muted, #78716C);
+  background: var(--mk-bg-card, #FFFFFF);
+  border: 1px solid var(--mk-border-light, rgba(0, 0, 0, 0.07));
+  white-space: nowrap;
+  animation: evanouissement 9s cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+/* ⚠️ Le bruit doit être VISIBLE la plupart du temps, sinon la vignette passe
+   le plus clair du cycle à moitié vide — et une carte à moitié vide est
+   exactement ce que ces vignettes sont venues corriger. Au premier essai, les
+   pastilles disparaissaient pendant 3,8 s sur 9 : on tombait presque toujours
+   sur la version creuse. Elles s'effacent maintenant le temps d'un geste, à
+   peine 1,8 s, puis reviennent. */
+@keyframes evanouissement {
+  0%, 46%   { opacity: 1; transform: none; }
+  62%, 78%  { opacity: 0; transform: translateX(10px) scale(0.94); }
+  94%, 100% { opacity: 1; transform: none; }
+}
+
+.kept {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  color: var(--mk-ink, #1C1917);
+  background: var(--mk-accent-light, #EEF2FF);
+}
+
+.keptDot { width: 5px; height: 5px; border-radius: 50%; background: var(--mk-accent, #4F46E5); flex-shrink: 0; }
+
+/* ===========================================================================
+   07 · DONNÉES CLOISONNÉES — deux couloirs, aucun croisement
+   =========================================================================== */
+
+.lanes { display: flex; align-items: stretch; gap: 10px; }
+
+.lane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 5px;
+}
+
+.laneLabel {
+  width: 100%;
+  font-size: 0.58rem;
+  color: var(--mk-text-muted, #78716C);
+  margin-bottom: 2px;
+}
+
+/* Les points NE BOUGENT PAS, et c'est une correction.
+   Une première version les faisait osciller dans leur couloir : six éléments
+   animés pour une vignette dont le sens tient au MUR, qui lui est fixe. Ça
+   contredisait la règle que ces vignettes se donnent — un seul élément mobile
+   chacune — et ajoutait six animations à une page qui en compte déjà trente.
+   Un schéma qui se lit d'un coup d'œil n'a pas besoin de bouger. */
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+}
+
+.dotA { background: var(--mk-accent, #4F46E5); }
+.dotB { background: #0D9488; }
+
+/* Le mur ne bouge pas, et c'est le point du dessin. */
+.wall {
+  width: 2px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  background: linear-gradient(180deg, transparent, var(--mk-border, rgba(0, 0, 0, 0.14)) 20%, var(--mk-border, rgba(0, 0, 0, 0.14)) 80%, transparent);
+}
+
+.laneFoot {
+  margin: 10px 0 0;
+  font-size: 0.58rem;
+  color: var(--mk-text-muted, #78716C);
+  text-align: center;
+}
+
+/* ===========================================================================
+   MOUVEMENT RÉDUIT
+   Bloc propre au composant : la règle globale du site ne ramène que la durée
+   à ~0, ce qui figerait chaque scène sur son DERNIER keyframe — soit l'état
+   « sorti », donc des vignettes à moitié vides. On coupe par le nom et on
+   pose l'état de repos à la main.
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .placedEvent,
+  .taskRow,
+  .noise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
