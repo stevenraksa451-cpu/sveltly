@@ -48,7 +48,25 @@
 }
 
 /* Sommaire collant, suit la section active au scroll */
-.toc { position: relative; }
+/* ⚠️ `align-self: stretch` EST CE QUI FAIT FONCTIONNER LE STICKY.
+   Un élément `position: sticky` ne peut coller que DANS LA BOÎTE DE SON
+   PARENT : dès qu'il atteint le bas de ce parent, il repart avec lui.
+   `.layout` est en `align-items: start`, donc `.toc` ne faisait que la
+   hauteur du sommaire lui-même — quelques centaines de pixels. Le sommaire
+   collait bien, mais sur une course si courte que ça ne se voyait pas : il
+   défilait avec la page dès la première section.
+
+   Étiré sur toute la hauteur de la rangée, `.toc` est aussi haut que le
+   texte à droite, et le sommaire a enfin de quoi rester en place jusqu'au
+   bas du document.
+
+   Le conteneur de défilement est `.page` (height: 100vh + overflow-y, voir
+   en tête de ce fichier), pas la fenêtre — c'est par rapport à lui que
+   `top: 90px` se mesure. */
+.toc {
+  position: relative;
+  align-self: stretch;
+}
 .tocSticky { position: sticky; top: 90px; }
 
 .tocLabel {
