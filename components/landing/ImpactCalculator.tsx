@@ -197,9 +197,19 @@ export default function ImpactCalculator() {
       </div>
 
       <p className={styles.source}>
+        {/* ⚠️ Ce bloc est la seule chose qui sépare un simulateur honnête d'un
+            argumentaire. Les {SAVINGS_RATIO} viennent d'un MODÈLE — des durées
+            estimées par action dans lib/time-saved-calcul.ts — et non d'une
+            mesure sur de vrais utilisateurs, qu'un produit tout juste lancé
+            n'a pas. Il doit le dire, et dire sur quoi il s'appuie. */}
         Base de calcul : <Brand /> rend environ {Math.round(SAVINGS_RATIO * 100)} % du temps passé sur vos emails —
         pas la totalité, puisqu’il reste à relire un résumé et valider un brouillon. Même méthode que le
         compteur « temps économisé » de votre tableau de bord, détaillée dans le produit.
+        {' '}
+        <strong>Ce pourcentage est une estimation</strong>, construite à partir du temps que prend chaque
+        action à la main comparé au temps qu’elle laisse avec <Brand /> : ce n’est pas une moyenne
+        relevée sur des utilisateurs. La base de 8 h par semaine est elle-même prudente — le McKinsey
+        Global Institute mesurait 28 % de la semaine de travail consacrés aux emails, soit environ 11 h.
         Taux de change indicatifs, août 2026 — non actualisés en temps réel.
       </p>
     </section>

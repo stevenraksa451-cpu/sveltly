@@ -27,12 +27,24 @@ import { IconCalendar, IconFocus, IconLock, IconShield, IconSync, IconCheckSquar
 import { SAVINGS_RATIO } from '@/lib/time-saved'
 import styles from './page.module.css'
 
-// Repère affiché dans le badge du hero. Calculé depuis SAVINGS_RATIO et la
-// même base de 8 h/semaine que le simulateur plus bas, pour que les deux
-// chiffres de la page concordent — un visiteur qui fait défiler retrouve
+// Repère affiché dans le badge du hero ET dans le simulateur, pour que les
+// deux chiffres de la page concordent — un visiteur qui fait défiler retrouve
 // exactement le même résultat. Remplace un « 8 h gagnées par semaine en
 // moyenne » qui annonçait une moyenne mesurée sur une base d'utilisateurs
 // que le produit, tout juste lancé, n'a pas encore.
+//
+// Hypothèse de départ du simulateur, VOLONTAIREMENT sous la source citée :
+// le McKinsey Global Institute (« The social economy », 2012) mesure 28 % de
+// la semaine de travail consacrés aux emails, soit 11,2 h sur 40 h. On part
+// de 8 h, et le visiteur peut changer le curseur.
+//
+// ⚠️ HOURS_GIVEN_BACK est le produit d'un MODÈLE, pas d'une mesure :
+// SAVINGS_RATIO se déduit des durées estimées par action de
+// lib/time-saved-calcul.ts. Aucun utilisateur n'a été chronométré. C'est
+// pour ça que tous les endroits qui l'affichent portent « estimé » ou
+// renvoient au détail du calcul — un ordre de grandeur annoncé comme un
+// résultat serait exactement le chiffre inventé que la règle d'honnêteté
+// du contenu interdit.
 const BASELINE_EMAIL_HOURS = 8
 const HOURS_GIVEN_BACK = Math.round(BASELINE_EMAIL_HOURS * SAVINGS_RATIO)
 
@@ -42,14 +54,14 @@ const HOURS_GIVEN_BACK = Math.round(BASELINE_EMAIL_HOURS * SAVINGS_RATIO)
 // plutôt que dans ce tableau, pour ne pas forcer des visuels différents
 // dans une structure de données commune.
 const SMALL_FEATURES = [
-  { number: '03', icon: <IconCalendar />, title: 'Agenda automatique', desc: 'Les rendez-vous et réunions mentionnés dans vos emails sont détectés et ajoutés à votre agenda sans aucune action de votre part.' },
+  { number: '03', icon: <IconCalendar />, title: 'Agenda automatique', desc: 'Les rendez-vous et réunions mentionnés dans vos emails sont détectés, avec leur date et leur heure. L’ajout automatique à l’agenda s’active dans les réglages ; sinon, un bouton vous le propose email par email.' },
   { number: '04', icon: <IconCheckSquare />, title: 'Tâches automatiques', desc: <><Brand /> repère les actions à faire dans vos emails et les transforme en tâches, classées et prêtes à traiter — sans que vous ayez à les recopier.</> },
   { number: '06', icon: <IconFocus />, title: 'Zéro distraction', desc: 'Une interface pensée pour aller à l’essentiel. Pas de notifications inutiles, pas de complexité. Juste vos emails, organisés.' },
   // "Chiffrement de bout en bout" retiré : le produit ne l'implémente pas et
   // ne peut pas l'implémenter — les emails doivent être lisibles côté serveur
   // pour être analysés. Remplacé par ce qui est réellement en place (voir la
   // section #securite et components/landing/nav/navConfig.tsx).
-  { number: '07', icon: <IconLock />, title: 'Vos données restent privées', desc: 'Données cloisonnées compte par compte, jetons de connexion chiffrés au repos — vos emails ne sont jamais partagés ni utilisés pour entraîner un modèle.' },
+  { number: '07', icon: <IconLock />, title: 'Vos données restent privées', desc: 'Données cloisonnées compte par compte, jetons de connexion chiffrés au repos. Le contenu analysé passe par notre prestataire d’IA, qui s’interdit contractuellement de l’utiliser pour entraîner ses modèles — et par personne d’autre.' },
 ]
 
 // Cibles des entrées du menu "Solutions". Volontairement factuel : chaque
@@ -58,9 +70,9 @@ const SMALL_FEATURES = [
 const SOLUTIONS = [
   { icon: <IconCode />, title: 'Développeurs', desc: <>Les demandes qui peuvent attendre descendent d’elles-mêmes dans la liste. Vos plages de concentration ne sont interrompues que par ce qui est réellement urgent.</> },
   { icon: <IconPalette />, title: 'Designers', desc: 'Les retours clients arrivent résumés en une phrase, avec les points clés extraits — vous voyez ce qui est demandé avant d’ouvrir le fil.' },
-  { icon: <IconBriefcase />, title: 'Consultants', desc: 'Une relance qui devient pressante est classée urgente avant qu’elle ne vous coûte un client. Les réunions mentionnées atterrissent dans l’agenda.' },
+  { icon: <IconBriefcase />, title: 'Consultants', desc: 'Une relance qui devient pressante est classée urgente avant qu’elle ne vous coûte un client. Les réunions mentionnées sont repérées, date et heure comprises, prêtes à poser dans l’agenda.' },
   { icon: <IconPen />, title: 'Rédacteurs & traducteurs', desc: <>Un brief, une échéance, une consigne : <Brand /> en fait une tâche datée, sans que vous ayez à recopier quoi que ce soit.</> },
-  { icon: <IconUsers />, title: 'Indépendants multi-clients', desc: 'Plusieurs boîtes Gmail réunies dans une seule vue, triées ensemble, avec les doublons écartés automatiquement.' },
+  { icon: <IconUsers />, title: 'Indépendants multi-clients', desc: 'Plusieurs boîtes Gmail réunies dans une seule vue, triées ensemble, avec les doublons écartés automatiquement. Le forfait Gratuit en connecte une ; au-delà, c’est le Pro.' },
 ]
 
 // Affirmations de sécurité. Chacune est vérifiable dans le dépôt — voir
@@ -150,7 +162,7 @@ export default function LandingPage() {
         <div className={styles.hero}>
             <div className={styles.heroContent}>
               <p className={styles.badge}>
-                ~{HOURS_GIVEN_BACK} h rendues par semaine sur {BASELINE_EMAIL_HOURS} h d’emails
+                Jusqu’à {HOURS_GIVEN_BACK} h par semaine rendues sur {BASELINE_EMAIL_HOURS} h d’emails — estimation
               </p>
               <h1 className={styles.heroTitle}>
                 Planifiez. Simplifiez.<br />
@@ -159,7 +171,7 @@ export default function LandingPage() {
                 <HeroWord />
               </h1>
               <p className={styles.heroDesc}>
-                <Brand /> trie vos emails, en tire les tâches et place les rendez-vous.
+                <Brand /> trie vos emails, en tire les tâches et repère les rendez-vous.
                 Vous arrivez le matin sur des décisions, pas sur une pile.
               </p>
               <div className={styles.heroCtas}>
@@ -316,9 +328,18 @@ export default function LandingPage() {
             <Reveal variant="scale" delay={160} className={`${styles.bentoTile} ${styles.bentoMed} ${styles.bentoPremium}`}>
               <span className={styles.featureProBadge}>Pro</span>
               <span className={styles.featureNumber}>05</span>
-              <h3 className={styles.bentoTitle}>Google Calendar, toujours à jour</h3>
+              <h3 className={styles.bentoTitle}>Google Calendar, dans les deux sens</h3>
               <p className={styles.bentoDesc}>
-                Chaque changement se synchronise automatiquement dans les deux sens, sans jamais rien recopier.
+                {/* « toujours à jour » et « chaque changement se synchronise
+                    automatiquement » promettaient une synchronisation continue.
+                    La réalité du code : un événement créé dans Sveltly part
+                    vers Google immédiatement (lib/google-calendar-sync.ts),
+                    mais l'autre sens est un IMPORT déclenché à l'ouverture de
+                    la page Agenda (voir app/(app)/calendar/page.tsx). Un
+                    rendez-vous ajouté dans Google n'apparaît donc pas tant
+                    qu'on n'a pas ouvert l'agenda. */}
+                Ce que vous créez ici part dans Google aussitôt. Ce que vous changez là-bas est
+                importé à l’ouverture de votre agenda. Rien à recopier.
               </p>
               <div className={styles.mockSync} aria-hidden="true">
                 <span className={styles.mockSyncChip}><Brand /></span>
@@ -369,8 +390,8 @@ export default function LandingPage() {
 
           <p className={styles.speedFoot}>
             <span className={styles.speedFigure}>~{HOURS_GIVEN_BACK} h</span>
-            rendues par semaine sur {BASELINE_EMAIL_HOURS} h passées dans les emails.
-            L’hypothèse de calcul est détaillée dans le simulateur ci-dessous.
+            par semaine, estimées, sur {BASELINE_EMAIL_HOURS} h passées dans les emails.
+            Le détail du calcul est dans le simulateur ci-dessous.
           </p>
         </section>
       </Reveal>
