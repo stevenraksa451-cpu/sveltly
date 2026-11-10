@@ -167,22 +167,23 @@ const EMAIL_CHARS_FOR_ANALYSIS = 900
 // la requête, pas à être exhaustif.
 const EMAIL_CHARS_FOR_RETRY = 600
 
-// Emails générés par Sveltly lui-même (digest quotidien, notifications système) —
-// jamais envoyés au pipeline IA, ça n'a aucun sens d'y répondre.
+// Emails qui seraient générés par Sveltly lui-même — jamais envoyés au
+// pipeline IA, ça n'a aucun sens d'y répondre, et les analyser reviendrait à
+// facturer à l'utilisateur une « réponse IA » pour notre propre message.
 //
-// Le domaine réel est `sveltly.com` (acheté le 8 novembre 2026). `digest@`
-// en est DÉDUIT plutôt qu'écrit : si SITE_URL change encore, cette liste
-// suit toute seule. Sans ça, Sveltly se mettrait à analyser ses propres
-// emails — et à facturer à l'utilisateur une « réponse IA » pour eux.
+// ⚠️ AUJOURD'HUI SVELTLY N'ENVOIE AUCUN EMAIL. Le digest quotidien, seule
+// fonctionnalité qui en expédiait, a été supprimé — il lisait une table que
+// l'application n'écrit jamais, depuis une adresse de test, sans tâche
+// planifiée pour l'appeler.
 //
-// Les deux anciennes formes restent listées : `.fr` et `.app` ont figuré
-// dans ce fichier, et rien ne garantit qu'aucun digest n'en soit parti vers
-// une boîte de test. Les garder ne coûte rien ; les retirer risquerait de
-// facturer un vieux message.
-const DOMAINE = new URL(SITE_URL).hostname.replace(/^www\./, '')
+// La liste reste, et c'est délibéré : ces adresses ont existé pendant les
+// essais, et rien ne garantit qu'aucun message n'ait atterri dans une boîte
+// de test. Les garder ne coûte rien ; les retirer risquerait de facturer un
+// vieux message. Elle est aussi le garde-fou tout prêt le jour où un email
+// transactionnel sera ajouté.
 const SYSTEM_SENDERS = [
   'onboarding@resend.dev',
-  `digest@${DOMAINE}`,
+  'digest@sveltly.com',
   'digest@sveltly.fr',
   'digest@sveltly.app',
 ]

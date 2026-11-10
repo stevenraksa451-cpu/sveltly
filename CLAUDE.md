@@ -733,44 +733,71 @@ Deux règles qui s’y appliquent comme partout :
   la palette de l’application, la page reste lisible même si
   `styles/marketing.css` n’est pas chargée.
 
-## Deux réglages promettaient ce que le code ne fait pas
+## Un réglage promettait ce que le code ne fait pas
 
 Trouvés en vérifiant, champ par champ, que CHAQUE préférence écrite par
-Réglages est relue quelque part. La méthode vaut d’être refaite après tout
+Réglages est relue quelque part. La méthode vaut d'être refaite après tout
 ajout de réglage :
 
 ```bash
 # pour chaque colonne écrite par app/(app)/settings/page.tsx
-grep -rl "<colonne>" --include=*.ts --include=*.tsx app lib components supabase \
-  | grep -v "settings/page.tsx"
+grep -rl "<colonne>" --include=*.ts --include=*.tsx app lib components   | grep -v "settings/page.tsx"
 ```
-
-Deux colonnes ne sortaient aucun fichier :
-
-**`email_digest_enabled` / `digest_send_hour`** — « Résumé par email », actif et
-**allumé par défaut**, avec un sélecteur d’heure. Rien ne pouvait partir :
-`supabase/functions/daily-digest` lit `public.emails`, table que
-l’application n’écrit JAMAIS (les emails sont lus en direct chez Gmail, seul le
-RÉSULTAT d’analyse est conservé) ; l’expéditeur est l’adresse de test de
-Resend ; aucune tâche planifiée n’appelle la fonction. Les trois obstacles
-sont écrits en tête de ce fichier.
 
 **`auto_decline_outside_hours`** — « Refuser automatiquement hors
 disponibilités », interrupteur **éteint** par défaut, relu par personne. Et le
 comportement décrit est déjà celui de Sveltly, **sans condition** :
-`findFreeSlot` ne cherche qu’entre `workStart` et `workEnd`, et `fits()` refuse
-tout créneau qui en sort. Éteint par défaut, il disait donc l’inverse de la
-vérité.
+`findFreeSlot` ne cherche qu'entre `workStart` et `workEnd`, et `fits()` refuse
+tout créneau qui en sort. Éteint par défaut, il disait donc l'inverse de la
+vérité : on croyait devoir l'activer pour être protégé. La règle est
+désormais énoncée, pas déguisée en option.
 
 ⚠️ **Un réglage allumé par défaut qui ne produit rien est la forme la plus
-coûteuse du mensonge produit** : l’utilisateur ne découvre le manque qu’en
-constatant l’absence, et il en conclut que le produit est cassé. Un réglage
-qui déguise une règle permanente en option est le même défaut à l’envers : il
-fait croire qu’il faut l’activer pour être protégé.
+coûteuse du mensonge produit** : l'utilisateur ne découvre le manque qu'en
+constatant l'absence, et il en conclut que le produit est cassé. Un réglage
+qui déguise une règle permanente en option est le même défaut à l'envers.
 
-Dans les deux cas la ligne RESTE visible — cacher ce qui manque est
-précisément ce que la règle d’honnêteté interdit. L’une porte une pastille
-« Bientôt » sans date, l’autre énonce la règle.
+### Le digest quotidien a été SUPPRIMÉ
+
+`email_digest_enabled` / `digest_send_hour` pilotaient un « Résumé par email »
+actif et allumé par défaut que personne n'a jamais pu recevoir : la fonction
+Edge lisait `public.emails`, table que l'application n'écrit JAMAIS ; elle
+expédiait depuis l'adresse de test de Resend ; aucune tâche planifiée ne
+l'appelait.
+
+Le faire marcher aurait exigé de **persister des métadonnées d'emails**
+(expéditeur, objet, priorité) — ce qui change la nature des données
+conservées et impose une mise à jour de la politique de confidentialité.
+Décision prise : abandon. `supabase/functions/daily-digest` et
+`supabase/config.toml` sont supprimés, la ligne de Réglages aussi.
+
+⚠️ **Les deux colonnes restent en base**, inutilisées. Les supprimer demande
+une migration destructive pour un gain nul. Mais Resend a disparu de la liste
+des sous-traitants de la politique de confidentialité, où il n'avait plus
+rien à faire — un sous-traitant déclaré qui ne traite rien est une inexactitude
+au sens du RGPD.
+
+## Conformité RGPD — ce qui a été comblé
+
+Trois manques, tous relevés en relisant la politique contre le code :
+
+**Les transferts hors UE n'étaient nulle part.** La base est en Irlande
+(`eu-west-1`, vérifié), mais **le contenu des emails part chez Groq, Inc.,
+société américaine** — c'est la donnée la plus sensible du produit. L'article
+13.1.f impose d'en informer. Le mot « transfert » n'apparaissait que dans la
+section Google, à propos d'autre chose. Section `transferts` ajoutée.
+
+**La base légale n'était pas indiquée** (art. 13.1.c). Section ajoutée :
+exécution du contrat pour le service, consentement pour l'accès Gmail,
+obligation légale pour la comptabilité à venir.
+
+**Le droit d'opposition manquait** à la liste des droits (art. 21), et le
+délai de réponse d'un mois n'était pas annoncé.
+
+⚠️ **Ce qui reste à faire, et qui ne dépend pas du code** : conclure un
+accord de sous-traitance (DPA) avec Groq, Supabase et Vercel, et tenir un
+registre des traitements. La politique décrit maintenant la réalité ; elle ne
+remplace pas ces documents.
 
 ## Les noms de mois s’écrivent en minuscule
 

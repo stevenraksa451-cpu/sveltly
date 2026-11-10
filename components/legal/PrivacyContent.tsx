@@ -109,13 +109,69 @@ export default function PrivacyContent() {
             <>
               <p>Nous faisons appel aux sous-traitants suivants, chacun n’ayant accès qu’aux données strictement nécessaires à sa fonction :</p>
               <ul>
-                <li><strong>Supabase</strong> — hébergement de la base de données et authentification.</li>
-                <li><strong>Groq</strong> — analyse IA du contenu des emails (voir section précédente).</li>
-                <li><strong>Resend</strong> — envoi des emails de notification générés par <Brand /> (résumé quotidien).</li>
+                <li><strong>Supabase</strong> — hébergement de la base de données et authentification. Vos données sont stockées dans l’Union européenne (Irlande).</li>
+                <li><strong>Groq</strong> — analyse IA du contenu des emails (voir section précédente). <strong>Société établie aux États-Unis</strong> : voir « Transferts hors de l’Union européenne » ci-dessous.</li>
+                <li><strong>Vercel</strong> — hébergement de l’application et exécution des traitements serveur.</li>
                 <li><strong>Google</strong> — fournisseur d’accès Gmail / Google Calendar lorsque vous connectez ces services.</li>
               </ul>
               <p>Nous ne vendons ni ne louons vos données personnelles à qui que ce soit.</p>
             </>
+          ),
+        },
+        {
+          // Article 13.1.f du RGPD : informer de tout transfert vers un pays
+          // tiers et des garanties qui l'encadrent. Cette section manquait
+          // entièrement, alors que le CONTENU DES EMAILS — la donnée la plus
+          // sensible du produit — part chez Groq, société américaine.
+          // Le mot « transfert » n'apparaissait que dans la section Google,
+          // à propos d'un sujet sans rapport.
+          id: 'transferts',
+          icon: <IconShield />,
+          title: 'Transferts hors de l’Union européenne',
+          content: (
+            <>
+              <p>
+                Votre base de données est hébergée dans l’Union européenne (Irlande). En revanche,
+                l’analyse de vos emails est réalisée par <strong>Groq, Inc.</strong>, société établie
+                aux <strong>États-Unis</strong>. Le contenu des emails analysés y est donc transmis,
+                le temps du traitement.
+              </p>
+              <p>
+                Concrètement : l’objet, l’expéditeur et un extrait du corps de chaque email analysé
+                sortent de l’Union européenne. Ces données ne sont pas conservées par <Brand /> chez
+                ce prestataire — seul le résultat de l’analyse (priorité, résumé, points clés,
+                brouillon de réponse) revient et est stocké dans l’Union européenne.
+              </p>
+              <p>
+                Si ce transfert vous pose problème, la seule façon de l’éviter aujourd’hui est de ne
+                pas connecter de boîte mail : sans analyse, aucune donnée ne sort de l’Union.
+              </p>
+            </>
+          ),
+        },
+        {
+          // Article 13.1.c : indiquer la base légale de chaque traitement.
+          // Elle n'était écrite nulle part.
+          id: 'base-legale',
+          icon: <IconInfo />,
+          title: 'Sur quelle base nous traitons vos données',
+          content: (
+            <ul>
+              <li>
+                <strong>Exécution du contrat</strong> (art. 6.1.b du RGPD) — pour tout ce qui constitue
+                le service lui-même : tri des emails, résumés, brouillons de réponse, tâches, agenda.
+                Sans ces traitements, il n’y a pas de produit.
+              </li>
+              <li>
+                <strong>Votre consentement</strong> (art. 6.1.a) — pour l’accès à votre boîte Gmail et à
+                votre Google Agenda. Vous le donnez lors de l’autorisation Google et vous pouvez le
+                retirer à tout moment en déconnectant la boîte depuis les réglages.
+              </li>
+              <li>
+                <strong>Obligation légale</strong> (art. 6.1.c) — pour la conservation des pièces
+                comptables, le jour où le service devient payant.
+              </li>
+            </ul>
           ),
         },
         {
@@ -150,9 +206,12 @@ export default function PrivacyContent() {
           title: 'Vos droits',
           content: (
             <p>
-              Conformément au RGPD, vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation et
-              de portabilité de vos données, ainsi que du droit de retirer votre consentement à tout moment (notamment
-              en déconnectant votre boîte mail depuis les réglages). Pour exercer ces droits, écrivez à{' '}
+              Conformément au RGPD, vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation,
+              d’opposition et de portabilité de vos données, ainsi que du droit de retirer votre consentement à tout
+              moment (notamment en déconnectant votre boîte mail depuis les réglages). Deux d’entre eux s’exercent
+              sans nous écrire, directement depuis Réglages → Sécurité : l’export complet de vos données
+              (portabilité) et la suppression définitive de votre compte (effacement). Nous répondons à toute
+              demande dans un délai maximum d’un mois. Pour exercer ces droits, écrivez à{' '}
               <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>. Vous pouvez également introduire une réclamation
               auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">cnil.fr</a>).
             </p>

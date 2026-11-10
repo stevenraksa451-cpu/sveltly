@@ -526,24 +526,3 @@
 @media (max-width: 520px) {
   .addMailboxRow { flex-direction: column; align-items: stretch; }
 }
-
-/* Réglage décrit mais pas encore branché — même vocabulaire que la vitrine
-   pour un fournisseur `planned` (voir lib/providers.ts) : le nom pâlit, une
-   pastille « Bientôt » le dit, et AUCUNE date n'est annoncée. Le rang reste
-   visible : cacher ce qui manque est précisément ce que la règle
-   d'honnêteté du contenu interdit. */
-.prefRowSoon .prefLabel,
-.prefRowSoon .prefDesc { opacity: 0.55; }
-
-.soonPill {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  background: var(--bg-subtle);
-  color: var(--text-muted);
-  vertical-align: middle;
-}

@@ -70,8 +70,6 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState<string>(initialTab)
   const [tone, setTone] = useState<'professional' | 'formal' | 'casual'>('professional')
   const [notifs, setNotifs] = useState(true)
-  const [emailNotifs, setEmailNotifs] = useState(true)
-  const [digestHour, setDigestHour] = useState(8)
   const [urgentOnly, setUrgentOnly] = useState(false)
   const [autoArchive, setAutoArchive] = useState(false)
   const [autoSchedule, setAutoSchedule] = useState(false)
@@ -183,9 +181,7 @@ function SettingsContent() {
     setAutoDeclineOutsideHours(profile.auto_decline_outside_hours ?? false)
     setCalendarAccount(profile.calendar_provider || null)
     setCalendarAutoSync(profile.calendar_auto_sync ?? true)
-    setEmailNotifs(profile.email_digest_enabled ?? true)
     setUrgentOnly(profile.urgent_only_notifs ?? false)
-    setDigestHour(profile.digest_send_hour ?? 8)
   }, [profile])
 
   async function handleSave() {
@@ -208,9 +204,7 @@ function SettingsContent() {
       buffer_minutes: bufferTime,
       auto_decline_outside_hours: autoDeclineOutsideHours,
       calendar_auto_sync: calendarAutoSync,
-      email_digest_enabled: emailNotifs,
       urgent_only_notifs: urgentOnly,
-      digest_send_hour: digestHour,
     }).eq('id', user.id)
 
     if (error) {
@@ -727,7 +721,7 @@ function SettingsContent() {
                 <div className={styles.prefRow}>
                   <div>
                     <p className={styles.prefLabel}>Fuseau horaire</p>
-                    <p className={styles.prefDesc}>Utilisé pour interpréter les horaires mentionnés dans vos emails, et pour l’heure d’envoi du résumé quotidien</p>
+                    <p className={styles.prefDesc}>Utilisé pour interpréter les horaires mentionnés dans vos emails et pour placer vos rendez-vous</p>
                   </div>
                   <select
                     className={styles.selectInput}
@@ -1061,40 +1055,6 @@ function SettingsContent() {
                   </button>
                 </div>
                 <div className={styles.divider} />
-                {/* ⚠️ Cet interrupteur était ACTIF et allumé par défaut, et
-                    promettait un email quotidien que personne n'a jamais pu
-                    recevoir. Trois raisons, toutes dans le code :
-
-                      · supabase/functions/daily-digest lit la table
-                        `public.emails`, que l'application n'écrit JAMAIS
-                        (rien dans app/ ni lib/ n'y insère) — la requête rend
-                        toujours 0 ligne et la fonction passe au suivant ;
-                      · elle envoie depuis `onboarding@resend.dev`, l'adresse
-                        de test de Resend, qui ne délivre qu'au propriétaire
-                        du compte Resend ;
-                      · aucune tâche planifiée n'appelle la fonction.
-
-                    Un réglage allumé par défaut qui ne produit rien est la
-                    version la plus coûteuse du mensonge produit : l'utilisateur
-                    ne découvre le manque qu'en constatant l'absence, et il
-                    conclut que le produit est cassé. La préférence reste
-                    stockée (rien n'est perdu le jour où ça marche), mais elle
-                    n'est plus pilotable tant que l'envoi n'existe pas.
-                    Pas de date annoncée : « Bientôt » est une intention, une
-                    échéance serait une promesse. */}
-                <div className={`${styles.prefRow} ${styles.prefRowSoon}`}>
-                  <div>
-                    <p className={styles.prefLabel}>
-                      Résumé par email
-                      <span className={styles.soonPill}>Bientôt</span>
-                    </p>
-                    <p className={styles.prefDesc}>
-                      Un récapitulatif quotidien de vos emails non traités. L’envoi n’est pas
-                      encore branché — rien n’est expédié aujourd’hui.
-                    </p>
-                  </div>
-                </div>
-
                 <div className={styles.divider} />
                 <div className={styles.prefRow}>
                   <div>
