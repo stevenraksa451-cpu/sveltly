@@ -556,4 +556,44 @@
     min-height: 40px;
   }
   .backBtn:active { background: var(--accent-light); }
+
+  /* ⚠️ LE défaut majeur du lecteur au téléphone. `.body` était en `flex: 1`
+     + `overflow-y: auto` : une colonne à hauteur fixe où le corps de l'email
+     est le SEUL élément élastique. Dès que le panneau de réponse IA est
+     déplié — et il l'est par défaut — il prenait toute la place et le corps
+     se refermait sur lui-même. Mesuré sur un email réel à 390 px :
+
+         corps de l'email ....  48 px de haut pour 350 px de texte
+         panneau de réponse .. 506 px
+
+     Autrement dit, on ouvrait un email et on en voyait deux lignes, dans une
+     lucarne de 48 px, pendant que le brouillon occupait dix fois plus de
+     place que le message auquel il répond.
+
+     Au téléphone, le lecteur doit défiler d'un seul tenant : le corps reprend
+     sa hauteur naturelle et c'est `.container` (déjà en `overflow-y: auto`)
+     qui fait défiler l'ensemble. */
+  .body {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  /* L'en-tête mangeait 290 px des 790 px de l'écran : le nom de
+     l'expéditeur et son adresse s'étalaient chacun sur trois lignes.
+     `min-width: 0` est indispensable — sans lui, une colonne flex ne
+     descend pas sous la largeur de son contenu et `text-overflow` reste
+     sans effet. */
+  .senderInfo { min-width: 0; }
+  .senderName,
+  .senderEmail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 24 px de gouttière de chaque côté sur un écran de 390 px, c'est un
+     huitième de la largeur pris sur le texte de l'email. */
+  .header { padding: 16px; }
+  .body { padding: 16px; }
+  .actions { padding: 10px 16px; }
 }
