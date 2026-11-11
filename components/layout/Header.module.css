@@ -50,6 +50,26 @@
   .menuBtn {
     display: flex;
   }
+
+  /* ⚠️ Le sous-titre quitte la barre au téléphone, et ce n'est pas un choix
+     esthétique. `.header` a une hauteur FIXE (`--header-height`), sur
+     laquelle la boîte de réception s'appuie pour calculer la sienne
+     (`height: calc(100vh - var(--header-height))` dans inbox.module.css) :
+     laisser la barre grandir casserait cette page. Or sur un écran étroit le
+     sous-titre passe à deux lignes, la pile titre+sous-titre atteint 58 px
+     dans une barre de 52, et le titre déborde par le HAUT — mesuré à
+     `top: -4px`, « Boîte de réception » coupé en deux au bord de l'écran.
+     Retirer le sous-titre garde la barre à sa hauteur exacte. */
+  .subtitle {
+    display: none;
+  }
+
+  /* 28 px de gouttière de chaque côté sur 390 px d'écran, c'est 14 % de la
+     largeur dépensée en marge, juste là où le titre manque de place. */
+  .inner {
+    padding: 0 16px;
+    gap: 10px;
+  }
 }
 
 .title {
