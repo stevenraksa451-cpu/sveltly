@@ -46,12 +46,23 @@
   gap: 14px;
 }
 
+/* ⚠️ Ces trois règles portaient du BLANC EN DUR — titre `color: white`,
+   description `rgba(255,255,255,0.75)`, icône blanche sur un voile blanc.
+   Elles datent de l'époque où le bandeau avait un fond sombre. Ce fond est
+   depuis passé à `var(--bg-card)` (voir la note de CLAUDE.md sur le bandeau
+   de /help qui utilisait un token d'ENCRE comme fond) — mais seule la règle
+   de fond avait été corrigée, pas les encres qui allaient avec.
+
+   Résultat en thème CLAIR : du texte blanc sur une carte blanche. Le titre
+   « Besoin d'aide personnalisée ? » était invisible, sans la moindre erreur
+   ni le moindre avertissement — exactement le même défaut qu'avant, à
+   l'envers. Les tokens d'encre, eux, s'inversent avec le thème. */
 .bannerIcon {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.18);
-  color: white;
+  background: var(--accent-light);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,13 +72,13 @@
 .bannerTitle {
   font-size: var(--text-md);
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
   font-family: var(--font-sans);
 }
 
 .bannerDesc {
   font-size: var(--text-sm);
-  color: rgba(255,255,255,0.75);
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 

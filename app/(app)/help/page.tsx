@@ -62,7 +62,14 @@ export default function HelpPage() {
             </span>
             <div>
               <p className={styles.bannerTitle}>Besoin d’aide personnalisée ?</p>
-              <p className={styles.bannerDesc}>Notre équipe répond sous 24h</p>
+              {/* Aucun délai annoncé, comme sur /contact et /tarifs : il n'y a
+                  ni système de tickets, ni file d'attente, ni tri par forfait
+                  — rien qui permette de tenir une promesse de délai. Cette
+                  ligne promettait « sous 24h » et avait échappé à la passe
+                  d'honnêteté du contenu pour une raison bête : elle était
+                  écrite en BLANC SUR FOND BLANC (voir help.module.css), donc
+                  invisible et jamais relue. */}
+              <p className={styles.bannerDesc}>Une personne lit chaque message</p>
             </div>
           </div>
           <a href={`mailto:${BRAND_EMAIL}`} className={styles.bannerBtn}>
