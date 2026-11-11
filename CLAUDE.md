@@ -855,12 +855,63 @@ est en cause — `app/auth/callback` n'envoie JAMAIS vers `/`, uniquement vers
 `/dashboard` ou `/auth/callback/client`. Atterrir sur l'accueil prouve donc
 que le callback n'a pas été atteint du tout.
 
-## Tester le rendu TÉLÉPHONE — `public/banc-mobile.html`
+## Tester le rendu TÉLÉPHONE — Playwright, puis `public/banc-mobile.html`
 
-Le mobile est resté invérifiable pendant tout le développement, et la raison
-était bête : la fenêtre de Chrome pilotée à distance est **maximisée et
-refuse de se redimensionner**. Chaque passe se concluait par « je n'ai pas pu
-le voir ».
+**La bonne méthode est désormais Playwright**, qui ouvre un vrai viewport de
+téléphone (`isMobile`, `hasTouch`, `deviceScaleFactor`, user-agent mobile) —
+ce que ni la fenêtre pilotée à distance ni l'iframe ne savent faire
+complètement. Le navigateur empaqueté n'est pas téléchargé ici : lancer avec
+**`channel: 'chrome'`**, qui prend le Chrome du système.
+
+Quatre règles tirées de la première passe réellement menée au téléphone, qui
+a trouvé des défauts que toutes les passes précédentes avaient manqués :
+
+**1. La sonde de débordement est AVEUGLE là où ça casse le plus.** Elle exclut
+les descendants d'un conteneur en `overflow-x: auto/scroll` — c'est
+indispensable (sinon les barres d'onglets volontaires de `/settings` et
+`/tasks` remontent en faux positifs), mais ça rend invisible **tout** ce qui
+vit sous ces barres. `/tasks` était totalement inutilisable au téléphone
+— titres de tâches, champ de recherche et bouton « Nouvelle tâche » hors
+écran — avec **zéro débordement signalé**. C'est la capture d'écran qui l'a
+montré. Mesurer ET regarder, jamais l'un sans l'autre.
+
+**2. Dans l'espace connecté, `<html>` ne défile JAMAIS.** Le conteneur de
+défilement est `<main>` (`.content`, components/layout/AppLayout.module.css).
+Donc `document.documentElement.scrollHeight` vaut toujours la hauteur de
+l'écran, et une capture `fullPage` de Playwright ne rend que le PREMIER
+écran — en laissant croire que toute la page y tient. Il faut piloter
+`document.querySelector('main').scrollTop` et capturer écran par écran.
+
+**3. Une mise en page de bureau à hauteur fixe s'effondre au téléphone.**
+Deux cas trouvés, même cause : un conteneur en `height: 100%` +
+`overflow: hidden` dont un enfant élastique absorbe toute la compression.
+Sur `/dashboard`, il restait **68 px pour les trois cartes** et la première
+était peinte sur 12 px pendant que son contenu en faisait 199. Dans le
+lecteur d'email, le corps du message tombait à **48 px pour 350 px de texte**
+pendant que le panneau de réponse IA en occupait **506**. Au téléphone, ces
+pages doivent défiler d'un seul tenant.
+
+**4. Un écran tactile n'a ni survol ni glisser-déposer HTML5.** Un contrôle
+en `opacity: 0` révélé par `:hover` n'apparaît jamais (le bouton Supprimer de
+`/tasks` : une tâche ne pouvait pas être supprimée depuis un téléphone), et
+les événements `dragstart`/`drop` ne sont émis par aucun toucher, ni iOS ni
+Android (la poignée de réordonnancement promettait un geste impossible).
+Chercher `:hover` et `draggable` à chaque passe mobile.
+
+⚠️ **Et le défaut le plus instructif n'était pas une mise en page.** Le
+bandeau de `/help` portait du texte **blanc en dur sur un fond devenu blanc** :
+invisible, donc jamais relu — et il annonçait « Notre équipe répond sous 24h »,
+une promesse de délai retirée partout ailleurs du site (voir la section sur le
+délai de réponse). Du texte invisible échappe à la règle d'honnêteté du contenu
+par construction : **une correction de contraste peut révéler une fausse
+affirmation**, et c'est l'occasion de la relire.
+
+---
+
+L'ancien banc en iframe reste utilisable pour un coup d'œil rapide sans
+Playwright. Le mobile était auparavant invérifiable pour une raison bête :
+la fenêtre de Chrome pilotée à distance est **maximisée et refuse de se
+redimensionner**. Chaque passe se concluait par « je n'ai pas pu le voir ».
 
 Une **iframe a son propre viewport** : les media queries s'y déclenchent pour
 de vrai. `public/banc-mobile.html` charge donc n'importe quelle page du site
