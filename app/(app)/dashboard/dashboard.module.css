@@ -214,6 +214,23 @@
 
 @media (max-width: 768px) {
   .cols { grid-template-columns: 1fr; }
+
+  /* ⚠️ Au téléphone, le tableau de bord doit DÉFILER comme une page normale.
+     `.page` est en `height: 100%` + `overflow: hidden` : un parti pris de
+     grand écran, où les trois colonnes tiennent côte à côte et ne font
+     défiler que leur propre liste. Empilées sur un écran de 390 px, les
+     salutations, la bande de statistiques et l'encart IA consomment toute
+     la hauteur — il restait **68 px pour les trois cartes réunies**, et la
+     coque de la première était peinte sur 12 px pendant que son contenu
+     (199 px) débordait dans le vide. Mesuré, pas supposé.
+
+     `.content` (components/layout/AppLayout.module.css) est déjà en
+     `overflow-y: auto` : il suffit que la page cesse de se brider à la
+     hauteur de l'écran pour que le défilement reprenne naturellement. */
+  .page {
+    height: auto;
+    overflow: visible;
+  }
 }
 /* Action proposée à la place du sous-titre quand le chiffre est à zéro mais
    que la boîte, elle, ne l'est pas. Un « 0 » sec laisse croire qu'il n'y a
