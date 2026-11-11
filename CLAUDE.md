@@ -875,6 +875,14 @@ vit sous ces barres. `/tasks` était totalement inutilisable au téléphone
 écran — avec **zéro débordement signalé**. C'est la capture d'écran qui l'a
 montré. Mesurer ET regarder, jamais l'un sans l'autre.
 
+⚠️ **Et elle a un second angle mort : elle compare au VIEWPORT, pas au
+parent.** Un élément peut déborder de sa carte sans jamais toucher le bord de
+l'écran — rien ne le signale alors, alors que ça se voit immédiatement à
+l'œil. Cas réel : les groupes Ton et Langue du panneau de réponse sortaient
+du panneau de **5 px à 390** et de **35 px à 360**, bord droit à 328 px sur
+un écran de 390. Zéro débordement signalé. Quand un bloc a un cadre visible
+(carte, panneau, encadré), le mesurer **contre son parent**.
+
 **2. Dans l'espace connecté, `<html>` ne défile JAMAIS.** Le conteneur de
 défilement est `<main>` (`.content`, components/layout/AppLayout.module.css).
 Donc `document.documentElement.scrollHeight` vaut toujours la hauteur de

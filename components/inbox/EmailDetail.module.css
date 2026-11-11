@@ -337,6 +337,17 @@
   flex-wrap: wrap;
 }
 
+/* Un libelle et son groupe de boutons forment UN bloc insecable. Les quatre
+   enfants de `.toneRow` (Ton, ses boutons, Langue, ses boutons) y flottaient
+   a plat : au premier retour a la ligne, « Langue » restait accroche a la
+   fin de la ligne precedente et son reglage descendait sans lui. */
+.toneGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 .toneRowLabel {
   font-size: var(--text-sm);
   color: var(--text-muted);
@@ -596,4 +607,51 @@
   .header { padding: 16px; }
   .body { padding: 16px; }
   .actions { padding: 10px 16px; }
+
+  /* ⚠️ Les groupes Ton et Langue DEBORDAIENT du panneau de reponse.
+     `.toneSegmented` est une pile flex dont les boutons sont a leur largeur
+     naturelle : le groupe ne peut pas descendre sous la somme des trois, et
+     rien ne l'y autorisait (ni `min-width: 0`, ni retour a la ligne). Mesure
+     dans le panneau :
+
+         390 px : ligne de 255 px, groupe « Ton » de 260  ->  5 px dehors
+         360 px : ligne de 225 px, groupe « Ton » de 260  -> 35 px dehors
+
+     Invisible pour la sonde de debordement, et c'est un angle mort a retenir :
+     elle compare au VIEWPORT, or ce groupe sortait de sa CARTE en restant
+     dans l'ecran (bord droit a 328 px sur 390). Un element peut deborder de
+     son parent sans jamais toucher le bord de l'ecran.
+
+     Chaque groupe prend donc toute la largeur, son libelle passe au-dessus,
+     et les boutons se repartissent la ligne. `flex: 1 1 auto` et non
+     `1 1 0` : a largeurs egales, « Professionnel » (77 px de texte) ne
+     tiendrait pas dans son tiers (~71 px a 360). Les boutons gardent donc
+     leur largeur relative, et `flex-wrap` sert de filet — si ca ne tient
+     toujours pas sur un ecran plus etroit, ca passe a la ligne au lieu de
+     sortir de la carte. */
+  .toneRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  /* Le libelle passe AU-DESSUS de son groupe : cote a cote, il mangeait
+     40 px sur une ligne qui en manque deja. */
+  .toneGroup {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .toneSegmented {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 1px;
+    padding: 1px;
+  }
+  .toneSegBtn {
+    flex: 1 1 auto;
+    padding: 7px 5px;
+  }
+  /* `margin-left: auto` poussait la case a droite d'une ligne partagee ;
+     en colonne, elle doit repartir du bord. */
+  .rememberContact { margin-left: 0; }
 }

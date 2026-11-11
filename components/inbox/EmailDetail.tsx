@@ -490,31 +490,40 @@ export default function EmailDetail({ email, onClose, onArchive }: { email: Emai
           </div>
 
           <div className={styles.toneRow}>
-            <span className={styles.toneRowLabel}>Ton</span>
-            <div className={styles.toneSegmented}>
-              {TONES.map(t => (
-                <button
-                  key={t}
-                  className={`${styles.toneSegBtn} ${selectedTone === t ? styles.toneSegActive : ''}`}
-                  onClick={() => setSelectedTone(t)}
-                  type="button"
-                >
-                  {TONE_LABEL[t]}
-                </button>
-              ))}
+            {/* Chaque libelle est SOLIDAIRE de son groupe de boutons, dans un
+                .toneGroup. Sans cet enrobage, .toneRow revenait a la ligne
+                entre deux enfants quelconques : « Langue » restait seul en
+                bout de premiere ligne pendant que ses trois boutons
+                passaient dessous, un libelle separe du reglage qu'il nomme. */}
+            <div className={styles.toneGroup}>
+              <span className={styles.toneRowLabel}>Ton</span>
+              <div className={styles.toneSegmented}>
+                {TONES.map(t => (
+                  <button
+                    key={t}
+                    className={`${styles.toneSegBtn} ${selectedTone === t ? styles.toneSegActive : ''}`}
+                    onClick={() => setSelectedTone(t)}
+                    type="button"
+                  >
+                    {TONE_LABEL[t]}
+                  </button>
+                ))}
+              </div>
             </div>
-            <span className={styles.toneRowLabel}>Langue</span>
-            <div className={styles.toneSegmented}>
-              {REPLY_LANGUAGES.map(l => (
-                <button
-                  key={l}
-                  className={`${styles.toneSegBtn} ${selectedLanguage === l ? styles.toneSegActive : ''}`}
-                  onClick={() => setSelectedLanguage(l)}
-                  type="button"
-                >
-                  {REPLY_LANGUAGE_LABEL[l]}
-                </button>
-              ))}
+            <div className={styles.toneGroup}>
+              <span className={styles.toneRowLabel}>Langue</span>
+              <div className={styles.toneSegmented}>
+                {REPLY_LANGUAGES.map(l => (
+                  <button
+                    key={l}
+                    className={`${styles.toneSegBtn} ${selectedLanguage === l ? styles.toneSegActive : ''}`}
+                    onClick={() => setSelectedLanguage(l)}
+                    type="button"
+                  >
+                    {REPLY_LANGUAGE_LABEL[l]}
+                  </button>
+                ))}
+              </div>
             </div>
             <label className={styles.rememberContact}>
               <input
