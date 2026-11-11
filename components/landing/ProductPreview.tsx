@@ -52,7 +52,14 @@ export default function ProductPreview() {
               <p className={styles.preview}>Peut-on caler la réunion demain à 14 h ?</p>
               <p className={styles.summary}>
                 <span className={styles.summaryTag}>Résumé</span>
-                Demande de rendez-vous, à confirmer aujourd’hui.
+                {/* Le texte DOIT porter son propre élément : `.summary` est un
+                    conteneur flex, et `text-overflow: ellipsis` ne s'applique
+                    pas à un conteneur flex — le texte y était un élément flex
+                    anonyme, coupé au milieu d'une lettre et sans points de
+                    suspension. C'est sur CE span que la troncature opère. */}
+                <span className={styles.summaryTexte}>
+                  Demande de rendez-vous, à confirmer aujourd’hui.
+                </span>
               </p>
             </div>
             <span className={styles.label}>Important</span>

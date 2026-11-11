@@ -47,10 +47,19 @@
 /* Filet dégradé posé en background-image (padding-box + border-box) plutôt
    qu'en border-image : ce dernier ignore border-radius, et le cadre
    ressortirait à angles droits sur une fenêtre à 20 px de rayon. */
+/* ⚠️ `text-align: left` est OBLIGATOIRE ici. `.heroSection` centre tout son
+   texte (app/page.module.css), et ce centrage descendait jusque dans la
+   maquette : les noms d'expéditeurs et les titres de rendez-vous flottaient
+   au milieu de leur colonne au lieu de s'aligner sur la ligne d'objet juste
+   en dessous. Aucune boîte mail ne centre ses expéditeurs — ça se voyait
+   surtout au téléphone, où la colonne est étroite et le décalage énorme.
+   Le titre de la fenêtre garde son propre `text-align: center`
+   (`.titlebarLabel`), il n'est donc pas emporté par cette règle. */
 .window {
   position: relative;
   width: 100%;
   max-width: 560px;
+  text-align: left;
   border: 1px solid transparent;
   border-radius: var(--mk-radius-xl);
   background:
@@ -338,6 +347,12 @@
 }
 
 /* 3 · le résumé d'une ligne (2,8 → 3,6 s) */
+/* ⚠️ `text-overflow: ellipsis` est INOPÉRANT sur un conteneur flex. La
+   troncature se pose donc sur `.summaryTexte`, l'enfant qui porte vraiment
+   le texte — sans lui, la phrase était coupée au milieu d'une lettre, sans
+   points de suspension, alors que la ligne juste au-dessus (`.preview`, un
+   bloc ordinaire) se tronquait proprement. Le défaut ne se voyait qu'au
+   téléphone, là où la colonne devient trop étroite pour la phrase. */
 .summary {
   display: flex;
   align-items: baseline;
@@ -347,8 +362,12 @@
   color: var(--mk-ink-2);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   animation: apparitionResume 9s var(--ease) infinite both;
+}
+.summaryTexte {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @keyframes apparitionResume {
   0%, 30%   { opacity: 0; transform: translateY(-4px); }
