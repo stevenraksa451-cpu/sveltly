@@ -347,6 +347,144 @@
   .rightCol { display: none; }
 }
 
+/* ⚠️ Il n'y avait AUCUN palier téléphone ici. En dessous de 1200 px la grille
+   restait figée sur `200px 1fr` jusqu'à 320 px d'écran : 200 px de navigation
+   plus une colonne dont le `1fr` ne peut pas descendre sous sa largeur
+   min-content (`1fr` ≡ `minmax(auto, 1fr)`, le piège documenté dans
+   CLAUDE.md). Résultat au téléphone : le bouton « Nouvelle tâche », le champ
+   de recherche, les étiquettes de catégorie et le TITRE DE CHAQUE TÂCHE
+   sortaient de l'écran. La page était inutilisable.
+
+   Et la sonde de débordement ne pouvait pas le voir : la barre de catégories
+   de cette page est un défilement horizontal volontaire, donc tout ce qui
+   vit dessous est exclu de la sonde. C'est la capture d'écran qui l'a montré,
+   pas la mesure — les deux sont nécessaires. */
+@media (max-width: 768px) {
+  /* minmax(0, …) et non 1fr : retire le plancher min-content. */
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  /* La navigation passe en barre d'onglets qui défile, comme celle des
+     Réglages. Empilée verticalement, elle aurait poussé les tâches
+     elles-mêmes sous la ligne de flottaison. */
+  .sideCol { gap: 12px; }
+  .sideNav,
+  .categoriesBlock {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+  .sideNav::-webkit-scrollbar,
+  .categoriesBlock::-webkit-scrollbar { display: none; }
+  .sideItem,
+  .categoryItem {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  /* `margin-left: auto` poussait le compteur au bout d'une ligne pleine
+     largeur ; en ligne, il doit rester collé à son libellé. */
+  .sideCount { margin-left: 0; }
+  .categoriesTitle { display: none; }
+
+  /* La ligne de tâche passe sur DEUX lignes : le titre d'abord, ses
+     métadonnées dessous. Toutes les pastilles sont en `flex-shrink: 0`, donc
+     sur une seule ligne c'est `.rowContent` — le TITRE, la seule chose qui
+     compte — qui encaissait toute la compression : il restait ~70 px, et les
+     tâches s'affichaient « Rela… », « Répon… », « Rése… ». Sur les lignes
+     portant une catégorie ET une priorité ET une date, le titre disparaissait
+     complètement. */
+  /* La case à cocher sort du flux et se cale en absolu ; le titre peut alors
+     prendre `flex-basis: 100%` et renvoyer les pastilles à la ligne, à
+     TOUTES les largeurs.
+
+     Deux tentatives par le calcul ont échoué avant celle-ci — `60%`, puis
+     `calc(100% - 30px)`. Les deux marchaient à 390 px et retombaient en
+     défaut à 360 : la largeur réellement disponible dépend des gouttières
+     de `.content`, de celles de la carte de groupe et de celles de la ligne,
+     qui ne bougent pas ensemble. Compter les pixels d'une ligne flex depuis
+     une feuille de style, c'est parier sur une somme qu'on ne contrôle pas
+     entièrement. Ici, plus aucune somme à faire. */
+  .row {
+    position: relative;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 10px;
+  }
+  .checkbox {
+    position: absolute;
+    left: 16px;
+    top: 13px;
+  }
+  /* ⚠️ La poignée de glisser-déposer disparaît au téléphone, et ce n'est pas
+     pour gagner de la place. Le réordonnancement repose sur le glisser-déposer
+     HTML5 (`draggable` + `onDragStart`/`onDrop`, app/(app)/tasks/page.tsx) :
+     ces événements ne sont JAMAIS émis à partir d'un toucher, ni sur iOS ni
+     sur Android. La poignée annonçait donc une interaction impossible — le
+     défaut décrit dans CLAUDE.md à propos des réglages qui promettent ce que
+     le code ne fait pas, transposé à un geste. */
+  .dragHandle { display: none; }
+
+  .rowContent {
+    /* Toute la ligne : les pastilles passent donc TOUJOURS au-dessous, quelle
+       que soit la longueur du titre. Avec une base partielle, un titre court
+       laissait remonter une pastille à côté de lui, et deux lignes voisines
+       n'avaient pas la même forme — ça se lit comme un défaut, pas comme une
+       hiérarchie. */
+    flex: 1 1 100%;
+    /* Seul le TITRE est décalé sous la case à cocher. Décaler la ligne
+       entière (padding-left sur `.row`) coûtait 29 px à la ligne de
+       métadonnées, qui en manquait justement : le « × » partait à la ligne
+       dès qu'une date s'écrivait « Aujourd’hui » au lieu de « 10 nov. ».
+       Les pastilles repartent donc de la gouttière, où la place est. */
+    padding-left: 29px; /* 19 (case) + 10 (écart) */
+  }
+  .rowTitle {
+    white-space: normal;
+    /* deux lignes au maximum : assez pour un intitulé de tâche réel, sans
+       qu'une tâche bavarde pousse les suivantes hors de l'écran. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.35;
+  }
+  .dueLabel {
+    /* `width: 56px` servait à aligner les dates en colonne sur grand écran ;
+       sur la ligne de métadonnées d'un téléphone, cette largeur figée ne
+       cale plus rien et ne fait que prendre de la place. */
+    width: auto;
+    text-align: left;
+    margin-left: auto;
+    /* La date est le SEUL élément de la ligne autorisé à se comprimer. Tous
+       les autres sont en `flex-shrink: 0` : sans cette exception, une
+       étiquette longue (« Aujourd’hui » plutôt que « 10 nov. ») faisait
+       dépasser la ligne de quelques pixels et expédiait le bouton de
+       suppression seul sur une troisième ligne — un « × » orphelin, qui se
+       lit comme un bug. Elle se tronque maintenant au lieu de tout décaler. */
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* La ligne de métadonnées (catégorie + priorité + date + modifier +
+     supprimer) dépassait de quelques pixels à 360 px, et le « × » partait
+     seul sur une troisième ligne — ce qui se lit comme un bug. Un écart et
+     des pastilles un peu plus serrés suffisent à la faire tenir. */
+  .row { column-gap: 8px; }
+  .categoryPill,
+  .priorityPill { padding: 3px 8px; }
+
+  /* ⚠️ Un écran tactile n'a PAS de survol. `.deleteBtn` est en `opacity: 0`
+     et n'est révélé que par `.row:hover` : au téléphone, le bouton de
+     suppression n'apparaissait donc jamais, tout en occupant sa place. Une
+     tâche ne pouvait tout simplement pas être supprimée depuis un téléphone. */
+  .deleteBtn { opacity: 1; }
+}
+
 /* --- Ajouts pour recherche, édition inline et glisser-déposer --- */
 
 .searchWrap {
