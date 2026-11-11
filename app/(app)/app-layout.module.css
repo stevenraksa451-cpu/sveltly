@@ -2,7 +2,11 @@
 
 .layout {
   display: flex;
+  /* 100dvh : voir le commentaire de .sidebar (Sidebar.module.css). Sur un
+     telephone, 100vh deborde sous les barres du navigateur, et tout ce qui
+     est pose en bas d'un cadre a hauteur fixe devient inatteignable. */
   height: 100vh;
+  height: 100dvh;
 }
 
 .main {
@@ -16,6 +20,7 @@
      <body> — ce qui permet à une page comme /dashboard de dimensionner
      son propre contenu en height: 100% et de n'avoir aucun scroll du tout. */
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   transition: margin-left 0.2s ease;
   position: relative;

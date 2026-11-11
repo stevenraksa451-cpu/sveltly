@@ -8,7 +8,10 @@
    résultat : aucun sticky descendant (header, sommaire) ne s'accroche
    jamais. En scrollant .page elle-même, le sticky redevient fiable. */
 .page {
+  /* `dvh` : cette page est son propre conteneur de défilement, donc avec
+     `vh` son bas passait sous les barres du navigateur au téléphone. */
   height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
   scroll-behavior: smooth;
   background: var(--bg);

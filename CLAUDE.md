@@ -863,7 +863,7 @@ ce que ni la fenêtre pilotée à distance ni l'iframe ne savent faire
 complètement. Le navigateur empaqueté n'est pas téléchargé ici : lancer avec
 **`channel: 'chrome'`**, qui prend le Chrome du système.
 
-Quatre règles tirées de la première passe réellement menée au téléphone, qui
+Cinq règles tirées de la première passe réellement menée au téléphone, qui
 a trouvé des défauts que toutes les passes précédentes avaient manqués :
 
 **1. La sonde de débordement est AVEUGLE là où ça casse le plus.** Elle exclut
@@ -898,6 +898,32 @@ Sur `/dashboard`, il restait **68 px pour les trois cartes** et la première
 lecteur d'email, le corps du message tombait à **48 px pour 350 px de texte**
 pendant que le panneau de réponse IA en occupait **506**. Au téléphone, ces
 pages doivent défiler d'un seul tenant.
+
+**5. `100vh` ment sur un téléphone — utiliser `100dvh`.** `100vh` vaut la
+hauteur de l'écran **sans** les barres du navigateur : c'est voulu par la
+spécification (pour qu'une page ne se redimensionne pas pendant qu'on la fait
+défiler), mais ça rend une boîte à hauteur fixe **plus haute que ce qu'on
+voit**. Tout ce qui est posé en bas d'une telle boîte tombe sous la barre du
+bas. Cas réel : la carte de profil et le bouton **Se déconnecter**, en pied de
+la barre latérale (`position: fixed`, `height: 100vh`), étaient inatteignables
+au téléphone. Cinq endroits corrigés — barre latérale, cadre de l'app,
+`<main>`, boîte de réception, pages légales — en gardant `100vh` sur la ligne
+précédente comme repli.
+
+⚠️ **`env(safe-area-inset-*)` vaut ZÉRO ici**, et c'est délibéré : il faut
+`viewport-fit=cover` dans le `<meta viewport>` pour qu'il rende autre chose.
+Sans `cover`, le navigateur garde déjà la page à l'écart de l'indicateur
+d'accueil ; avec, la page passerait **dessous** et il faudrait des marges de
+sécurité partout, en haut comme sur les côtés en paysage. La règle qui existe
+dans `MobileMenu.module.css` est donc inerte aujourd'hui — ne pas la lire
+comme une protection en place.
+
+⚠️ **Le minificateur pourrait supprimer la seconde déclaration** comme un
+doublon, et emporter `dvh` sans rien dire. Vérifié dans le CSS livré après
+build : `.app-layout_layout__…,.app-layout_main__…{display:flex;height:100vh;height:100dvh}`
+— les deux survivent, et les règles identiques sont fusionnées en une liste
+de sélecteurs (ce qui fait qu'une recherche naïve ne trouve que le DERNIER
+sélecteur de la liste).
 
 **4. Un écran tactile n'a ni survol ni glisser-déposer HTML5.** Un contrôle
 en `opacity: 0` révélé par `:hover` n'apparaît jamais (le bouton Supprimer de

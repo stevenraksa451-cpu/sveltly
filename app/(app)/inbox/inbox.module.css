@@ -3,6 +3,7 @@
   grid-template-columns: 340px 1fr 300px;
   gap: 16px;
   height: calc(100vh - var(--header-height) - 100px);
+  height: calc(100dvh - var(--header-height) - 100px);
 }
 
 .listCol {
@@ -125,8 +126,11 @@
   .layout {
     grid-template-columns: minmax(0, 1fr);
     /* La hauteur reste celle de l'écran : chaque vue défile pour elle-même,
-       sinon la liste et le lecteur s'empilent sur une page de 3 000 px. */
+       sinon la liste et le lecteur s'empilent sur une page de 3 000 px.
+       `dvh` et non `vh` : au téléphone, `vh` passe sous les barres du
+       navigateur et le bas de la liste devient inatteignable. */
     height: calc(100vh - var(--header-height));
+    height: calc(100dvh - var(--header-height));
   }
 
   .listCol { border-right: none; }

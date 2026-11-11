@@ -1,6 +1,22 @@
 .sidebar {
   width: var(--sidebar-width, 240px);
+  /* ⚠️ `100dvh`, PAS `100vh`, et les deux lignes comptent : la premiere est
+     le repli pour un navigateur qui ne connait pas l'unite dynamique.
+
+     Sur un telephone, `100vh` vaut la hauteur de l'ecran SANS les barres du
+     navigateur — c'est volontaire dans la specification, pour que la page ne
+     se redimensionne pas pendant qu'on fait defiler. Mais cette barre
+     laterale est en `position: fixed` et pose son pied de page tout en bas
+     de sa boite : avec `100vh`, ce pied atterrit sous la barre du bas du
+     navigateur. La photo de profil et le bouton Se deconnecter qu'elle
+     ouvre devenaient inatteignables au telephone.
+
+     `100dvh` suit la hauteur REELLEMENT visible. Le defilement interne de
+     l'application ne masque jamais les barres (c'est `.content` qui defile,
+     pas le document), donc la valeur ne bouge pas en cours de route : on a
+     le benefice sans le reflow qu'on reproche d'habitude a `dvh`. */
   height: 100vh;
+  height: 100dvh;
   /* Legerement plus sombre que le contenu, et non blanche comme lui : c'est
      ce qui donne au cadre une profondeur sans avoir besoin d'une ombre. */
   background: var(--bg-subtle);
@@ -135,6 +151,22 @@
 .profileWrap {
   position: relative;
   margin: 10px;
+  /* Garde-fou sur l'indicateur d'accueil (la barre tactile des telephones
+     sans bouton).
+
+     ⚠️ `env(safe-area-inset-*)` vaut ZERO tant que le <meta viewport> ne
+     porte pas `viewport-fit=cover` — ce qui est le cas ici, et DELIBEREMENT.
+     Sans `cover`, le navigateur garde deja la page a l'ecart de la zone de
+     l'indicateur ; avec `cover`, la page passerait DESSOUS et il faudrait
+     alors rajouter des marges de securite partout, en haut comme sur les
+     cotes en paysage. On ne gagne rien a ouvrir cette porte pour un defaut
+     que `100dvh` suffit a corriger.
+
+     La ligne reste, avec son repli `0px` : elle ne coute rien aujourd'hui
+     et sera juste le jour ou `cover` deviendra necessaire. La meme regle
+     existe deja dans MobileMenu.module.css, et y est inerte pour la meme
+     raison. */
+  margin-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 .collapsed .profileWrap {
   margin-left: 6px;
